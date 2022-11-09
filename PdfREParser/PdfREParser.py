@@ -1,9 +1,21 @@
 
 
+from functools import partial
 import json
+from msilib.schema import BBControl
 from telnetlib import WONT
 
 import base64
+import zlib 
+
+####### Paramters
+#Flag to process stream filters
+unfilterStreamFlag = "Y"
+inputFile = "IF107-guide.pdf"
+#inputFile = "simple-pdf.pdf"
+outputFile = 'form-example.content.json'
+####################
+
 
 OBJ = "obj"
 BB = "<<"
@@ -14,6 +26,7 @@ ENDOBJ = "endobj"
 EMPTY = "empty"
 PDF_FIRSTLINE = "pdf-firstline"
 OBJ_META = "obj-meta"
+OBJ_META_CONT = "obj-meta-cont"
 OBJ_STREAM = "obj-stream"
 STREAM_START = "stream-start"
 STREAM_END = "stream-end"
@@ -32,6 +45,13 @@ class JDoc:
 
     def determineLineType(self, currentLine, lastLine, lastLineType, lastObj, lastMetaObj):
         
+        if(currentLine.find(ENDSTREAM) >= 0):
+            print('found u')
+
+        #remove any extraneous LF or CR
+        currentLine = currentLine.replace('\n','')
+        currentLine = currentLine.replace('\r','')
+
         #determine if the last line type give authoritative hint on current line type
         hint = ""
         authoritative = False
@@ -44,6 +64,11 @@ class JDoc:
                 hint = OBJ_META
             case "obj-meta":
                 pass
+            case "obj-meta-cont":
+                hint = OBJ_META
+            case "stream-start":
+                hint = OBJ_STREAM
+                authoritative = True
             case _: 
                 hint = UNKOWN
 
@@ -68,7 +93,11 @@ class JDoc:
     #OBJ META LINE RULES
         bbIndex = currentLine.find(BB)
         if (bbIndex == 0 and hint == OBJ_META):
-            return OBJ_META
+            if(self.isMetaLineComplete(currentLine)):
+                return OBJ_META
+            else:
+                return OBJ_META_CONT
+
 
     #STREAM END RULES
         if(currentLine.strip() == ENDSTREAM):
@@ -83,7 +112,17 @@ class JDoc:
         if(currentLine.strip() == STREAM):
             return STREAM_START
 
+
+    #LINE CONTINUATION RULES
+        if(currentLine.replace('\n', '').replace('\r','').isprintable()):
+            lltLen = len(lastLineType)
+            if(lltLen > 4 and lastLineType[lltLen-5:lltLen] == "-cont" ):
+                return lastLineType
+            else:
+                return lastLineType + "-cont"
+
         return "error"
+
     def processFirstLine(self, currentLine):
         self.pdfVersion = currentLine[1:8]
     def processStartObjLine(self, currentLine):
@@ -111,6 +150,14 @@ class JDoc:
         currentObj.meta = metaObj   
         
         return metaObj
+    def isMetaLineComplete(self, currentLine):
+        bbCount = currentLine.count(BB)
+        ffCount = currentLine.count(FF)
+
+        if(bbCount == ffCount):
+            return True
+        else:
+            return False
 
     def parseMetaObject(self, metaLine, sanityCheck):
         
@@ -181,6 +228,7 @@ class JDoc:
                 prop = propBuilder + " " + prop
 
             #special prop rules - eventually should externalize these
+            #TODO: add more prop rules where they make sense.  Type=Filter for example
             if(prop.strip() == "Type" 
                or prop.strip() == "Filter"):
                 propRuleInEffect = "BuildRule"
@@ -194,10 +242,11 @@ class JDoc:
         return newMetaObj
 
     def findEndOfObject(self, metaLine):
+        #returns most senior (outer) object end location
         testFF = -1
         endOfObjIndex = -1
         level = 0
-        
+
         for i in range(0, len(metaLine)):
             
             #don't allow for two subsequent reads in case two FF's are right next to each other ">>>>". This gives a false positive on middle >>
@@ -227,6 +276,7 @@ class JDoc:
 
 
         return endOfObjIndex
+
 
 class JObj:
     def __init__(meo, id):
@@ -264,33 +314,84 @@ class JObj:
         newVal = ""
         
         if(isinstance(value, str) and len(value) > 0):
-            #remove FF
+            #remove LF
             newVal = value.replace("\n", "")
+
+            #remove FF and BB
+            newVal = newVal.replace(BB,"")
+            newVal = newVal.replace(FF,"")
         else:
             #don't change value if it's not a valid string
             #print("Could not set value because it's not a string")
             return value
 
         return newVal
-
+    def deflateBuffer(self, buffer):
+        deflatedBuffer = None
+        deflatedBuffer = zlib.decompress(buffer)
         
+        return deflatedBuffer
+    def processStream(self, buffer):
+        unfilteredStream = None
+        metaObj = self.meta
+        encoding = "none"
+
+        if(hasattr(metaObj, "Filter") and metaObj.Filter == "FlateDecode"):
+            
+            try:
+                uBuffer = self.deflateBuffer(buffer)
+                #TODO: i don't like how I wrote this section in nested try/catch. will want to add more decoders later on
+                try:
+                    #try UTF-8. This may need to change or be configurable
+                    unicodeLine = uBuffer.decode(encoding="UTF-8", errors="strict")
+                    if(unicodeLine.isprintable()):
+                        unfilteredStream = unicodeLine
+                    else:
+                        raise Exception('UTF8 Not Printable')
+                    encoding="UTF-8"
+                except Exception as inst:
+                    print("decoding failed:  Obj ID " + self.id)
+                    print(inst)
+                    try:
+                        #try ASCII. This may need to change or be configurable
+                        asciiLine = uBuffer.decode(encoding="ascii", errors="surrogateescape")
+                        if(asciiLine.isprintable()):
+                            unfilteredStream = asciiLine
+                        else:
+                            raise Exception('ASCII Not Printable... giving up on decoding')
+                        encoding="ascii"
+                    except Exception as inst:
+                        print("decoding failed:  Obj ID " + self.id)
+                        print(inst)
+                    
+            except Exception as inst:
+                print("Error occurred during decompression:  Obj ID " + self.id)
+                print(inst)
+            
+
+        self.unfilteredStream = unfilteredStream
+        self.derivedStreamEncoding = encoding
+        return unfilteredStream
+    
+    def update(self, obj):
+        self.__dict__.update(obj.__dict__.items())      
    
 
 myDoc = JDoc("default")
 myDoc.objs = []
 
-#with open('IF107-guide.pdf', 'rb', encoding="ascii", errors="surrogateescape") as tr:
-with open('IF107-guide.pdf', 'rb') as tr:
+
+with open(inputFile, 'rb') as tr:
     testBuff = tr.read()
 tr.close()
 
-#with open('form-example.content.txt', 'w', encoding="ascii", errors="surrogateescape") as tw:
+
 with open('form-example.content.txt', 'wb') as tw:
     tw.write(testBuff)
 tr.close()
 
-#with open('IF107-guide.pdf','rb', encoding="ascii", errors="surrogateescape" ) as f:
-with open('IF107-guide.pdf','rb' ) as f:
+
+with open(inputFile,'rb' ) as f:
     streamPersist = None
     #N
     currentObj= None
@@ -300,6 +401,7 @@ with open('IF107-guide.pdf','rb' ) as f:
     prevObj = None
     #object that is in queue to have its stream populated
     streamObj = None
+    isContinuation = False
     for rawline in f:
 
         #since reading in binary, need to account for carriage returns
@@ -308,15 +410,18 @@ with open('IF107-guide.pdf','rb' ) as f:
         containsStreamStart = False
         containsStreamEnd = False
         containsStreamContent = False
-
+        
         for line in crLines:
             #skip \n newlines
             if(line == "\n"):
                 continue
 
             currentLine = str(line)
+            if(isContinuation):
+                currentLine = lastLine + currentLine
+
             lineType = myDoc.determineLineType(currentLine, lastLine, lastLineType, lastObj, lastMetaObj)
-        
+
             match lineType:
                 case "obj":
                     currentObj = myDoc.processStartObjLine(currentLine)
@@ -328,15 +433,17 @@ with open('IF107-guide.pdf','rb' ) as f:
                     if(currentMetaObj.hasStream):
                         containsStreamStart = True
                     lastMetaObj = currentMetaObj
+                    isContinuation = False
+                case "obj-meta-cont":
+                    isContinuation = True            
                 case "pdf-firstline":
                     myDoc.processFirstLine(currentLine)
                 case "obj-stream":
                     #if stream processing detected, break since string processing not necessary
                     containsStreamContent = True
-                    #stream content always ends on \r\n so do not need to iterate thru cr's
-                    break
                 case "stream-start":
                     containsStreamStart = True
+                    currentMetaObj.hasStream = True
                 case "stream-end":
                     #flip this so stream is only processed once
                     lastMetaObj.hasStream = False
@@ -349,7 +456,7 @@ with open('IF107-guide.pdf','rb' ) as f:
         #rawline processing
         if(containsStreamContent):
             #if stream processing detected, break since string processing not necessary
-            print("processing stream data")
+            
             if(streamPersist == None):
                 streamPersist = rawline
             else:
@@ -358,20 +465,18 @@ with open('IF107-guide.pdf','rb' ) as f:
         if(containsStreamEnd):
             streamBuffer = streamPersist[0: len(streamPersist)-2]
             streamObj.stream =  base64.b64encode(streamBuffer).decode(encoding="ascii", errors="strict")
+            if(unfilterStreamFlag=="Y"):
+                streamObj.processStream(streamBuffer)
+
             streamPersist = None
 
         if(containsStreamStart):
             streamPersist = None
             streamObj = currentObj
 
-
-
 f.close()
 
-#et = sys.getdefaultencoding()
-
-
-with open('form-example.content.json', 'w', encoding="ascii", errors="surrogateescape") as fw:
+with open(outputFile, 'w', encoding="ascii", errors="surrogateescape") as fw:
        
        fw.write(json.dumps(myDoc, default=vars))
 
