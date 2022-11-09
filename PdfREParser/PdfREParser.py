@@ -11,7 +11,8 @@ import zlib
 ####### Paramters
 #Flag to process stream filters
 unfilterStreamFlag = "Y"
-inputFile = "IF107-guide.pdf"
+inputFile = "form-example.pdf"
+#inputFile = "IF107-guide.pdf"
 #inputFile = "simple-pdf.pdf"
 outputFile = 'form-example.content.json'
 ####################
@@ -223,14 +224,15 @@ class JDoc:
         propBuilder = ""
         for prop in subProps:
 
+            prop = prop.strip()
             if(propRuleInEffect == "BuildRule"):
                 propRuleInEffect = "none"
                 prop = propBuilder + " " + prop
 
             #special prop rules - eventually should externalize these
             #TODO: add more prop rules where they make sense.  Type=Filter for example
-            if(prop.strip() == "Type" 
-               or prop.strip() == "Filter"):
+            if(prop == "Type" 
+               or prop == "Filter"):
                 propRuleInEffect = "BuildRule"
                 propBuilder = prop
 
@@ -328,8 +330,9 @@ class JObj:
         return newVal
     def deflateBuffer(self, buffer):
         deflatedBuffer = None
-        deflatedBuffer = zlib.decompress(buffer)
-        
+        zobj = zlib.decompressobj()
+        deflatedBuffer = zobj.decompress(buffer)
+                
         return deflatedBuffer
     def processStream(self, buffer):
         unfilteredStream = None
