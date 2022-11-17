@@ -2,9 +2,6 @@
 
 from functools import partial
 import json
-from msilib.schema import BBControl
-from telnetlib import WONT
-
 import base64
 import zlib 
 
