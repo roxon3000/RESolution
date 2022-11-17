@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="0.110" timestamp="2022-11-17T16:25:20.387968" hostname="DESKTOP-QGLJE2U"><testcase classname="tests.test_1.Test_test_1" name="test_A" file="tests\test_1.py" line="3" time="0.001"><failure message="ValueError: PureWindowsPath('.') has an empty name">self = &lt;test_1.Test_test_1 testMethod=test_A&gt;
+
+    def test_A(self):
+        #runpy.run_path(path_name="PdfREparser.py form-example.pdf")
+&gt;       target = __import__('../PdfREParser.py')
+
+tests\test_1.py:6: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+&lt;frozen importlib._bootstrap&gt;:1027: in _find_and_load
+    ???
+&lt;frozen importlib._bootstrap&gt;:1002: in _find_and_load_unlocked
+    ???
+&lt;frozen importlib._bootstrap&gt;:945: in _find_spec
+    ???
+C:\Python310\lib\site-packages\_pytest\assertion\rewrite.py:92: in find_spec
+    if self._early_rewrite_bailout(name, state):
+C:\Python310\lib\site-packages\_pytest\assertion\rewrite.py:193: in _early_rewrite_bailout
+    path = PurePath(*parts).with_suffix(".py")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = PureWindowsPath('.'), suffix = '.py'
+
+    def with_suffix(self, suffix):
+        """Return a new path with the file suffix changed.  If the path
+        has no suffix, add given suffix.  If the given suffix is an empty
+        string, remove the suffix from the path.
+        """
+        f = self._flavour
+        if f.sep in suffix or f.altsep and f.altsep in suffix:
+            raise ValueError("Invalid suffix %r" % (suffix,))
+        if suffix and not suffix.startswith('.') or suffix == '.':
+            raise ValueError("Invalid suffix %r" % (suffix))
+        name = self.name
+        if not name:
+&gt;           raise ValueError("%r has an empty name" % (self,))
+E           ValueError: PureWindowsPath('.') has an empty name
+
+C:\Python310\lib\pathlib.py:782: ValueError</failure><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase></testsuite></testsuites>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="69.528" timestamp="2022-11-17T16:48:39.311638" hostname="DESKTOP-QGLJE2U"><testcase classname="test_2.Test_test_1" name="test_A" file="test_2.py" line="4" time="69.357"><failure message="ModuleNotFoundError: No module named 'PdfREParser.py'; 'PdfREParser' is not a package">self = &lt;test_2.Test_test_1 testMethod=test_A&gt;
+
+    def test_A(self):
+        print(sys.path)
+        #runpy.run_path(path_name="PdfREparser.py form-example.pdf")
+&gt;       target = __import__('PdfREParser.py')
+E       ModuleNotFoundError: No module named 'PdfREParser.py'; 'PdfREParser' is not a package
+
+test_2.py:8: ModuleNotFoundError</failure><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+['C:\\Users\\jgood\\source\\repos\\RESolution\\PdfREParser', 'C:\\Users\\jgood\\source\\repos\\RESolution\\PdfREParser\\', 'C:\\Users\\jgood\\source\\repos\\RESolution\\PdfREParser', 'C:\\Python310\\python310.zip', 'C:\\Python310\\DLLs', 'C:\\Python310\\lib', 'C:\\Python310', 'C:\\Python310\\lib\\site-packages', 'C:\\Python310\\lib\\site-packages\\vboxapi-1.0-py3.10.egg']
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase></testsuite></testsuites>

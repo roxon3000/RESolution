@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="0.080" timestamp="2022-11-17T15:52:39.493905" hostname="DESKTOP-QGLJE2U"><testcase classname="tests.test_1.Test_test_1" name="test_A" file="tests\test_1.py" line="4" time="0.003"><failure message="FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\jgood\\source\\repos\\RESolution\\PdfREParser\\PdfREparser.py form-example.pdf'">self = &lt;test_1.Test_test_1 testMethod=test_A&gt;
+
+    def test_A(self):
+&gt;       runpy.run_path(path_name="PdfREparser.py form-example.pdf")
+
+tests\test_1.py:6: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+C:\Python310\lib\runpy.py:288: in run_path
+    code, fname = _get_code_from_file(run_name, path_name)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+run_name = '&lt;run_path&gt;', fname = 'PdfREparser.py form-example.pdf'
+
+    def _get_code_from_file(run_name, fname):
+        # Check for a compiled file first
+        from pkgutil import read_code
+        decoded_path = os.path.abspath(os.fsdecode(fname))
+&gt;       with io.open_code(decoded_path) as f:
+E       FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\jgood\\source\\repos\\RESolution\\PdfREParser\\PdfREparser.py form-example.pdf'
+
+C:\Python310\lib\runpy.py:252: FileNotFoundError</failure><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase></testsuite></testsuites>
