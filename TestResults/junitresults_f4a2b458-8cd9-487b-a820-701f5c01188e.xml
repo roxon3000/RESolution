@@ -1,23 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="0.074" timestamp="2022-11-17T15:27:05.352404" hostname="DESKTOP-QGLJE2U"><testcase classname="tests.test_1.Test_test_1" name="test_A" file="tests\test_1.py" line="3" time="0.002"><failure message="FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\jgood\\source\\repos\\RESolution\\PdfREParser\\'">self = &lt;test_1.Test_test_1 testMethod=test_A&gt;
 
-import json
-import base64
-import zlib 
-import sys
+    def test_A(self):
+&gt;       target = __import__("PdfREParser.py form-example.pdf")
 
+tests\test_1.py:5: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
-def main(arg1):
+    
+    import json
+    import base64
+    import zlib
+    import sys
+    
     
     ####### Paramters
     #Flag to process stream filters
-    unfilterStreamFlag = "Y" #TODO: add this as an argument
-    inputFile = arg1
-    outputFile = inputFile + '.json' 
+    unfilterStreamFlag = "Y"
+    inputFile = sys.argv[1]
+    #inputFile = "IF107-guide.pdf"
+    #inputFile = "simple-pdf.pdf"
+    outputFile = inputFile + '.json'
     ####################
-
-
+    
+    
     OBJ = "obj"
-    BB = "<<"
-    FF = ">>"
+    BB = "&lt;&lt;"
+    FF = "&gt;&gt;"
     STREAM = "stream"
     ENDSTREAM="endstream"
     ENDOBJ = "endobj"
@@ -28,31 +36,32 @@ def main(arg1):
     OBJ_STREAM = "obj-stream"
     STREAM_START = "stream-start"
     STREAM_END = "stream-end"
-
+    
     UNKOWN = "unknown"
-
+    
+    objLast = False
+    metaLast = False
+    currentLineType=PDF_FIRSTLINE
     lastLineType = EMPTY
     lastLine = EMPTY
-
-
-
+    
     class JDoc:
         def __init__(meo, name):
-            meo.name = name        
-
+            meo.name = name
+    
         def determineLineType(self, currentLine, lastLine, lastLineType, lastObj, lastMetaObj):
-        
-            if(currentLine.find(ENDSTREAM) >= 0):
+    
+            if(currentLine.find(ENDSTREAM) &gt;= 0):
                 print('found u')
-
+    
             #remove any extraneous LF or CR
             currentLine = currentLine.replace('\n','')
             currentLine = currentLine.replace('\r','')
-
+    
             #determine if the last line type give authoritative hint on current line type
             hint = ""
             authoritative = False
-        
+    
             match lastLineType:
                 case "empty":
                         hint = PDF_FIRSTLINE
@@ -66,12 +75,12 @@ def main(arg1):
                 case "stream-start":
                     hint = OBJ_STREAM
                     authoritative = True
-                case _: 
+                case _:
                     hint = UNKOWN
-
+    
             if authoritative:
                 return hint
-
+    
         #ORDER OF RULES MATTER!
         #OBJ START RULES
             #if current line contains "obj" but not "endobj", meaning it is the start of the obj section.
@@ -80,13 +89,13 @@ def main(arg1):
             #look for endobj on current line
             endobjIndex = currentLine.find(ENDOBJ)
             #if current line contains "obj" but not "endobj", meaning it is the start of the obj section.
-            if objIndex > -1 and endobjIndex < 0 :
+            if objIndex &gt; -1 and endobjIndex &lt; 0 :
                 return OBJ
-
+    
         #OBJ END RULES
-            if(endobjIndex >= 0):
+            if(endobjIndex &gt;= 0):
                 return ENDOBJ
-
+    
         #OBJ META LINE RULES
             bbIndex = currentLine.find(BB)
             if (bbIndex == 0 and hint == OBJ_META):
@@ -94,39 +103,39 @@ def main(arg1):
                     return OBJ_META
                 else:
                     return OBJ_META_CONT
-
-
+    
+    
         #STREAM END RULES
             if(currentLine.strip() == ENDSTREAM):
                 return STREAM_END
-
+    
         #IN STREAM RULES
             if(lastMetaObj and lastMetaObj.hasStream):
                 #authoritative if meta object had start stream tag in its line
                 return OBJ_STREAM
-
+    
         #STREAM START RULES
             if(currentLine.strip() == STREAM):
                 return STREAM_START
-
-
+    
+    
         #LINE CONTINUATION RULES
             if(currentLine.replace('\n', '').replace('\r','').isprintable()):
                 lltLen = len(lastLineType)
-                if(lltLen > 4 and lastLineType[lltLen-5:lltLen] == "-cont" ):
+                if(lltLen &gt; 4 and lastLineType[lltLen-5:lltLen] == "-cont" ):
                     return lastLineType
                 else:
                     return lastLineType + "-cont"
-
+    
             return "error"
-
+    
         def processFirstLine(self, currentLine):
             self.pdfVersion = currentLine[1:8]
         def processStartObjLine(self, currentLine):
             #processing the object definition line
             #split line based on spaces
             objline = currentLine.split()
-            #id should be the first 
+            #id should be the first
             id = objline[0]
             #version is second element
             version = objline[1]
@@ -138,60 +147,60 @@ def main(arg1):
             self.objs.append(newObj)
             return newObj
         def processObjMetaLine(self, currentLine, currentObj):
-
+    
             #first build object tree
-            #        
+            #
             metaObj = self.parseMetaObject(currentLine,  0)
             if(metaObj.hasStream):
                 currentObj.hasStream = metaObj.hasStream
-            currentObj.meta = metaObj   
-        
+            currentObj.meta = metaObj
+    
             return metaObj
         def isMetaLineComplete(self, currentLine):
             bbCount = currentLine.count(BB)
             ffCount = currentLine.count(FF)
-
+    
             if(bbCount == ffCount):
                 return True
             else:
                 return False
-
+    
         def parseMetaObject(self, metaLine, sanityCheck):
-        
+    
             #only allow 100 levels of recursivity
-            if(sanityCheck > 100):
+            if(sanityCheck &gt; 100):
                 return None
-
+    
             sanityCheck = sanityCheck + 1
-
+    
             newMetaObj = JObj("test")
             #find the end of the meta obj
             endOfMetaObjIndex = self.findEndOfObject(metaLine)
             #identify leftover on the line after end of object. most often demarcation of stream
             leftOver = ""
-            if(endOfMetaObjIndex < len(metaLine)):
+            if(endOfMetaObjIndex &lt; len(metaLine)):
                 #add two for FF
                 leftOver = metaLine[endOfMetaObjIndex + 2: len(metaLine)]
                 #remove leftOver from metaLine. Only remove leftover if recursivivity is level 1
-                if(sanityCheck < 2):
+                if(sanityCheck &lt; 2):
                     print("Removing left over from metaLine: " + leftOver)
                     metaLine = metaLine.replace(leftOver, "")
                     #determine if leftover is stream demarcation since it may not have a new line
-                    if(leftOver.find("stream") > -1):
+                    if(leftOver.find("stream") &gt; -1):
                         newMetaObj.hasStream = True
-
+    
             #assum first 2 chars are BB
             myword = metaLine[2 : endOfMetaObjIndex]
             propLine = ""
-
-            #check for any deeper meta's. There may be multiple trees per level, thus the While loop 
+    
+            #check for any deeper meta's. There may be multiple trees per level, thus the While loop
             while True:
-            
-                if(myword.count(BB) <= 0):
+    
+                if(myword.count(BB) &lt;= 0):
                     propLine = "notset"
                     break
-            
-                mySubObj = JObj("test")    
+    
+                mySubObj = JObj("test")
                 #more parsing needed since it's an object
                 #identify and remove subObj's key
                 keyEnd = myword.find(BB)
@@ -200,18 +209,18 @@ def main(arg1):
                 subObjKey = subObjKeyList[len(subObjKeyList)-1]
                 endPropLine = myword.find(subObjKey)
                 propLine = propLine + myword[0:endPropLine]
-
+    
                 myword = myword[keyEnd:len(myword)]
-                
+    
                 mySubObj = self.parseMetaObject(myword, sanityCheck)
                 newMetaObj.__setattr__(subObjKey, mySubObj)
-                
+    
                 #look at rest of line
                 endOfMetaObjIndex = self.findEndOfObject(myword)
                 #plus two for BB
                 myword = myword[endOfMetaObjIndex+2:len(myword)]
-
-        
+    
+    
             #parse props
             if(propLine == "notset"):
                 propLine = metaLine
@@ -219,75 +228,75 @@ def main(arg1):
             propRuleInEffect = "none"
             propBuilder = ""
             for prop in subProps:
-
+    
                 prop = prop.strip()
                 if(propRuleInEffect == "BuildRule"):
                     propRuleInEffect = "none"
                     prop = propBuilder + " " + prop
-
+    
                 #special prop rules - eventually should externalize these
                 #TODO: add more prop rules where they make sense.  Type=Filter for example
-                if(prop == "Type" 
+                if(prop == "Type"
                    or prop == "Filter"):
                     propRuleInEffect = "BuildRule"
                     propBuilder = prop
-
-            
+    
+    
                 if(propRuleInEffect == "none"):
                     newMetaObj.mutate(prop)
-
+    
             #print("left over in meta line: " + leftOver)
             return newMetaObj
-
+    
         def findEndOfObject(self, metaLine):
             #returns most senior (outer) object end location
             testFF = -1
             endOfObjIndex = -1
             level = 0
-
+    
             for i in range(0, len(metaLine)):
-            
-                #don't allow for two subsequent reads in case two FF's are right next to each other ">>>>". This gives a false positive on middle >>
-                if(testFF >=0):
+    
+                #don't allow for two subsequent reads in case two FF's are right next to each other "&gt;&gt;&gt;&gt;". This gives a false positive on middle &gt;&gt;
+                if(testFF &gt;=0):
                     testFF = -1
                     continue
-
+    
                 testWord = metaLine[i:i+2]
                 testFF = testWord.find(FF)
                 testBB = testWord.find(BB)
-            
+    
                 #if a BB is found, then encountered another sub meta object
-                if(testBB >= 0):
+                if(testBB &gt;= 0):
                     level = level + 1
-
+    
                 #if a FF is found, a pairing is complete, so take a level off
-                if(testFF >= 0):
+                if(testFF &gt;= 0):
                     level = level -1
-
+    
                 #level can be -1 since we don't count the initial BB - maybe it should. to be reviewed
-                if(level <= 0):
+                if(level &lt;= 0):
                     endOfObjIndex = i
                     break;
-
+    
                 if(i+2 == len(metaLine)):
                     break
-
-
+    
+    
             return endOfObjIndex
-
-
+    
+    
     class JObj:
         def __init__(meo, id):
             meo.id = id
             meo.hasStream = False
-
+    
         def __setattr__(self, name, value):
             newVal = value
             newVal = self.cleanValue(value)
             self.__dict__[name] = newVal
-
+    
         def mutate(self, word):
-            if(self.propRulesCheck(word)): 
+            if(self.propRulesCheck(word)):
                 keyval = word.split(' ')
                 if(len(keyval) == 2):
                     self.__setattr__(keyval[0], keyval[1])
@@ -298,23 +307,23 @@ def main(arg1):
                     keyval.pop(0)
                     self.__setattr__(key, keyval)
         def propRulesCheck(self, prop):
-        
+    
             #don't add empty properties
-            if(len(prop) < 1):
+            if(len(prop) &lt; 1):
                 #ignore
                 return False
-
+    
             if(prop.strip() == BB):
                 return False
-
+    
             return True
         def cleanValue(self, value):
             newVal = ""
-        
-            if(isinstance(value, str) and len(value) > 0):
+    
+            if(isinstance(value, str) and len(value) &gt; 0):
                 #remove LF
                 newVal = value.replace("\n", "")
-
+    
                 #remove FF and BB
                 newVal = newVal.replace(BB,"")
                 newVal = newVal.replace(FF,"")
@@ -322,21 +331,21 @@ def main(arg1):
                 #don't change value if it's not a valid string
                 #print("Could not set value because it's not a string")
                 return value
-
+    
             return newVal
         def deflateBuffer(self, buffer):
             deflatedBuffer = None
             zobj = zlib.decompressobj()
             deflatedBuffer = zobj.decompress(buffer)
-                
+    
             return deflatedBuffer
         def processStream(self, buffer):
             unfilteredStream = None
             metaObj = self.meta
             encoding = "none"
-
+    
             if(hasattr(metaObj, "Filter") and metaObj.Filter == "FlateDecode"):
-            
+    
                 try:
                     uBuffer = self.deflateBuffer(buffer)
                     #TODO: i don't like how I wrote this section in nested try/catch. will want to add more decoders later on
@@ -362,130 +371,31 @@ def main(arg1):
                         except Exception as inst:
                             print("decoding failed:  Obj ID " + self.id)
                             print(inst)
-                    
+    
                 except Exception as inst:
                     print("Error occurred during decompression:  Obj ID " + self.id)
                     print(inst)
-            
-
+    
+    
             self.unfilteredStream = unfilteredStream
             self.derivedStreamEncoding = encoding
             return unfilteredStream
     
         def update(self, obj):
-            self.__dict__.update(obj.__dict__.items())      
-   
-
+            self.__dict__.update(obj.__dict__.items())
+    
+    
     myDoc = JDoc("default")
     myDoc.objs = []
+    
+    
+&gt;   with open(inputFile, 'rb') as tr:
+E   FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\jgood\\source\\repos\\RESolution\\PdfREParser\\'
 
+PdfREParser.py:384: FileNotFoundError</failure><system-out>--------------------------------- Captured Log ---------------------------------
 
-    with open(inputFile, 'rb') as tr:
-        testBuff = tr.read()
-    tr.close()
+--------------------------------- Captured Out ---------------------------------
 
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
 
-    with open('form-example.content.txt', 'wb') as tw:
-        tw.write(testBuff)
-    tr.close()
-
-
-    with open(inputFile,'rb' ) as f:
-        streamPersist = None
-        #N
-        currentObj= None
-        lastObj = None 
-        lastMetaObj = None
-        #N-1
-        prevObj = None
-        #object that is in queue to have its stream populated
-        streamObj = None
-        isContinuation = False
-        for rawline in f:
-
-            #since reading in binary, need to account for carriage returns
-            asciiLine = rawline.decode(encoding="ascii", errors="surrogateescape")
-            crLines = asciiLine.splitlines(keepends=True)
-            containsStreamStart = False
-            containsStreamEnd = False
-            containsStreamContent = False
-        
-            for line in crLines:
-                #skip \n newlines
-                if(line == "\n"):
-                    continue
-
-                currentLine = str(line)
-                if(isContinuation):
-                    currentLine = lastLine + currentLine
-
-                lineType = myDoc.determineLineType(currentLine, lastLine, lastLineType, lastObj, lastMetaObj)
-
-                match lineType:
-                    case "obj":
-                        currentObj = myDoc.processStartObjLine(currentLine)
-                        lastObj = currentObj
-                    case "endobj":
-                        prevObj = currentObj
-                    case "obj-meta":
-                        currentMetaObj = myDoc.processObjMetaLine(currentLine, currentObj)
-                        if(currentMetaObj.hasStream):
-                            containsStreamStart = True
-                        lastMetaObj = currentMetaObj
-                        isContinuation = False
-                    case "obj-meta-cont":
-                        isContinuation = True            
-                    case "pdf-firstline":
-                        myDoc.processFirstLine(currentLine)
-                    case "obj-stream":
-                        #if stream processing detected, break since string processing not necessary
-                        containsStreamContent = True
-                    case "stream-start":
-                        containsStreamStart = True
-                        currentMetaObj.hasStream = True
-                    case "stream-end":
-                        #flip this so stream is only processed once
-                        lastMetaObj.hasStream = False
-                        containsStreamEnd = True
-                    case _:
-                        pass
-                lastLineType = lineType
-                lastLine = currentLine
-
-            #rawline processing
-            if(containsStreamContent):
-                #if stream processing detected, break since string processing not necessary
-            
-                if(streamPersist == None):
-                    streamPersist = rawline
-                else:
-                    streamPersist = streamPersist + rawline
-
-            if(containsStreamEnd):
-                streamBuffer = streamPersist[0: len(streamPersist)-2]
-                streamObj.stream =  base64.b64encode(streamBuffer).decode(encoding="ascii", errors="strict")
-                if(unfilterStreamFlag=="Y"):
-                    streamObj.processStream(streamBuffer)
-
-                streamPersist = None
-
-            if(containsStreamStart):
-                streamPersist = None
-                streamObj = currentObj
-
-    f.close()
-
-    with open(outputFile, 'w', encoding="ascii", errors="surrogateescape") as fw:
-       
-            fw.write(json.dumps(myDoc, default=vars))
-
-    fw.close()
-
-    return myDoc
-
-if __name__ == '__main__':
-    #sys.exit(main(sys.argv[1:]))
-    inputFile = sys.argv[1]
-    main(inputFile)
-
-
+</system-err></testcase></testsuite></testsuites>

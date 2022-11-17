@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="5.058" timestamp="2022-11-17T16:48:13.590430" hostname="DESKTOP-QGLJE2U"><testcase classname="test_2.Test_test_1" name="test_A" file="test_2.py" line="3" time="4.881"><failure message="NameError: name 'sys' is not defined">self = &lt;test_2.Test_test_1 testMethod=test_A&gt;
+
+    def test_A(self):
+&gt;       print(sys.path)
+E       NameError: name 'sys' is not defined
+
+test_2.py:5: NameError</failure><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase></testsuite></testsuites>
