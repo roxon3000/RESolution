@@ -13,7 +13,7 @@
     <RootNamespace>PdfREParser</RootNamespace>
     <IsWindowsApplication>False</IsWindowsApplication>
     <LaunchProvider>Standard Python launcher</LaunchProvider>
-    <CommandLineArguments>form-example.pdf</CommandLineArguments>
+    <CommandLineArguments>simple-pdf.pdf</CommandLineArguments>
     <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
     <TestFramework>unittest</TestFramework>
     <UnitTestPattern>test*.py</UnitTestPattern>
@@ -30,6 +30,9 @@
   <ItemGroup>
     <Compile Include="PdfREParser.py" />
     <Compile Include="test_cases1.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="The-Art-of-Sales.pdf" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in

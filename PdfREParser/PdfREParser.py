@@ -46,8 +46,8 @@ def main(arg1):
                 print('found u')
 
             #remove any extraneous LF or CR
-            currentLine = currentLine.replace('\n','')
-            currentLine = currentLine.replace('\r','')
+            currentLine = currentLine.replace('\n',' ')
+            currentLine = currentLine.replace('\r',' ')
 
             #determine if the last line type give authoritative hint on current line type
             hint = ""
@@ -111,7 +111,7 @@ def main(arg1):
 
 
         #LINE CONTINUATION RULES
-            if(currentLine.replace('\n', '').replace('\r','').isprintable()):
+            if(currentLine.replace('\n', ' ').replace('\r',' ').isprintable()):
                 lltLen = len(lastLineType)
                 if(lltLen > 4 and lastLineType[lltLen-5:lltLen] == "-cont" ):
                     return lastLineType
@@ -200,9 +200,7 @@ def main(arg1):
                 subObjKey = subObjKeyList[len(subObjKeyList)-1]
                 endPropLine = myword.find(subObjKey)
                 propLine = propLine + myword[0:endPropLine]
-
-                myword = myword[keyEnd:len(myword)]
-                
+                myword = myword[keyEnd:len(myword)]               
                 mySubObj = self.parseMetaObject(myword, sanityCheck)
                 newMetaObj.__setattr__(subObjKey, mySubObj)
                 
@@ -283,18 +281,26 @@ def main(arg1):
 
         def __setattr__(self, name, value):
             newVal = value
-            newVal = self.cleanValue(value)
+
+            #don't clean streams
+            if(name == 'unfilteredStream' or name == 'stream'):
+                pass
+            else:
+                newVal = self.cleanValue(value)
+            
             self.__dict__[name] = newVal
 
         def mutate(self, word):
+            word = self.parseBracketedList(word)
             if(self.propRulesCheck(word)): 
                 keyval = word.split(' ')
+                key = self.cleanValue(keyval[0])
                 if(len(keyval) == 2):
-                    self.__setattr__(keyval[0], keyval[1])
+                    val = self.cleanValue(keyval[1])                   
+                    self.__setattr__(key, val)
                 elif(len(keyval) == 1):
-                    self.__setattr__(keyval[0], True)
+                    self.__setattr__(key, True)
                 else:
-                    key = keyval[0]
                     keyval.pop(0)
                     self.__setattr__(key, keyval)
         def propRulesCheck(self, prop):
@@ -308,19 +314,41 @@ def main(arg1):
                 return False
 
             return True
+        def parseBracketedList(self,word):
+            #find open bracked
+            bracketIndex = word.find('[')
+            if(bracketIndex > 0 and word[bracketIndex-1:bracketIndex] != ' '):
+                #TODO: this will break if there are sublists
+                bsplit = word.split('[')
+                newVal = bsplit[0] + ' ' + bsplit[1]
+                newVal = newVal.replace(']','')
+                word = newVal                
+            return word
         def cleanValue(self, value):
             newVal = ""
         
             if(isinstance(value, str) and len(value) > 0):
                 #remove LF
-                newVal = value.replace("\n", "")
+                newVal = value.replace('\n', '')
 
-                #remove FF and BB
-                newVal = newVal.replace(BB,"")
-                newVal = newVal.replace(FF,"")
+                #remove FF, BB ] [
+                newVal = newVal.replace(BB,'')
+                newVal = newVal.replace(FF,'')
+                newVal = newVal.replace('[','')
+                newVal = newVal.replace(']','')
+  
             else:
-                #don't change value if it's not a valid string
-                #print("Could not set value because it's not a string")
+                cleanValList = []
+                #check to see if it's a list
+                if(isinstance(value, list)):
+                    for i in range(0, len(value)):
+                        checkVal = self.cleanValue(value[i])
+                        if(checkVal != ''):
+                            cleanValList.append(checkVal)
+                    if(len(cleanValList) == 1):
+                        value = cleanValList[0]
+                    else:
+                        value = cleanValList
                 return value
 
             return newVal
