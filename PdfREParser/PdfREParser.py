@@ -7,7 +7,7 @@ import pdfparserconstants
 import jdoc
 
 class RawLineState:
-    def __init__(self, streamPersist, currentObj, lastObj, lastMetaObj, prevObj, streamObj, isContinuation, lastLine, lastLineType):
+    def __init__(self, streamPersist, currentObj, lastObj, lastMetaObj, prevObj, streamObj, isContinuation, lastLine, lastLineType, currentMetaObj):
         self.streamPersist = streamPersist
         self.currentObj = currentObj
         self.lastObj = lastObj
@@ -17,6 +17,7 @@ class RawLineState:
         self.isContinuation = isContinuation
         self.lastLine = lastLine
         self.lastLineType = lastLineType
+        self.currentMetaObj = currentMetaObj
 
 
 def main(arg1):
@@ -38,7 +39,7 @@ def main(arg1):
     tr.close()
 
 
-    with open('form-example.content.txt', 'wb') as tw:
+    with open(inputFile + '.bin' + '.txt', 'wb') as tw:
         tw.write(testBuff)
     tr.close()
 
@@ -57,7 +58,7 @@ def main(arg1):
         lastLine = EMPTY
         lastLineType = EMPTY
 
-        rlState = RawLineState(streamPersist, currentObj, lastObj, lastMetaObj, prevObj, streamObj, isContinuation, EMPTY, EMPTY)
+        rlState = RawLineState(streamPersist, currentObj, lastObj, lastMetaObj, prevObj, streamObj, isContinuation, EMPTY, EMPTY, None)
 
         for rawline in f:
             myDoc.processRawLine(rawline, rlState, unfilterStreamFlag)

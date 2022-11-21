@@ -1,5 +1,7 @@
+from base64 import b85decode
 import pdfparserconstants
 import zlib
+import base64
 
 class JObj:
     def __init__(meo, id):
@@ -98,7 +100,9 @@ class JObj:
                 try:
                     #try UTF-8. This may need to change or be configurable
                     unicodeLine = uBuffer.decode(encoding="UTF-8", errors="strict")
-                    if(unicodeLine.isprintable()):
+                    #remove these common unprintable characters for testing whether decode was a success
+                    testLine = unicodeLine.replace('\n','').replace('\r','')
+                    if(testLine.isprintable()):
                         unfilteredStream = unicodeLine
                     else:
                         raise Exception('UTF8 Not Printable')
@@ -109,7 +113,8 @@ class JObj:
                     try:
                         #try ASCII. This may need to change or be configurable
                         asciiLine = uBuffer.decode(encoding="ascii", errors="surrogateescape")
-                        if(asciiLine.isprintable()):
+                        testLine = asciiLine.replace('\n','').replace('\r','')
+                        if(asciiLine.isascii or testLine.isprintable()):
                             unfilteredStream = asciiLine
                         else:
                             raise Exception('ASCII Not Printable... giving up on decoding')

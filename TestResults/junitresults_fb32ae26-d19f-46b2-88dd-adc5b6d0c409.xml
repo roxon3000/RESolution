@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="0.089" timestamp="2022-11-21T12:22:27.333882" hostname="DESKTOP-QGLJE2U"><testcase classname="test_streams.Test_test_1" name="test_decode_stream" file="test_streams.py" line="8" time="0.001"><failure message="TypeError: expected bytes-like object, not str">s = 'eJxdUstugzAQvPMVPqaHCMwjTSSElJBG4tCHSvsBYC+ppWIs4xz4+5pdSKRaAjTrmfEs67CszpVWjoUfdhA1ONYpLS2Mw80KYC1clQ54zKQSbkH4Fn1jg...wQcU7FEoucDDklSCgP31PxQMWMguxWM8yTUPGy6rBIngkxk2fKSsw0XSnzZ0fNpS9EWYqnpSvqY/6N87jvMxI3a/148E7gXOaJKA33a2MGM6vm5w/Sjag='
+
+    def _input_type_check(s):
+        try:
+&gt;           m = memoryview(s)
+E           TypeError: memoryview: a bytes-like object is required, not 'str'
+
+C:\Python310\lib\base64.py:534: TypeError
+
+The above exception was the direct cause of the following exception:
+
+self = &lt;test_streams.Test_test_1 testMethod=test_decode_stream&gt;
+
+    def test_decode_stream(self):
+        encodedStream = "eJxdUstugzAQvPMVPqaHCMwjTSSElJBG4tCHSvsBYC+ppWIs4xz4+5pdSKRaAjTrmfEs67CszpVWjoUfdhA1ONYpLS2Mw80KYC1clQ54zKQSbkH4Fn1jgtCL62l00Fe6G4I8Zyz89LujsxPbHOXQwlMQvlsJVukr23yXtcf1zZhf6EE7FgVFwSR03um1MW9NDyxE2baSfl+5aes1D8bXZIDFiDmlEYOE0TQCbKOvEOSRXwXLL34VAWj5bz8jVduJn8YiO/HsKIqjAlFGKEYUp4hSTuhM6IgoIV0W4SmL32F1f4Q5IS0qyXdPp1wQcU7FEoucDDklSCgP31PxQMWMguxWM8yTUPGy6rBIngkxk2fKSsw0XSnzZ0fNpS9EWYqnpSvqY/6N87jvMxI3a/148E7gXOaJKA33a2MGM6vm5w/Sjag="
+        myDoc = jdoc.JDoc("streams")
+&gt;       byteStream = base64.decodebytes(encodedStream)
+
+test_streams.py:12: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+C:\Python310\lib\base64.py:561: in decodebytes
+    _input_type_check(s)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+s = 'eJxdUstugzAQvPMVPqaHCMwjTSSElJBG4tCHSvsBYC+ppWIs4xz4+5pdSKRaAjTrmfEs67CszpVWjoUfdhA1ONYpLS2Mw80KYC1clQ54zKQSbkH4Fn1jg...wQcU7FEoucDDklSCgP31PxQMWMguxWM8yTUPGy6rBIngkxk2fKSsw0XSnzZ0fNpS9EWYqnpSvqY/6N87jvMxI3a/148E7gXOaJKA33a2MGM6vm5w/Sjag='
+
+    def _input_type_check(s):
+        try:
+            m = memoryview(s)
+        except TypeError as err:
+            msg = "expected bytes-like object, not %s" % s.__class__.__name__
+&gt;           raise TypeError(msg) from err
+E           TypeError: expected bytes-like object, not str
+
+C:\Python310\lib\base64.py:537: TypeError</failure><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase></testsuite></testsuites>
