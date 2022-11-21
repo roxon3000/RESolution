@@ -127,3 +127,5 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+/PdfREParser/The-Art-of-Sales.pdf.json
+/PdfREParser/The-Art-of-Sales.pdf.bin.txt
