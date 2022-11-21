@@ -237,16 +237,6 @@ class JDoc:
         return endOfObjIndex
     def processRawLine(self, rawline, rlState, unfilterStreamFlag):
             
-        lastLineType = rlState.lastLineType
-        lastLine = rlState.lastLine
-        streamPersist = rlState.streamPersist
-        currentObj = rlState.currentObj
-        lastObj = rlState.lastObj
-        lastMetaObj = rlState.lastMetaObj
-        prevObj = rlState.prevObj
-        streamObj = rlState.streamObj
-        isContinuation = rlState.isContinuation
-
         #since reading in binary, need to account for carriage returns
         asciiLine = rawline.decode(encoding="ascii", errors="surrogateescape")
         crLines = asciiLine.splitlines(keepends=True)
@@ -260,10 +250,10 @@ class JDoc:
                 continue
 
             currentLine = str(line)
-            if(isContinuation):
+            if(rlState.isContinuation):
                 currentLine = rlState.lastLine + currentLine
 
-            lineType = self.determineLineType(currentLine, rlState.lastLine, rlState.lastLineType, lastObj, lastMetaObj)
+            lineType = self.determineLineType(currentLine, rlState.lastLine, rlState.lastLineType, rlState.lastObj, rlState.lastMetaObj)
 
             match lineType:
                 case "obj":
@@ -272,10 +262,10 @@ class JDoc:
                 case "endobj":
                     rlState.prevObj = rlState.currentObj
                 case "obj-meta":
-                    currentMetaObj = self.processObjMetaLine(currentLine, rlState.currentObj)
-                    if(currentMetaObj.hasStream):
+                    rlState.currentMetaObj = self.processObjMetaLine(currentLine, rlState.currentObj)
+                    if(rlState.currentMetaObj.hasStream):
                         containsStreamStart = True
-                    rlState.lastMetaObj = currentMetaObj
+                    rlState.lastMetaObj = rlState.currentMetaObj
                     rlState.isContinuation = False
                 case "obj-meta-cont":
                     rlState.isContinuation = True            
@@ -286,7 +276,7 @@ class JDoc:
                     containsStreamContent = True
                 case "stream-start":
                     containsStreamStart = True
-                    currentMetaObj.hasStream = True
+                    rlState.currentMetaObj.hasStream = True
                 case "stream-end":
                     #flip this so stream is only processed once
                     rlState.lastMetaObj.hasStream = False
@@ -300,7 +290,7 @@ class JDoc:
         if(containsStreamContent):
             #if stream processing detected, break since string processing not necessary
             
-            if(streamPersist == None):
+            if(rlState.streamPersist == None):
                 rlState.streamPersist = rawline
             else:
                 rlState.streamPersist = rlState.streamPersist + rawline
@@ -315,4 +305,4 @@ class JDoc:
 
         if(containsStreamStart):
             rlState.streamPersist = None
-            rlState.streamObj = currentObj
+            rlState.streamObj = rlState.currentObj

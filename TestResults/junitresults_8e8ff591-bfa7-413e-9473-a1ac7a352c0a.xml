@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="0.071" timestamp="2022-11-21T12:25:53.623098" hostname="DESKTOP-QGLJE2U"><testcase classname="test_streams.Test_test_1" name="test_decode_stream" file="test_streams.py" line="8" time="0.001"><failure message="AttributeError: 'JObj' object has no attribute 'meta'">self = &lt;test_streams.Test_test_1 testMethod=test_decode_stream&gt;
+
+    def test_decode_stream(self):
+        encodedStream = "eJxdUstugzAQvPMVPqaHCMwjTSSElJBG4tCHSvsBYC+ppWIs4xz4+5pdSKRaAjTrmfEs67CszpVWjoUfdhA1ONYpLS2Mw80KYC1clQ54zKQSbkH4Fn1jgtCL62l00Fe6G4I8Zyz89LujsxPbHOXQwlMQvlsJVukr23yXtcf1zZhf6EE7FgVFwSR03um1MW9NDyxE2baSfl+5aes1D8bXZIDFiDmlEYOE0TQCbKOvEOSRXwXLL34VAWj5bz8jVduJn8YiO/HsKIqjAlFGKEYUp4hSTuhM6IgoIV0W4SmL32F1f4Q5IS0qyXdPp1wQcU7FEoucDDklSCgP31PxQMWMguxWM8yTUPGy6rBIngkxk2fKSsw0XSnzZ0fNpS9EWYqnpSvqY/6N87jvMxI3a/148E7gXOaJKA33a2MGM6vm5w/Sjag="
+        myDoc = jdoc.JDoc("streams")
+        byteStream = base64.b64decode(encodedStream)
+        streamObj = jobj.JObj('streams')
+&gt;       streamObj.processStream(byteStream)
+
+test_streams.py:14: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;jobj.JObj object at 0x00000273C6B13580&gt;
+buffer = b'x\x9c]R\xcbn\x830\x10\xbc\xf3\x15&gt;\xa6\x87\x08\xcc#M$\x84\x94\x90F\xe2\xd0\x87J\xfb\x01`/\xa9\xa5b,\xe3\x1c\xf8\xfb\...\xa5/DY\x8a\xa7\xa5+\xeac\xfe\x8d\xf3\xb8\xef3\x127k\xfdx\xf0N\xe0\\\xe6\x89(\r\xf7kc\x063\xab\xe6\xe7\x0f\xd2\x8d\xa8'
+
+    def processStream(self, buffer):
+        unfilteredStream = None
+&gt;       metaObj = self.meta
+E       AttributeError: 'JObj' object has no attribute 'meta'
+
+jobj.py:90: AttributeError</failure><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase></testsuite></testsuites>
