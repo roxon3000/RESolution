@@ -13,7 +13,7 @@
     <RootNamespace>PdfREParser</RootNamespace>
     <IsWindowsApplication>False</IsWindowsApplication>
     <LaunchProvider>Standard Python launcher</LaunchProvider>
-    <CommandLineArguments>form-example.pdf</CommandLineArguments>
+    <CommandLineArguments>IF107-guide.pdf</CommandLineArguments>
     <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
     <TestFramework>unittest</TestFramework>
     <UnitTestPattern>test*.py</UnitTestPattern>
@@ -28,8 +28,15 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="jdoc.py" />
+    <Compile Include="jobj.py" />
+    <Compile Include="pdfparserconstants.py" />
     <Compile Include="PdfREParser.py" />
+    <Compile Include="test_lines.py" />
     <Compile Include="test_cases1.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="The-Art-of-Sales.pdf" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
