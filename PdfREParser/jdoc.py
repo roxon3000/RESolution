@@ -26,6 +26,8 @@ class JDoc:
                 pass
             case "obj-meta-cont":
                 hint = pdfparserconstants.OBJ_META
+            case "trailer-cont":
+                hint = pdfparserconstants.OBJ_META
             case "stream-start":
                 hint = pdfparserconstants.OBJ_STREAM
                 authoritative = True
@@ -36,6 +38,11 @@ class JDoc:
             return hint
 
     #ORDER OF RULES MATTER!
+
+    #TRAILER
+        if(currentLine.strip() == pdfparserconstants.TRAILER):
+            return pdfparserconstants.TRAILER
+
     #OBJ START RULES
         #if current line contains "obj" but not "endobj", meaning it is the start of the obj section.
         #look for obj on current line
@@ -99,6 +106,10 @@ class JDoc:
         #add empty meta section
         newObj.meta = []
         self.objs.append(newObj)
+        return newObj
+    def processStartTrailer(self):
+        newObj = jobj.JObj('trailer')
+        self.trailer = newObj
         return newObj
     def processObjMetaLine(self, currentLine, currentObj):
 
@@ -257,8 +268,8 @@ class JDoc:
 
             match lineType:
                 case "obj":
-                    rlState.currentObj = self.processStartObjLine(currentLine)
                     rlState.lastObj = rlState.currentObj
+                    rlState.currentObj = self.processStartObjLine(currentLine)
                 case "endobj":
                     rlState.prevObj = rlState.currentObj
                 case "obj-meta":
@@ -281,6 +292,11 @@ class JDoc:
                     #flip this so stream is only processed once
                     rlState.lastMetaObj.hasStream = False
                     containsStreamEnd = True
+                case "trailer":
+                    rlState.lastObj = rlState.currentObj
+                    rlState.currentObj = self.processStartTrailer()     
+                case "trailer-cont":
+                    rlState.isContinuation = True
                 case _:
                     pass
             rlState.lastLineType = lineType

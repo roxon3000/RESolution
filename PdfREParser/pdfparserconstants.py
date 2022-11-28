@@ -12,5 +12,5 @@ OBJ_META_CONT = "obj-meta-cont"
 OBJ_STREAM = "obj-stream"
 STREAM_START = "stream-start"
 STREAM_END = "stream-end"
-
+TRAILER = "trailer"
 UNKOWN = "unknown"
