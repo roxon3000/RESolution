@@ -2,22 +2,15 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>88e51b46-0bd9-44c4-9416-5eecf1c8b168</ProjectGuid>
+    <ProjectGuid>a59e606b-468b-49f7-90cc-c5645b19ef6d</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>PdfREParser.py</StartupFile>
+    <StartupFile>REAnalyzer.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
-    <Name>PdfREParser</Name>
-    <RootNamespace>PdfREParser</RootNamespace>
-    <IsWindowsApplication>False</IsWindowsApplication>
-    <LaunchProvider>Standard Python launcher</LaunchProvider>
-    <CommandLineArguments>form-example.pdf</CommandLineArguments>
-    <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
-    <TestFramework>unittest</TestFramework>
-    <UnitTestPattern>test*.py</UnitTestPattern>
-    <UnitTestRootDirectory>.</UnitTestRootDirectory>
+    <Name>REAnalyzer</Name>
+    <RootNamespace>REAnalyzer</RootNamespace>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -28,17 +21,11 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="jdoc.py" />
-    <Compile Include="jobj.py" />
-    <Compile Include="cmap.py" />
-    <Compile Include="pdfparserconstants.py" />
-    <Compile Include="PdfREParser.py" />
-    <Compile Include="test_streams.py" />
-    <Compile Include="test_lines.py" />
-    <Compile Include="test_cases1.py" />
+    <Compile Include="REAnalyzer.py" />
+    <Compile Include="rules\pdfrules.py" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="The-Art-of-Sales.pdf" />
+    <Folder Include="rules\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in

@@ -66,6 +66,11 @@ def main(arg1):
 
     f.close()
 
+    #post parse processing of JSON
+
+    #TODO heirarchical relationships and cmap processing
+
+
     with open(outputFile, 'w', encoding="ascii", errors="surrogateescape") as fw:
        
             fw.write(json.dumps(myDoc, default=vars))

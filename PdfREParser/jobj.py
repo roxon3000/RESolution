@@ -91,42 +91,49 @@ class JObj:
         unfilteredStream = None
         metaObj = self.meta
         encoding = "none"
+        uBuffer = None
+        decodeBuffer = buffer 
+        flateDecodeFailed = False
 
         if(hasattr(metaObj, "Filter") and metaObj.Filter == "FlateDecode"):
             
             try:
                 uBuffer = self.deflateBuffer(buffer)
                 #TODO: i don't like how I wrote this section in nested try/catch. will want to add more decoders later on
-                try:
-                    #try UTF-8. This may need to change or be configurable
-                    unicodeLine = uBuffer.decode(encoding="UTF-8", errors="strict")
-                    #remove these common unprintable characters for testing whether decode was a success
-                    testLine = unicodeLine.replace('\n','').replace('\r','')
-                    if(testLine.isprintable()):
-                        unfilteredStream = unicodeLine
-                    else:
-                        raise Exception('UTF8 Not Printable')
-                    encoding="UTF-8"
-                except Exception as inst:
-                    print("decoding failed:  Obj ID " + self.id)
-                    print(inst)
-                    try:
-                        #try ASCII. This may need to change or be configurable
-                        asciiLine = uBuffer.decode(encoding="ascii", errors="surrogateescape")
-                        testLine = asciiLine.replace('\n','').replace('\r','')
-                        if(asciiLine.isascii or testLine.isprintable()):
-                            unfilteredStream = asciiLine
-                        else:
-                            raise Exception('ASCII Not Printable... giving up on decoding')
-                        encoding="ascii"
-                    except Exception as inst:
-                        print("decoding failed:  Obj ID " + self.id)
-                        print(inst)
-                    
+                decodeBuffer = uBuffer            
             except Exception as inst:
                 print("Error occurred during decompression:  Obj ID " + self.id)
                 print(inst)
-            
+                flateDecodeFailed = True
+        
+        
+        #attempt decoding, even if there is no filter or deflate was successful
+        if(hasattr(metaObj, "Filter") == False or (flateDecodeFailed == False and uBuffer != None)):
+            try:
+                #try UTF-8. This may need to change or be configurable
+                unicodeLine = decodeBuffer.decode(encoding="UTF-8", errors="strict")
+                #remove these common unprintable characters for testing whether decode was a success
+                testLine = unicodeLine.replace('\n','').replace('\r','')
+                if(testLine.isprintable()):
+                    unfilteredStream = unicodeLine
+                else:
+                    raise Exception('UTF8 Not Printable')
+                encoding="UTF-8"
+            except Exception as inst:
+                print("decoding failed:  Obj ID " + self.id)
+                print(inst)
+                try:
+                    #try ASCII. This may need to change or be configurable
+                    asciiLine = decodeBuffer.decode(encoding="ascii", errors="surrogateescape")
+                    testLine = asciiLine.replace('\n','').replace('\r','')
+                    if(asciiLine.isascii or testLine.isprintable()):
+                        unfilteredStream = asciiLine
+                    else:
+                        raise Exception('ASCII Not Printable... giving up on decoding')
+                    encoding="ascii"
+                except Exception as inst:
+                    print("decoding failed:  Obj ID " + self.id)
+                    print(inst)
 
         self.unfilteredStream = unfilteredStream
         self.derivedStreamEncoding = encoding
