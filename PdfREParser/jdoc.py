@@ -5,6 +5,7 @@ import base64
 class JDoc:
     def __init__(meo, name):
         meo.name = name        
+        meo.fileType = 'PDF'
 
     def determineLineType(self, currentLine, lastLine, lastLineType, lastObj, lastMetaObj):
 

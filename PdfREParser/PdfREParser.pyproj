@@ -13,7 +13,7 @@
     <RootNamespace>PdfREParser</RootNamespace>
     <IsWindowsApplication>False</IsWindowsApplication>
     <LaunchProvider>Standard Python launcher</LaunchProvider>
-    <CommandLineArguments>form-example.pdf</CommandLineArguments>
+    <CommandLineArguments>link.pdf</CommandLineArguments>
     <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
     <TestFramework>unittest</TestFramework>
     <UnitTestPattern>test*.py</UnitTestPattern>
@@ -30,7 +30,6 @@
   <ItemGroup>
     <Compile Include="jdoc.py" />
     <Compile Include="jobj.py" />
-    <Compile Include="cmap.py" />
     <Compile Include="pdfparserconstants.py" />
     <Compile Include="PdfREParser.py" />
     <Compile Include="test_streams.py" />

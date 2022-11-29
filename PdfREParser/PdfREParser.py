@@ -1,7 +1,5 @@
 
 import json
-import base64
-import zlib 
 import sys
 import pdfparserconstants
 import jdoc

@@ -1,4 +1,5 @@
 from base64 import b85decode
+from cmath import isnan
 import pdfparserconstants
 import zlib
 import base64
@@ -11,11 +12,13 @@ class JObj:
     def __setattr__(self, name, value):
         newVal = value
 
+        name = self.cleanValue(name, 'key')
+
         #don't clean streams
         if(name == 'unfilteredStream' or name == 'stream'):
             pass
         else:
-            newVal = self.cleanValue(value)
+            newVal = self.cleanValue(value, 'val')
             
         self.__dict__[name] = newVal
 
@@ -23,9 +26,9 @@ class JObj:
         word = self.parseBracketedList(word)
         if(self.propRulesCheck(word)): 
             keyval = word.split(' ')
-            key = self.cleanValue(keyval[0])
+            key = self.cleanValue(keyval[0], 'key')
             if(len(keyval) == 2):
-                val = self.cleanValue(keyval[1])                   
+                val = self.cleanValue(keyval[1], 'val')                   
                 self.__setattr__(key, val)
             elif(len(keyval) == 1):
                 self.__setattr__(key, True)
@@ -53,7 +56,7 @@ class JObj:
             newVal = newVal.replace(']','')
             word = newVal                
         return word
-    def cleanValue(self, value):
+    def cleanValue(self, value, source):
         newVal = ""
         
         if(isinstance(value, str) and len(value) > 0):
@@ -65,13 +68,29 @@ class JObj:
             newVal = newVal.replace(pdfparserconstants.FF,'')
             newVal = newVal.replace('[','')
             newVal = newVal.replace(']','')
+
+            if(source == "key"):
+                #fix int attrs to make compliant
+                if(newVal[0:1].isnumeric()):
+                    newVal = 'n' + newVal
+
+                #remove plus/minus sign
+                newVal = newVal.replace('+', '_')
+                newVal = newVal.replace('-', '_')
+                #remove parens
+                newVal = newVal.replace('(', '_')
+                newVal = newVal.replace(')', '_')
+
+                newVal = newVal.strip()
+
+
   
         else:
             cleanValList = []
             #check to see if it's a list
             if(isinstance(value, list)):
                 for i in range(0, len(value)):
-                    checkVal = self.cleanValue(value[i])
+                    checkVal = self.cleanValue(value[i], 'val')
                     if(checkVal != ''):
                         cleanValList.append(checkVal)
                 if(len(cleanValList) == 1):
