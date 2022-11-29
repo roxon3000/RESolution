@@ -9,6 +9,7 @@ class JObj:
         newVal = value
         self.__dict__[name] = newVal
 
-    def update(self, obj):
-        self.__dict__.update(obj.__dict__.items())      
+    def update(self, obj, mapper, newDoc, rawDoc):
+        mapper(self, obj, newDoc, rawDoc)
+        #self.__dict__.update(obj._asdict().items())      
    

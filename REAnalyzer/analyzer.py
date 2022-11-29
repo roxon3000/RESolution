@@ -18,12 +18,12 @@ def analyze(inputFile):
             case _:
                 raise Exception("Unsupported File Type: " + fileType)
 
-        analyzer.analyze()
+        results = analyzer.analyze()
 
     tr.close()
 
 def customDocDecoder(docDict):
-    return namedtuple('X', docDict.keys())(*docDict.values())
+    return namedtuple('ParserJson', docDict.keys())(*docDict.values())
 
 
 if __name__ == '__main__':

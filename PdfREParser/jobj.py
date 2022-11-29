@@ -34,7 +34,23 @@ class JObj:
                 self.__setattr__(key, True)
             else:
                 keyval.pop(0)
+                #check to see if value are obj refs
+                keyval = self.objectReferenceCheck(keyval)
                 self.__setattr__(key, keyval)
+    def objectReferenceCheck(self, valList):
+        newList = valList
+        #check for pattern that matches obj ref "<num> <num> R"
+        if(isinstance(valList, list) and len(valList) > 2):
+            if( valList[0].isnumeric() and valList[1].isnumeric() and valList[2] == 'R'):
+                newList = " ".join(valList).split('R')
+                #pop last element
+                newList.pop(len(newList)-1)
+                #add back the R for fun and jic
+                for i in range(len(newList)):
+                    newList[i] = newList[i] + "R"
+
+        return newList
+
     def propRulesCheck(self, prop):
         
         #don't add empty properties
@@ -77,9 +93,10 @@ class JObj:
                 #remove plus/minus sign
                 newVal = newVal.replace('+', '_')
                 newVal = newVal.replace('-', '_')
-                #remove parens
+                #remove parens, colon
                 newVal = newVal.replace('(', '_')
                 newVal = newVal.replace(')', '_')
+                newVal = newVal.replace(':', '_')
 
                 newVal = newVal.strip()
 

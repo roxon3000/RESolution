@@ -22,7 +22,13 @@ class JDoc:
                     hint = pdfparserconstants.PDF_FIRSTLINE
                     authoritative = True
             case "obj":
-                hint = pdfparserconstants.OBJ_META
+                #check to see if meta obj begin tag exists
+                bbCount = currentLine.count(pdfparserconstants.BB)
+                if(bbCount > 0):
+                    hint = pdfparserconstants.OBJ_META
+                else:
+                    hint = pdfparserconstants.CONTENT
+                    authoritative = True
             case "obj-meta":
                 pass
             case "obj-meta-cont":
@@ -272,7 +278,10 @@ class JDoc:
                     rlState.lastObj = rlState.currentObj
                     rlState.currentObj = self.processStartObjLine(currentLine)
                 case "endobj":
+                    if(rlState.lastLineType == pdfparserconstants.CONTENT):
+                        rlState.currentObj.content = rlState.lastLine
                     rlState.prevObj = rlState.currentObj
+                    rlState.isContinuation = False
                 case "obj-meta":
                     rlState.currentMetaObj = self.processObjMetaLine(currentLine, rlState.currentObj)
                     if(rlState.currentMetaObj.hasStream):
@@ -297,6 +306,10 @@ class JDoc:
                     rlState.lastObj = rlState.currentObj
                     rlState.currentObj = self.processStartTrailer()     
                 case "trailer-cont":
+                    rlState.isContinuation = True
+                case "content":
+                    rlState.isContinuation = True
+                case "content-cont":
                     rlState.isContinuation = True
                 case _:
                     pass

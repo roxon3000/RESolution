@@ -12,7 +12,7 @@
     <Name>REAnalyzer</Name>
     <RootNamespace>REAnalyzer</RootNamespace>
     <LaunchProvider>Standard Python launcher</LaunchProvider>
-    <CommandLineArguments>../PdfREParser/link.pdf.json</CommandLineArguments>
+    <CommandLineArguments>../PdfREParser/The-Art-of-Sales.pdf.json</CommandLineArguments>
     <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
     <IsWindowsApplication>False</IsWindowsApplication>
   </PropertyGroup>
@@ -29,6 +29,7 @@
     <Compile Include="analyzer.py" />
     <Compile Include="jobj.py" />
     <Compile Include="pdfanalyzer.py" />
+    <Compile Include="pdfUtil.py" />
     <Compile Include="REAnalyzer.py" />
     <Compile Include="rules\pdfrules.py" />
   </ItemGroup>

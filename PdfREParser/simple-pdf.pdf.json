@@ -1,5 +1,6 @@
 {
   "name": "default",
+  "fileType": "PDF",
   "objs": [
     {
       "id": "12",
@@ -51,17 +52,10 @@
       "meta": {
         "id": "test",
         "hasStream": false,
-        "Params ": {
-          "id": "test",
-          "hasStream": false,
-          "Size": "2133",
-          "Filter": "FlateDecode",
-          "Length": "1664"
-        },
+        "Params": "",
         "Type": "EmbeddedFile",
         "Subtype": true,
         "application#2Fvnd.jgraph.mxfile": true,
-        "Params": "",
         "Size": "2133",
         "Filter": "FlateDecode",
         "Length": "1664"
@@ -95,16 +89,8 @@
         "id": "test",
         "hasStream": false,
         "Size": "19",
-        "Root": [
-          "2",
-          "0",
-          "R"
-        ],
-        "Info": [
-          "3",
-          "0",
-          "R"
-        ],
+        "Root": "2 0 R",
+        "Info": "3 0 R",
         "Filter": "FlateDecode",
         "Type": "XRef",
         "Length": "71",
