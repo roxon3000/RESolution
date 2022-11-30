@@ -53,7 +53,10 @@ def rootMapper(newObj, obj, newDoc, rawDoc):
                 if(pagesObjt != None):
                     pagesObjr = findRawObj(rawDoc, pagesObjt)
                     newObj.pages = jobj.JObj()
-                    newObj.pages.update(pagesObjr.meta, infoMapper, newDoc, rawDoc)
+                    if(pagesObjr != None):
+                        newObj.pages.update(pagesObjr.meta, infoMapper, newDoc, rawDoc)
+                    else:
+                        newObj.pages.message = "Pages object was not found"
             case "Title":
                 newObj.title = join(" " , obj.Title)
             case _:

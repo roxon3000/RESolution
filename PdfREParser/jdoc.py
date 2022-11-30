@@ -207,10 +207,22 @@ class JDoc:
             #special prop rules - eventually should externalize these
             #TODO: add more prop rules where they make sense.  Type=Filter for example
             if(prop == "Type" 
-                or prop == "Filter"):
+                or prop == "Filter"
+                or prop == "Filter["
+                or prop == "BaseVersion"):
                 propRuleInEffect = "BuildRule"
                 propBuilder = prop
-
+            
+            #common pattern where data is embedded inline
+            if(   prop.count("U(") > 0
+               or prop.count("O(") > 0
+               or prop.count("CheckSum(") > 0
+               or prop.count("ModDate(") > 0
+               or prop.count("Name(") > 0
+               or prop.count("Date(") > 0
+               or prop.count("Lang(") > 0
+               or prop.count("CreationDate(") > 0):
+                prop = prop.replace('(', ' ').replace(')', '')
             
             if(propRuleInEffect == "none"):
                 newMetaObj.mutate(prop)

@@ -3,7 +3,7 @@ import uuid
 
 class JObj:
     def __init__(meo):
-        meo.id = uuid.uuid4()
+        meo.id = uuid.uuid4().hex
 
     def __setattr__(self, name, value):
         newVal = value
