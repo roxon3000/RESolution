@@ -66,7 +66,10 @@ def main(arg1):
 
     #post parse processing of JSON
 
-    #TODO heirarchical relationships and cmap processing
+    #Process compressed objects in ObjStm objects
+    for obj in myDoc.objs:
+        if(hasattr(obj.meta, 'Type') and obj.meta.Type == "ObjStm" and hasattr(obj, 'unfilteredStream')):
+            myDoc.processObjectStreamLine(obj.unfilteredStream, int(obj.meta.First), int(obj.meta.N))
 
 
     with open(outputFile, 'w', encoding="ascii", errors="surrogateescape") as fw:

@@ -12,7 +12,7 @@
     <Name>REAnalyzer</Name>
     <RootNamespace>REAnalyzer</RootNamespace>
     <LaunchProvider>Standard Python launcher</LaunchProvider>
-    <CommandLineArguments>../PdfREParser/IF107-guide.pdf.json</CommandLineArguments>
+    <CommandLineArguments>../PdfREParser/simple-pdf.pdf.json</CommandLineArguments>
     <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
     <IsWindowsApplication>False</IsWindowsApplication>
   </PropertyGroup>

@@ -8,6 +8,7 @@ class JObj:
     def __init__(meo, id):
         meo.id = id
         meo.hasStream = False
+        
 
     def __setattr__(self, name, value):
         newVal = value

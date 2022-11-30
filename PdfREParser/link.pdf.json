@@ -7,21 +7,23 @@
       "hasStream": false,
       "version": "0",
       "meta": [
-      ]
+      ],
+      "content": "(Identity)"
     },
     {
       "id": "5",
       "hasStream": false,
       "version": "0",
       "meta": [
-      ]
+      ],
+      "content": "(Adobe)"
     },
     {
       "id": "8",
       "hasStream": false,
       "version": "0",
       "meta": {
-        "id": "test",
+        "id": "meta",
         "hasStream": false,
         "Filter": "FlateDecode",
         "Length": "186112",
@@ -37,23 +39,15 @@
       "hasStream": false,
       "version": "0",
       "meta": {
-        "id": "test",
+        "id": "meta",
         "hasStream": false,
         "DescendantFonts": [
         ],
         "BaseFont": true,
         "CIDFont_F1": true,
         "CIDSystemInfo": "",
-        "Ordering": [
-          "4",
-          "0",
-          "R"
-        ],
-        "Registry": [
-          "5",
-          "0",
-          "R"
-        ],
+        "Ordering": "4 0 R",
+        "Registry": "5 0 R",
         "Supplement": "0",
         "CIDToGIDMap": true,
         "Identity": true,
@@ -62,23 +56,11 @@
         "CapHeight": "631",
         "Descent": "-268",
         "Flags": "6",
-        "FontBBox": [
-          "6",
-          "0",
-          "R"
-        ],
-        "FontFile2": [
-          "8",
-          "0",
-          "R"
-        ],
+        "FontBBox": "6 0 R",
+        "FontFile2": "8 0 R",
         "FontName": true,
         "ItalicAngle": "0",
-        "StemV": [
-          "7",
-          "0",
-          "R"
-        ],
+        "StemV": "7 0 R",
         "Type": "Font",
         "Subtype": true,
         "CIDFontType2": true,
@@ -90,11 +72,7 @@
         "Encoding": true,
         "Identity_H": true,
         "Type0": true,
-        "ToUnicode": [
-          "10",
-          "0",
-          "R"
-        ]
+        "ToUnicode": "10 0 R"
       }
     },
     {
@@ -102,7 +80,7 @@
       "hasStream": false,
       "version": "0",
       "meta": {
-        "id": "test",
+        "id": "meta",
         "hasStream": false,
         "Filter": "FlateDecode",
         "Length": "286"
@@ -116,7 +94,7 @@
       "hasStream": false,
       "version": "0",
       "meta": {
-        "id": "test",
+        "id": "meta",
         "hasStream": false,
         "Font": "",
         "F1": [
@@ -131,7 +109,7 @@
       "hasStream": false,
       "version": "0",
       "meta": {
-        "id": "test",
+        "id": "meta",
         "hasStream": false,
         "Contents": [
           "12",
@@ -150,16 +128,8 @@
           "612.0",
           "792.0"
         ],
-        "Parent": [
-          "2",
-          "0",
-          "R"
-        ],
-        "Resources": [
-          "13",
-          "0",
-          "R"
-        ],
+        "Parent": "2 0 R",
+        "Resources": "13 0 R",
         "Rotate": "0",
         "Type": "Page"
       }
@@ -169,7 +139,7 @@
       "hasStream": false,
       "version": "0",
       "meta": {
-        "id": "test",
+        "id": "meta",
         "hasStream": false,
         "Length": "521"
       },
@@ -182,28 +152,31 @@
       "hasStream": false,
       "version": "0",
       "meta": [
-      ]
+      ],
+      "content": " 3 3 226 18 18 533 62 62 420 100 100 487 258 258 479 271 271 525 272 272 422 286 286 497 346 346 525 349 349 229 364 364 454 367 367 229 374 374 525 400 400 391 "
     },
     {
       "id": "6",
       "hasStream": false,
       "version": "0",
       "meta": [
-      ]
+      ],
+      "content": " -533 -268 533 952 "
     },
     {
       "id": "7",
       "hasStream": false,
       "version": "0",
       "meta": [
-      ]
+      ],
+      "content": "533"
     },
     {
       "id": "2",
       "hasStream": false,
       "version": "0",
       "meta": {
-        "id": "test",
+        "id": "meta",
         "hasStream": false,
         "Count": "1",
         "Kids": [
@@ -219,13 +192,9 @@
       "hasStream": false,
       "version": "0",
       "meta": {
-        "id": "test",
+        "id": "meta",
         "hasStream": false,
-        "Pages": [
-          "2",
-          "0",
-          "R"
-        ],
+        "Pages": "2 0 R",
         "Type": "Catalog"
       }
     },
@@ -234,7 +203,7 @@
       "hasStream": false,
       "version": "0",
       "meta": {
-        "id": "test",
+        "id": "meta",
         "hasStream": false,
         "Author": "(jgood)",
         "CreationDate": "(D:20221128131653-05'00')",
@@ -259,18 +228,10 @@
     "id": "trailer",
     "hasStream": false,
     "meta": {
-      "id": "test",
+      "id": "meta",
       "hasStream": false,
-      "Info": [
-        "14",
-        "0",
-        "R"
-      ],
-      "Root": [
-        "1",
-        "0",
-        "R"
-      ],
+      "Info": "14 0 R",
+      "Root": "1 0 R",
       "Size": "15"
     }
   }

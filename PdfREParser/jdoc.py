@@ -145,7 +145,7 @@ class JDoc:
 
         sanityCheck = sanityCheck + 1
 
-        newMetaObj = jobj.JObj("test")
+        newMetaObj = jobj.JObj("meta")
         #find the end of the meta obj
         endOfMetaObjIndex = self.findEndOfObject(metaLine)
         #identify leftover on the line after end of object. most often demarcation of stream
@@ -172,7 +172,7 @@ class JDoc:
                 propLine = "notset"
                 break
             
-            mySubObj = jobj.JObj("test")    
+            mySubObj = jobj.JObj("sub-meta")    
             #more parsing needed since it's an object
             #identify and remove subObj's key
             keyEnd = myword.find(pdfparserconstants.BB)
@@ -206,10 +206,12 @@ class JDoc:
 
             #special prop rules - eventually should externalize these
             #TODO: add more prop rules where they make sense.  Type=Filter for example
-            if(prop == "Type" 
-                or prop == "Filter"
-                or prop == "Filter["
-                or prop == "BaseVersion"):
+            propTest = prop.lower()
+            if(propTest == "type" 
+                or propTest == "filter"
+                or propTest == "filter["
+                or propTest == "subtype"
+                or propTest == "baseversion"):
                 propRuleInEffect = "BuildRule"
                 propBuilder = prop
             
@@ -265,6 +267,55 @@ class JDoc:
 
 
         return endOfObjIndex
+    def processObjectStreamLine(self, unfilteredStreamLine, firstOffset, numberOfObjects):
+        #parse id/offset pairs
+        firstBBpos = unfilteredStreamLine.find(pdfparserconstants.BB)
+
+        idOffsetPairs = unfilteredStreamLine[0:firstBBpos]  # this should match firstOffset
+
+        shardList = idOffsetPairs.split(' ')
+        objRefList = []
+        od = 0
+        newObjRef = jobj.JObj(0)
+        prevObjRef = None
+        shardCount = 0
+        for shard in shardList:
+            if(len(shard.strip()) < 1):
+                shardCount = shardCount + 1
+                continue
+            if(od == 0):
+                newObjRef.id = shard
+            else:
+                newObjRef.start = int(shard) + firstOffset
+                if(prevObjRef != None):
+                    prevObjRef.end = newObjRef.start - 1 
+                objRefList.append(newObjRef)
+                prevObjRef = newObjRef
+                newObjRef = jobj.JObj(0)
+
+            if(od == 0):
+                od = 1
+            else:
+                od = 0
+
+            if(shardCount == (numberOfObjects*2) - 1):
+                prevObjRef.end = len(unfilteredStreamLine)
+
+            shardCount = shardCount + 1
+        
+        for objRef in objRefList:
+            objId = objRef.id
+           
+            metaLine = unfilteredStreamLine[objRef.start:objRef.end]
+            
+            #print('*********************************')
+            #print(metaLine)
+            #print('*********************************')
+            currentObj = jobj.JObj(objId)
+            currentObj.version = '0'
+            self.processObjMetaLine(metaLine, currentObj)
+            self.objs.append(currentObj)
+
     def processRawLine(self, rawline, rlState, unfilterStreamFlag):
             
         #since reading in binary, need to account for carriage returns

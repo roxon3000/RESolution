@@ -13,7 +13,7 @@
     <RootNamespace>PdfREParser</RootNamespace>
     <IsWindowsApplication>False</IsWindowsApplication>
     <LaunchProvider>Standard Python launcher</LaunchProvider>
-    <CommandLineArguments>IF107-guide.pdf</CommandLineArguments>
+    <CommandLineArguments>simple-pdf.pdf</CommandLineArguments>
     <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
     <TestFramework>unittest</TestFramework>
     <UnitTestPattern>test*.py</UnitTestPattern>
@@ -35,6 +35,7 @@
     <Compile Include="test_streams.py" />
     <Compile Include="test_lines.py" />
     <Compile Include="test_cases1.py" />
+    <Compile Include="xrefUtil.py" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="The-Art-of-Sales.pdf" />

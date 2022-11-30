@@ -2,14 +2,21 @@ import jobj
 
 def genericMapper(newObj, obj, newDoc, rawDoc):
 
-    #check for meta
+    #check for meta (flatten)
     if(hasattr(obj, "meta") and hasattr(obj.meta, "_asdict")):
-        obj = obj.meta
+        genericObjectMapper(obj.meta, rawDoc, newDoc, newObj)
+    
+    genericObjectMapper(obj, rawDoc, newDoc, newObj)
 
+def genericObjectMapper(obj, rawDoc, newDoc, newObj):
     if(hasattr(obj, "_asdict")):
         for key, val in obj._asdict().items():
 
+            if(key == "unfilteredStream"):
+                x = 1
             match key:
+                case "Contents" | "Kids":
+                    genericObjRefHandler(key, val, rawDoc, newDoc, newObj)
                 case "meta":
                     pass
                 case _:
@@ -49,18 +56,30 @@ def rootMapper(newObj, obj, newDoc, rawDoc):
 
         match key:
             case "Pages":
-                pagesObjt = parseObjDef(val)
-                if(pagesObjt != None):
-                    pagesObjr = findRawObj(rawDoc, pagesObjt)
-                    newObj.pages = jobj.JObj()
-                    if(pagesObjr != None):
-                        newObj.pages.update(pagesObjr.meta, infoMapper, newDoc, rawDoc)
-                    else:
-                        newObj.pages.message = "Pages object was not found"
+                genericObjRefHandler(key, val, rawDoc, newDoc, newObj)
             case "Title":
                 newObj.title = join(" " , obj.Title)
             case _:
                 newObj.__setattr__(key.lower(), val)
+
+def genericObjRefHandler(key, val, rawDoc, newDoc, newObj):
+    objt = parseObjDef(val)
+    key = key.lower()
+    if(objt != None):
+        objr = findRawObj(rawDoc, objt)        
+        if(objr != None):
+            childObj = jobj.JObj()
+            childObj.objectNumber = objr.id
+            childObj.generationNumber = objr.version
+            newObj.__setattr__(key, childObj)
+            
+            newObj.getAttr(key).update(objr, genericMapper, newDoc, rawDoc)
+            return True
+        else:
+            newObj.__setattr__(key, key + " object was not found")
+            return False
+
+    return False
 
 def findRawObj(rawDoc, tObject):
 
@@ -79,11 +98,15 @@ def join(delimiter, listIn):
 def parseObjDef(obj):
     newObj = None
 
-    splitObj = obj.split(' ')
+    if(isinstance(obj, list)):
+        obj= join(' ', obj)
 
-    if( splitObj[0].isnumeric() and splitObj[1].isnumeric() and splitObj[2] == 'R'):
-        newObj = jobj.JObj()
-        newObj.objectNumber = splitObj[0]
-        newObj.generationNumber = splitObj[1]
+    if(isinstance(obj, str)):
+        splitObj = obj.split(' ')
+
+        if(len(splitObj) > 2 and splitObj[0].isnumeric() and splitObj[1].isnumeric() and splitObj[2] == 'R'):
+            newObj = jobj.JObj()
+            newObj.objectNumber = splitObj[0]
+            newObj.generationNumber = splitObj[1]
 
     return newObj
