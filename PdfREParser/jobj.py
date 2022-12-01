@@ -94,10 +94,15 @@ class JObj:
                 #remove plus/minus sign
                 newVal = newVal.replace('+', '_')
                 newVal = newVal.replace('-', '_')
-                #remove parens, colon
+                #remove parens, colon, period
                 newVal = newVal.replace('(', '_')
                 newVal = newVal.replace(')', '_')
                 newVal = newVal.replace(':', '_')
+                newVal = newVal.replace('.', '_')
+
+                #first char cannot be an undercore
+                if(newVal[0:1] == '_'):
+                    newVal = 'x' + newVal
 
                 newVal = newVal.strip()
 
