@@ -20,7 +20,7 @@ def genericObjectMapper(obj, rawDoc, newDoc, newObj):
                 case "meta":
                     pass
                 case _:
-                    newObj.__setattr__(key.lower(), val)
+                    newObj.__setattr__(key, val)
 
 def infoMapper(newObj, obj, newDoc, rawDoc):
 
@@ -36,18 +36,18 @@ def infoMapper(newObj, obj, newDoc, rawDoc):
                     prodObjt = parseObjDef(val)
                     if(prodObjt != None):
                         prodObjr = findRawObj(rawDoc, prodObjt)
-                        newObj.producer = jobj.JObj()
-                        newObj.producer.update(prodObjr, genericMapper, newDoc, rawDoc)
+                        newObj.Producer = jobj.JObj()
+                        newObj.Producer.update(prodObjr, genericMapper, newDoc, rawDoc)
                     else:
-                        newObj.producer = join(" ", obj.Producer)
+                        newObj.Producer = join(" ", obj.Producer)
                 case "Title":
-                    newObj.title = join(" " , obj.Title)
+                    newObj.Title = join(" " , obj.Title)
                 case "id":
                     newObj.objectNumber = val
                 case "version":
                     newObj.generationNumber = val
                 case _:
-                    newObj.__setattr__(key.lower(), val)
+                    newObj.__setattr__(key, val)
 
 
 def rootMapper(newObj, obj, newDoc, rawDoc):
@@ -58,13 +58,12 @@ def rootMapper(newObj, obj, newDoc, rawDoc):
             case "Pages":
                 genericObjRefHandler(key, val, rawDoc, newDoc, newObj)
             case "Title":
-                newObj.title = join(" " , obj.Title)
+                newObj.Title = join(" " , obj.Title)
             case _:
-                newObj.__setattr__(key.lower(), val)
+                newObj.__setattr__(key, val)
 
 def genericObjRefHandler(key, val, rawDoc, newDoc, newObj):
     objt = parseObjDef(val)
-    key = key.lower()
     if(objt != None):
         objr = findRawObj(rawDoc, objt)        
         if(objr != None):

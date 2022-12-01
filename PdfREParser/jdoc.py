@@ -139,6 +139,9 @@ class JDoc:
 
     def parseMetaObject(self, metaLine, sanityCheck):
         
+        if(metaLine.count('65 0 R') > 0):
+            x = 1
+
         #only allow 100 levels of recursivity
         if(sanityCheck > 100):
             return None
@@ -156,13 +159,14 @@ class JDoc:
             #remove leftOver from metaLine. Only remove leftover if recursivivity is level 1
             if(sanityCheck < 2):
                 #print("Removing left over from metaLine: " + leftOver)
-                metaLine = metaLine.replace(leftOver, "")
+                #metaLine = metaLine.replace(leftOver, "")
+                metaLine = metaLine[0: endOfMetaObjIndex + 2]
                 #determine if leftover is stream demarcation since it may not have a new line
                 if(leftOver.find("stream") > -1):
                     newMetaObj.hasStream = True
 
         #assum first 2 chars are BB
-        myword = metaLine[2 : endOfMetaObjIndex]
+        myword = metaLine[2 : endOfMetaObjIndex - 1]
         propLine = ""
 
         #check for any deeper meta's. There may be multiple trees per level, thus the While loop 
@@ -194,12 +198,15 @@ class JDoc:
         #parse props
         if(propLine == "notset"):
             propLine = metaLine
+
         subProps = propLine.split('/')
         propRuleInEffect = "none"
         propBuilder = ""
         for prop in subProps:
-
             prop = prop.strip()
+            if(prop == pdfparserconstants.BB or prop == pdfparserconstants.FF):
+                continue
+
             if(propRuleInEffect == "BuildRule"):
                 propRuleInEffect = "none"
                 prop = propBuilder + " " + prop
@@ -290,7 +297,7 @@ class JDoc:
 
 
         return endOfObjIndex
-    def processObjectStreamLine(self, unfilteredStreamLine, firstOffset, numberOfObjects):
+    def processObjectStreamLine(self, unfilteredStreamLine, firstOffset, numberOfObjects, parentId):
         #parse id/offset pairs
         #Not all objects will be meta objects. some may be plain content, or reference lists, etc
         
@@ -341,6 +348,9 @@ class JDoc:
                 self.processObjMetaLine(metaLine, currentObj)
             else:
                 currentObj.content = metaLine
+
+            currentObj.fromObjectStream = True
+            currentObj.objectStreamId = parentId
             self.objs.append(currentObj)
 
     def processRawLine(self, rawline, rlState, unfilterStreamFlag):
