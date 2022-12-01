@@ -5,6 +5,7 @@ import base64
 class JDoc:
     def __init__(meo, name):
         meo.name = name        
+        meo.fileType = 'PDF'
 
     def determineLineType(self, currentLine, lastLine, lastLineType, lastObj, lastMetaObj):
 
@@ -21,7 +22,13 @@ class JDoc:
                     hint = pdfparserconstants.PDF_FIRSTLINE
                     authoritative = True
             case "obj":
-                hint = pdfparserconstants.OBJ_META
+                #check to see if meta obj begin tag exists
+                bbCount = currentLine.count(pdfparserconstants.BB)
+                if(bbCount > 0):
+                    hint = pdfparserconstants.OBJ_META
+                else:
+                    hint = pdfparserconstants.CONTENT
+                    authoritative = True
             case "obj-meta":
                 pass
             case "obj-meta-cont":
@@ -138,7 +145,7 @@ class JDoc:
 
         sanityCheck = sanityCheck + 1
 
-        newMetaObj = jobj.JObj("test")
+        newMetaObj = jobj.JObj("meta")
         #find the end of the meta obj
         endOfMetaObjIndex = self.findEndOfObject(metaLine)
         #identify leftover on the line after end of object. most often demarcation of stream
@@ -148,7 +155,7 @@ class JDoc:
             leftOver = metaLine[endOfMetaObjIndex + 2: len(metaLine)]
             #remove leftOver from metaLine. Only remove leftover if recursivivity is level 1
             if(sanityCheck < 2):
-                print("Removing left over from metaLine: " + leftOver)
+                #print("Removing left over from metaLine: " + leftOver)
                 metaLine = metaLine.replace(leftOver, "")
                 #determine if leftover is stream demarcation since it may not have a new line
                 if(leftOver.find("stream") > -1):
@@ -165,7 +172,7 @@ class JDoc:
                 propLine = "notset"
                 break
             
-            mySubObj = jobj.JObj("test")    
+            mySubObj = jobj.JObj("sub-meta")    
             #more parsing needed since it's an object
             #identify and remove subObj's key
             keyEnd = myword.find(pdfparserconstants.BB)
@@ -197,13 +204,50 @@ class JDoc:
                 propRuleInEffect = "none"
                 prop = propBuilder + " " + prop
 
+            if(propRuleInEffect == "BuildRuleParen"):
+                prop = propBuilder + prop
+                if(prop.count(')') > 0):
+                    propRuleInEffect = "none"
+
+            if(propRuleInEffect == "BuildFromBracketedList"):
+                prop = propBuilder + " " + prop
+                if(prop.count(']') > 0):
+                    propRuleInEffect = "none"
+
             #special prop rules - eventually should externalize these
             #TODO: add more prop rules where they make sense.  Type=Filter for example
-            if(prop == "Type" 
-                or prop == "Filter"):
+            propTest = prop.lower()
+            if(propTest == "type" 
+                or propTest == "filter"
+                or propTest == "filter["
+                or propTest == "subtype"
+                or propTest == "baseversion"):
                 propRuleInEffect = "BuildRule"
                 propBuilder = prop
+            
+            #common pattern where data is embedded inline
+            if(   prop.count("U(") > 0
+               or prop.count("O(") > 0
+               or prop.count("CheckSum(") > 0
+               or prop.count("ModDate(") > 0
+               or prop.count("Name(") > 0
+               or prop.count("Date(") > 0
+               or prop.count("Lang(") > 0
+               or prop.count("Title(") > 0
+               or prop.count("ActualText(") > 0
+               or prop.count("CreationDate(") > 0):
 
+                #check for close paren to make sure this crap closes
+                if(prop.count(')') == 0):
+                    propRuleInEffect = "BuildRuleParen"
+                    propBuilder = prop
+
+                prop = prop.replace('(', ' ').replace(')', '')
+
+            #prop may contain a bracket list
+            if(prop.count('[') == 1 and prop.count(']') == 0):
+                propRuleInEffect = "BuildFromBracketedList"
+                propBuilder = prop
             
             if(propRuleInEffect == "none"):
                 newMetaObj.mutate(prop)
@@ -246,6 +290,59 @@ class JDoc:
 
 
         return endOfObjIndex
+    def processObjectStreamLine(self, unfilteredStreamLine, firstOffset, numberOfObjects):
+        #parse id/offset pairs
+        #Not all objects will be meta objects. some may be plain content, or reference lists, etc
+        
+
+        idOffsetPairs = unfilteredStreamLine[0:firstOffset]  # this should match firstOffset
+
+        shardList = idOffsetPairs.split(' ')
+        objRefList = []
+        od = 0
+        newObjRef = jobj.JObj(0)
+        prevObjRef = None
+        shardCount = 0
+        for shard in shardList:
+            if(len(shard.strip()) < 1):
+                shardCount = shardCount + 1
+                continue
+            if(od == 0):
+                newObjRef.id = shard
+            else:
+                newObjRef.start = int(shard) + firstOffset
+                if(prevObjRef != None):
+                    prevObjRef.end = newObjRef.start  
+                objRefList.append(newObjRef)
+                prevObjRef = newObjRef
+                newObjRef = jobj.JObj(0)
+
+            if(od == 0):
+                od = 1
+            else:
+                od = 0
+
+            if(shardCount == (numberOfObjects*2) - 1):
+                prevObjRef.end = len(unfilteredStreamLine)
+
+            shardCount = shardCount + 1
+        
+        for objRef in objRefList:
+            objId = objRef.id
+           
+            metaLine = unfilteredStreamLine[objRef.start:objRef.end]
+            firstBBpos = metaLine.find(pdfparserconstants.BB)
+            #print('*********************************')
+            #print(metaLine)
+            #print('*********************************')
+            currentObj = jobj.JObj(objId)
+            currentObj.version = '0'
+            if(firstBBpos >= 0):
+                self.processObjMetaLine(metaLine, currentObj)
+            else:
+                currentObj.content = metaLine
+            self.objs.append(currentObj)
+
     def processRawLine(self, rawline, rlState, unfilterStreamFlag):
             
         #since reading in binary, need to account for carriage returns
@@ -271,7 +368,10 @@ class JDoc:
                     rlState.lastObj = rlState.currentObj
                     rlState.currentObj = self.processStartObjLine(currentLine)
                 case "endobj":
+                    if(rlState.lastLineType == pdfparserconstants.CONTENT):
+                        rlState.currentObj.content = rlState.lastLine
                     rlState.prevObj = rlState.currentObj
+                    rlState.isContinuation = False
                 case "obj-meta":
                     rlState.currentMetaObj = self.processObjMetaLine(currentLine, rlState.currentObj)
                     if(rlState.currentMetaObj.hasStream):
@@ -296,6 +396,10 @@ class JDoc:
                     rlState.lastObj = rlState.currentObj
                     rlState.currentObj = self.processStartTrailer()     
                 case "trailer-cont":
+                    rlState.isContinuation = True
+                case "content":
+                    rlState.isContinuation = True
+                case "content-cont":
                     rlState.isContinuation = True
                 case _:
                     pass

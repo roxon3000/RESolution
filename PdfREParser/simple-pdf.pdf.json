@@ -1,12 +1,13 @@
 {
   "name": "default",
+  "fileType": "PDF",
   "objs": [
     {
       "id": "12",
       "hasStream": false,
       "version": "0",
       "meta": {
-        "id": "test",
+        "id": "meta",
         "hasStream": false,
         "Length1": "41652",
         "Filter": "FlateDecode",
@@ -21,7 +22,7 @@
       "hasStream": false,
       "version": "0",
       "meta": {
-        "id": "test",
+        "id": "meta",
         "hasStream": false,
         "Filter": "FlateDecode",
         "Length": "324"
@@ -35,7 +36,7 @@
       "hasStream": false,
       "version": "0",
       "meta": {
-        "id": "test",
+        "id": "meta",
         "hasStream": false,
         "Filter": "FlateDecode",
         "Length": "2083"
@@ -49,19 +50,11 @@
       "hasStream": false,
       "version": "0",
       "meta": {
-        "id": "test",
+        "id": "meta",
         "hasStream": false,
-        "Params ": {
-          "id": "test",
-          "hasStream": false,
-          "Size": "2133",
-          "Filter": "FlateDecode",
-          "Length": "1664"
-        },
-        "Type": "EmbeddedFile",
-        "Subtype": true,
-        "application#2Fvnd.jgraph.mxfile": true,
         "Params": "",
+        "Type": "EmbeddedFile",
+        "Subtype": "application#2Fvnd.jgraph.mxfile",
         "Size": "2133",
         "Filter": "FlateDecode",
         "Length": "1664"
@@ -75,7 +68,7 @@
       "hasStream": false,
       "version": "0",
       "meta": {
-        "id": "test",
+        "id": "meta",
         "hasStream": false,
         "Filter": "FlateDecode",
         "Type": "ObjStm",
@@ -92,19 +85,11 @@
       "hasStream": false,
       "version": "0",
       "meta": {
-        "id": "test",
+        "id": "meta",
         "hasStream": false,
         "Size": "19",
-        "Root": [
-          "2",
-          "0",
-          "R"
-        ],
-        "Info": [
-          "3",
-          "0",
-          "R"
-        ],
+        "Root": "2 0 R",
+        "Info": "3 0 R",
         "Filter": "FlateDecode",
         "Type": "XRef",
         "Length": "71",
@@ -121,6 +106,325 @@
       "stream": "eJxjYGD4/5+JQZCBAUQwgggmEMEMIlhABCuIYAMR7CCCA0RwggguRgYBBgbGeDEgkbAEYgA3Y6YQkFtgAiRKchkYAC4PBg==",
       "unfilteredStream": "\u0000\u0000\u0000\udcff\udcff\u0002\u0000\u0011\u0000\u0000\u0002\u0000\u0011\u0000\u0001\u0002\u0000\u0011\u0000\u0002\u0002\u0000\u0011\u0000\u0003\u0002\u0000\u0011\u0000\u0004\u0002\u0000\u0011\u0000\u0005\u0002\u0000\u0011\u0000\u0006\u0002\u0000\u0011\u0000\u0007\u0002\u0000\u0011\u0000\b\u0002\u0000\u0011\u0000\t\u0002\u0000\u0011\u0000\n\u0001\u0000\u0010\u0000\u0000\u0001_\u0016\u0000\u0000\u0001`\udca4\u0000\u0000\u0002\u0000\u0011\u0000\u000b\u0001i\u0012\u0000\u0000\u0001p4\u0000\u0000\u0001tm\u0000\u0000",
       "derivedStreamEncoding": "ascii"
+    },
+    {
+      "id": "1",
+      "hasStream": false,
+      "version": "0",
+      "meta": {
+        "id": "meta",
+        "hasStream": false,
+        "Type": "Pages",
+        "Kids": [
+          "15",
+          "0",
+          "R"
+        ],
+        "Count": "1"
+      }
+    },
+    {
+      "id": "2",
+      "hasStream": false,
+      "version": "0",
+      "meta": {
+        "id": "meta",
+        "hasStream": false,
+        "Names": [
+          "<FEFF006400690061006700720061006D002E0078006D006C>",
+          "4",
+          "0",
+          "R"
+        ],
+        "Type": "Catalog",
+        "Pages": "1 0 R",
+        "EmbeddedFiles": "",
+        "AF": [
+          "4",
+          "0",
+          "R"
+        ]
+      }
+    },
+    {
+      "id": "3",
+      "hasStream": false,
+      "version": "0",
+      "meta": {
+        "id": "meta",
+        "hasStream": false,
+        "Producer": "<FEFF007000640066002D006C006900620020002800680074007400700073003A002F002F006700690074006800750062002E0063006F006D002F0048006F007000640069006E0067002F007000640066002D006C006900620029>",
+        "ModDate": "(D:20221020154504Z)",
+        "Creator": "<FEFF006400690061006700720061006D0073002E006E00650074>",
+        "CreationDate": "(D:20221020154504Z)"
+      }
+    },
+    {
+      "id": "4",
+      "hasStream": false,
+      "version": "0",
+      "meta": {
+        "id": "meta",
+        "hasStream": false,
+        "EF": "",
+        "Type": "Filespec",
+        "F": [
+          "16",
+          "0",
+          "R"
+        ],
+        "UF": "<FEFF006400690061006700720061006D002E0078006D006C>",
+        "Desc": "<FEFF004400690061006700720061006D00200043006F006E00740065006E0074>"
+      }
+    },
+    {
+      "id": "5",
+      "hasStream": false,
+      "version": "0",
+      "meta": {
+        "id": "meta",
+        "hasStream": false,
+        "CA": "1",
+        "ca": "1",
+        "LC": "0",
+        "LJ": "0",
+        "LW": "1",
+        "ML": "10",
+        "SA": "true",
+        "BM": true,
+        "Normal": true
+      }
+    },
+    {
+      "id": "6",
+      "hasStream": false,
+      "version": "0",
+      "meta": {
+        "id": "meta",
+        "hasStream": false,
+        "ca": "1",
+        "BM": true,
+        "Normal": true
+      }
+    },
+    {
+      "id": "7",
+      "hasStream": false,
+      "version": "0",
+      "meta": {
+        "id": "meta",
+        "hasStream": false,
+        "CA": "1",
+        "ca": "1",
+        "LC": "0",
+        "LJ": "0",
+        "LW": "1",
+        "ML": "4",
+        "SA": "true",
+        "BM": true,
+        "Normal": true
+      }
+    },
+    {
+      "id": "8",
+      "hasStream": false,
+      "version": "0",
+      "meta": {
+        "id": "meta",
+        "hasStream": false,
+        "CA": "1",
+        "ca": "1",
+        "LC": "2",
+        "LJ": "0",
+        "LW": "1",
+        "ML": "10",
+        "SA": "true",
+        "BM": true,
+        "Normal": true
+      }
+    },
+    {
+      "id": "9",
+      "hasStream": false,
+      "version": "0",
+      "meta": {
+        "id": "meta",
+        "hasStream": false,
+        "Type": "Font",
+        "Subtype": "Type0",
+        "BaseFont": true,
+        "AAAAAA_ArialMT": true,
+        "Encoding": true,
+        "Identity_H": true,
+        "DescendantFonts": [
+          "10",
+          "0",
+          "R"
+        ],
+        "ToUnicode": [
+          "13",
+          "0",
+          "R"
+        ]
+      }
+    },
+    {
+      "id": "10",
+      "hasStream": false,
+      "version": "0",
+      "meta": {
+        "id": "meta",
+        "hasStream": false,
+        "CIDSystemInfo": "",
+        "Type": "Font",
+        "FontDescriptor": "11 0 R",
+        "BaseFont": true,
+        "AAAAAA_ArialMT": true,
+        "Subtype": "CIDFontType2",
+        "CIDToGIDMap": true,
+        "Identity": true,
+        "Registry": "(Adobe)",
+        "Ordering": "(Identity)",
+        "Supplement": "0",
+        "W": [
+          "0",
+          "750",
+          "0",
+          "0",
+          "277.83203",
+          "0",
+          "354.98047",
+          "11",
+          "12",
+          "333.00781",
+          "15",
+          "277.83203",
+          "333.00781",
+          "277.83203",
+          "19",
+          "25",
+          "556.15234",
+          "36",
+          "666.99219",
+          "0",
+          "722.16797",
+          "722.16797",
+          "666.99219",
+          "45",
+          "500",
+          "0",
+          "556.15234",
+          "833.00781",
+          "51",
+          "54",
+          "666.99219",
+          "55",
+          "610.83984",
+          "68",
+          "69",
+          "556.15234",
+          "70",
+          "500",
+          "556.15234",
+          "556.15234",
+          "277.83203",
+          "556.15234",
+          "556.15234",
+          "222.16797",
+          "0",
+          "500",
+          "222.16797",
+          "833.00781",
+          "81",
+          "84",
+          "556.15234",
+          "85",
+          "333.00781",
+          "500",
+          "277.83203",
+          "556.15234",
+          "500",
+          "722.16797",
+          "500",
+          "500"
+        ],
+        "DW": "0"
+      }
+    },
+    {
+      "id": "11",
+      "hasStream": false,
+      "version": "0",
+      "meta": {
+        "id": "meta",
+        "hasStream": false,
+        "Type": "FontDescriptor",
+        "FontName": true,
+        "AAAAAA_ArialMT": true,
+        "Flags": "4",
+        "Ascent": "905.27344",
+        "Descent": "211.91406",
+        "StemV": "45.898438",
+        "CapHeight": "716.30859",
+        "ItalicAngle": "0",
+        "FontBBox": [
+          "-664.55078",
+          "-324.70703",
+          "2000",
+          "1039.55078"
+        ],
+        "FontFile2": [
+          "12",
+          "0",
+          "R"
+        ]
+      }
+    },
+    {
+      "id": "15",
+      "hasStream": false,
+      "version": "0",
+      "meta": {
+        "id": "meta",
+        "hasStream": false,
+        "Resources": "",
+        "Type": "Page",
+        "ProcSet": [
+          "PDF",
+          "Text",
+          "ImageB",
+          "ImageC",
+          "ImageI"
+        ],
+        "ExtGState": "",
+        "G3": "5 0 R",
+        "G4": "6 0 R",
+        "G5": "7 0 R",
+        "G7": [
+          "8",
+          "0",
+          "R"
+        ],
+        "Font": "",
+        "F6": [
+          "9",
+          "0",
+          "R"
+        ],
+        "MediaBox": [
+          "0",
+          "0",
+          "612",
+          "792.95996"
+        ],
+        "Contents": "14 0 R",
+        "StructParents": "0",
+        "Parent": [
+          "1",
+          "0",
+          "R"
+        ]
+      }
     }
   ],
   "pdfVersion": "PDF-1.7"

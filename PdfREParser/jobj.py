@@ -1,4 +1,5 @@
 from base64 import b85decode
+from cmath import isnan
 import pdfparserconstants
 import zlib
 import base64
@@ -7,15 +8,18 @@ class JObj:
     def __init__(meo, id):
         meo.id = id
         meo.hasStream = False
+        
 
     def __setattr__(self, name, value):
         newVal = value
+
+        name = self.cleanValue(name, 'key')
 
         #don't clean streams
         if(name == 'unfilteredStream' or name == 'stream'):
             pass
         else:
-            newVal = self.cleanValue(value)
+            newVal = self.cleanValue(value, 'val')
             
         self.__dict__[name] = newVal
 
@@ -23,15 +27,31 @@ class JObj:
         word = self.parseBracketedList(word)
         if(self.propRulesCheck(word)): 
             keyval = word.split(' ')
-            key = self.cleanValue(keyval[0])
+            key = self.cleanValue(keyval[0], 'key')
             if(len(keyval) == 2):
-                val = self.cleanValue(keyval[1])                   
+                val = self.cleanValue(keyval[1], 'val')                   
                 self.__setattr__(key, val)
             elif(len(keyval) == 1):
                 self.__setattr__(key, True)
             else:
                 keyval.pop(0)
+                #check to see if value are obj refs
+                keyval = self.objectReferenceCheck(keyval)
                 self.__setattr__(key, keyval)
+    def objectReferenceCheck(self, valList):
+        newList = valList
+        #check for pattern that matches obj ref "<num> <num> R"
+        if(isinstance(valList, list) and len(valList) > 2):
+            if( valList[0].isnumeric() and valList[1].isnumeric() and valList[2] == 'R'):
+                newList = " ".join(valList).split('R')
+                #pop last element
+                newList.pop(len(newList)-1)
+                #add back the R for fun and jic
+                for i in range(len(newList)):
+                    newList[i] = newList[i] + "R"
+
+        return newList
+
     def propRulesCheck(self, prop):
         
         #don't add empty properties
@@ -53,7 +73,7 @@ class JObj:
             newVal = newVal.replace(']','')
             word = newVal                
         return word
-    def cleanValue(self, value):
+    def cleanValue(self, value, source):
         newVal = ""
         
         if(isinstance(value, str) and len(value) > 0):
@@ -65,13 +85,35 @@ class JObj:
             newVal = newVal.replace(pdfparserconstants.FF,'')
             newVal = newVal.replace('[','')
             newVal = newVal.replace(']','')
+
+            if(source == "key"):
+                #fix int attrs to make compliant
+                if(newVal[0:1].isnumeric()):
+                    newVal = 'n' + newVal
+
+                #remove plus/minus sign
+                newVal = newVal.replace('+', '_')
+                newVal = newVal.replace('-', '_')
+                #remove parens, colon, period
+                newVal = newVal.replace('(', '_')
+                newVal = newVal.replace(')', '_')
+                newVal = newVal.replace(':', '_')
+                newVal = newVal.replace('.', '_')
+
+                #first char cannot be an undercore
+                if(newVal[0:1] == '_'):
+                    newVal = 'x' + newVal
+
+                newVal = newVal.strip()
+
+
   
         else:
             cleanValList = []
             #check to see if it's a list
             if(isinstance(value, list)):
                 for i in range(0, len(value)):
-                    checkVal = self.cleanValue(value[i])
+                    checkVal = self.cleanValue(value[i], 'val')
                     if(checkVal != ''):
                         cleanValList.append(checkVal)
                 if(len(cleanValList) == 1):

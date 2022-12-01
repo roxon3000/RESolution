@@ -1,7 +1,5 @@
 
 import json
-import base64
-import zlib 
 import sys
 import pdfparserconstants
 import jdoc
@@ -68,7 +66,11 @@ def main(arg1):
 
     #post parse processing of JSON
 
-    #TODO heirarchical relationships and cmap processing
+    #Process compressed objects in ObjStm objects
+    for obj in myDoc.objs:
+        if(hasattr(obj, 'meta') and hasattr(obj.meta, 'Type') and obj.meta.Type == "ObjStm" and hasattr(obj, 'unfilteredStream') and obj.unfilteredStream != None
+           and len(obj.unfilteredStream) > 0):
+            myDoc.processObjectStreamLine(obj.unfilteredStream, int(obj.meta.First), int(obj.meta.N))
 
 
     with open(outputFile, 'w', encoding="ascii", errors="surrogateescape") as fw:
