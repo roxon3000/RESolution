@@ -1,4 +1,7 @@
 import jobj
+import re 
+
+OBJ_REF_REGEX = '([0-9]+ [0-9]+ R)'
 
 def genericMapper(newObj, obj, newDoc, rawDoc):
 
@@ -7,6 +10,17 @@ def genericMapper(newObj, obj, newDoc, rawDoc):
         genericObjectMapper(obj.meta, rawDoc, newDoc, newObj)
     
     genericObjectMapper(obj, rawDoc, newDoc, newObj)
+
+def genericListMapper(newList, rawList, newDoc, rawDoc):
+    if(isinstance(rawList, list) == False):
+        raise Exception("object must be a list in a list mapper")
+
+    for objr in rawList:
+         newObj = jobj.JObj()
+         newObj.objectNumber = objr.id
+         newObj.generationNumber = objr.version       
+         newObj.update(objr, genericMapper, newDoc, rawDoc)
+         newList.append(newObj)
 
 def genericObjectMapper(obj, rawDoc, newDoc, newObj):
     if(hasattr(obj, "_asdict")):
@@ -67,12 +81,15 @@ def genericObjRefHandler(key, val, rawDoc, newDoc, newObj):
     if(objt != None):
         objr = findRawObj(rawDoc, objt)        
         if(objr != None):
-            childObj = jobj.JObj()
-            childObj.objectNumber = objr.id
-            childObj.generationNumber = objr.version
-            newObj.__setattr__(key, childObj)
-            
-            newObj.getAttr(key).update(objr, genericMapper, newDoc, rawDoc)
+            if(isinstance(objr, list) == False):
+                childObj = jobj.JObj()
+                childObj.objectNumber = objr.id
+                childObj.generationNumber = objr.version       
+                newObj.__setattr__(key, childObj)
+                newObj.getAttr(key).update(objr, genericMapper, newDoc, rawDoc)
+            else:
+                newObj.__setattr__(key, [])
+                genericListMapper(newObj.getAttr(key), objr, newDoc, rawDoc)
             return True
         else:
             newObj.__setattr__(key, key + " object was not found")
@@ -82,11 +99,27 @@ def genericObjRefHandler(key, val, rawDoc, newDoc, newObj):
 
 def findRawObj(rawDoc, tObject):
 
-    for obj in rawDoc.objs:
-        if(obj.id == tObject.objectNumber and obj.version == tObject.generationNumber):
-            return obj
+    searchList = [] 
+    rcList = [] 
 
-    return None
+    if(isinstance(tObject, list) == False):
+        searchList.append(tObject)
+    else:
+        searchList = tObject
+
+    for searchObj in searchList:
+
+        for obj in rawDoc.objs:
+            if(obj.id == searchObj.objectNumber and obj.version == searchObj.generationNumber):
+                rcList.append(obj)
+                break
+
+    if(len(rcList) > 1):
+        return rcList
+    elif(len(rcList) == 1):
+        return rcList[0]
+    else:
+        return None
 
 def join(delimiter, listIn):
     if(isinstance(listIn, list) and len(listIn) > 0):
@@ -97,15 +130,45 @@ def join(delimiter, listIn):
 def parseObjDef(obj):
     newObj = None
 
-    if(isinstance(obj, list)):
-        obj= join(' ', obj)
+    rcList = []
 
     if(isinstance(obj, str)):
-        splitObj = obj.split(' ')
-
-        if(len(splitObj) > 2 and splitObj[0].isnumeric() and splitObj[1].isnumeric() and splitObj[2] == 'R'):
+        #find all obj ref patterns. works for one to many in a string
+        objRefs = re.findall(OBJ_REF_REGEX, obj)
+        for ref in objRefs:
+            splitObj = ref.split(' ')
             newObj = jobj.JObj()
             newObj.objectNumber = splitObj[0]
             newObj.generationNumber = splitObj[1]
+            rcList.append(newObj)
 
-    return newObj
+    elif(isinstance(obj, list) and len(obj) > 0):
+        #determine if it's a list of full ref ids, or decomposed (10,0,R,11,0,R) vs ('10 0 R','11 0 R', etc)
+        if(isinstance(obj[0],str )):
+            refMatch = re.search(OBJ_REF_REGEX, obj[0])
+            #if found, then obj is a list of full obj refs.
+            if(refMatch != None):
+                #do processing of full refs
+                for ref in obj:
+                    splitObj = ref.split(' ')
+                    newObj = jobj.JObj()
+                    newObj.objectNumber = splitObj[0]
+                    newObj.generationNumber = splitObj[1]
+                    rcList.append(newObj)                
+            else:
+                if(len(obj) > 2 and obj[0].isnumeric() and obj[1].isnumeric() and obj[2].string() == "R"):
+                    #do processing of decomposed
+                    for i in range(0, len(obj), 3):
+                        newObj = jobj.JObj()
+                        newObj.objectNumber = obj[i]
+                        newObj.generationNumber = splitObj[i + 1]
+                        rcList.append(newObj)                
+
+    if(len(rcList) > 1):
+        return rcList
+    elif(len(rcList) == 1):
+        return rcList[0]
+    else:
+        return obj
+
+    
