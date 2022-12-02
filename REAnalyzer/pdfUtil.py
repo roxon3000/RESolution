@@ -1,17 +1,42 @@
 import jobj
 import re 
+from objectproxy import getProxy
 
 OBJ_REF_REGEX = '([0-9]+ [0-9]+ R)'
 
-def genericMapper(newObj, obj, newDoc, rawDoc):
+def trailerMapper(newObj, obj, treeDoc, rawDoc):
+    items = None
+    if(hasattr(obj, "_asdict")):
+        items = obj._asdict().items()
+    else:
+        items = obj.__dict__.items()
+
+    if(items != None):
+        for key, val in items:
+
+            match key:
+                case "Info" :
+                    if(genericObjRefHandler(key, val, rawDoc, treeDoc, newObj, infoMapper) == False):
+                        newObj.__setattr__(key, join(" " , obj._asdict().get(key)))
+                case "Root" :
+                    if(genericObjRefHandler(key, val, rawDoc, treeDoc, newObj, rootMapper) == False):
+                        newObj.__setattr__(key, join(" " , obj._asdict().get(key)))
+                case "id" | "version":
+                    pass 
+                case "version":
+                    newObj.generationNumber = val
+                case _:
+                    newObj.__setattr__(key, val)
+
+def genericMapper(newObj, obj, treeDoc, rawDoc):
 
     #check for meta (flatten)
     if(hasattr(obj, "meta") and hasattr(obj.meta, "_asdict")):
-        genericObjectMapper(obj.meta, rawDoc, newDoc, newObj)
+        genericObjectMapper(obj.meta, rawDoc, treeDoc, newObj)
     
-    genericObjectMapper(obj, rawDoc, newDoc, newObj)
+    genericObjectMapper(obj, rawDoc, treeDoc, newObj)
 
-def genericListMapper(newList, rawList, newDoc, rawDoc):
+def genericListMapper(newList, rawList, treeDoc, rawDoc):
     if(isinstance(rawList, list) == False):
         raise Exception("object must be a list in a list mapper")
 
@@ -19,64 +44,109 @@ def genericListMapper(newList, rawList, newDoc, rawDoc):
          newObj = jobj.JObj()
          newObj.objectNumber = objr.id
          newObj.generationNumber = objr.version       
-         newObj.update(objr, genericMapper, newDoc, rawDoc)
+         newObj.update(objr, genericMapper, treeDoc, rawDoc)
          newList.append(newObj)
 
-def genericObjectMapper(obj, rawDoc, newDoc, newObj):
-    if(hasattr(obj, "_asdict")):
-        for key, val in obj._asdict().items():
+def bruteForceMapper(newObj, obj, treeDoc, rawDoc):
+    #check for meta (flatten)
+    if(hasattr(obj, "meta") and hasattr(obj.meta, "_asdict")):
+        bruteForceObjectMapper(obj.meta, rawDoc, treeDoc, newObj)
+    
+    bruteForceObjectMapper(obj, rawDoc, treeDoc, newObj)
 
-            if(key == "unfilteredStream"):
-                x = 1
+def bruteForceObjectMapper(obj, rawDoc, treeDoc, newObj):
+    items = None
+    if(hasattr(obj, "_asdict")):
+        items = obj._asdict().items()
+    else:
+        items = obj.__dict__.items()
+
+    if(items != None):
+        for key, val in items:
             match key:
-                case "Contents" | "Kids":
-                    genericObjRefHandler(key, val, rawDoc, newDoc, newObj)
-                case "meta":
+                case "id" | "version":
+                    pass 
+                case "version":
+                    newObj.generationNumber = val
+                case "meta" | "Parent":
                     pass
                 case _:
-                    newObj.__setattr__(key, val)
+                    genericObjRefHandler(key, val, rawDoc, treeDoc, newObj, genericMapper)
 
-def infoMapper(newObj, obj, newDoc, rawDoc):
+def genericObjectMapper(obj, rawDoc, treeDoc, newObj):
+    items = None
+    if(hasattr(obj, "_asdict")):
+        items = obj._asdict().items()
+    else:
+        items = obj.__dict__.items()
+
+    for key, val in items:
+        match key:
+            case "Contents" | "Kids" | "Length" | "ToUnicode" :
+                genericObjRefHandler(key, val, rawDoc, treeDoc, newObj, genericMapper)
+            case "Resources":
+                genericObjRefHandler(key, val, rawDoc, treeDoc, newObj, bruteForceMapper)
+            case "id" | "version":
+                pass 
+            case "version":
+                newObj.generationNumber = val
+            case "meta":
+                pass
+            case _:
+                newObj.__setattr__(key, val)
+
+def infoMapper(newObj, obj, treeDoc, rawDoc):
 
     #check for meta
     if(hasattr(obj, "meta") and hasattr(obj.meta, "_asdict")):
         obj = obj.meta
 
+    items = None
     if(hasattr(obj, "_asdict")):
-        for key, val in obj._asdict().items():
+        items = obj._asdict().items()
+    else:
+        items = obj.__dict__.items()
 
+    for key, val in items:
             match key:
-                case "Producer":
-                    prodObjt = parseObjDef(val)
-                    if(prodObjt != None):
-                        prodObjr = findRawObj(rawDoc, prodObjt)
-                        newObj.Producer = jobj.JObj()
-                        newObj.Producer.update(prodObjr, genericMapper, newDoc, rawDoc)
-                    else:
-                        newObj.Producer = join(" ", obj.Producer)
-                case "Title":
-                    newObj.Title = join(" " , obj.Title)
-                case "id":
-                    newObj.objectNumber = val
+                case "Creator" | "Producer" | "Title" | "Creator" | "CreationDate" | "ModDate" | "Keywords" | "AAPL_Keywords" :
+                    if(genericObjRefHandler(key, val, rawDoc, treeDoc, newObj, genericMapper) == False):
+                        newObj.__setattr__(key, join(" " , obj._asdict().get(key)))
+                case "id" | "version":
+                    pass 
                 case "version":
                     newObj.generationNumber = val
                 case _:
                     newObj.__setattr__(key, val)
 
 
-def rootMapper(newObj, obj, newDoc, rawDoc):
+def rootMapper(newObj, obj, treeDoc, rawDoc):
+    #check for meta
+    if(hasattr(obj, "meta") and hasattr(obj.meta, "_asdict")):
+        obj = obj.meta
 
-    for key, val in obj._asdict().items():
+    items = None
+    if(hasattr(obj, "_asdict")):
+        items = obj._asdict().items()
+    else:
+        items = obj.__dict__.items()
+
+    for key, val in items:
 
         match key:
             case "Pages":
-                genericObjRefHandler(key, val, rawDoc, newDoc, newObj)
+                genericObjRefHandler(key, val, rawDoc, treeDoc, newObj, genericMapper)
             case "Title":
                 newObj.Title = join(" " , obj.Title)
+            case "id" | "version":
+                pass 
             case _:
                 newObj.__setattr__(key, val)
 
-def genericObjRefHandler(key, val, rawDoc, newDoc, newObj):
+def addToObjectMap(treeDoc, obj):
+    treeDoc.objectMap[obj.objectNumber] = obj
+
+def genericObjRefHandler(key, val, rawDoc, treeDoc, newObj, mapper):
     objt = parseObjDef(val)
     if(objt != None):
         objr = findRawObj(rawDoc, objt)        
@@ -85,11 +155,13 @@ def genericObjRefHandler(key, val, rawDoc, newDoc, newObj):
                 childObj = jobj.JObj()
                 childObj.objectNumber = objr.id
                 childObj.generationNumber = objr.version       
-                newObj.__setattr__(key, childObj)
-                newObj.getAttr(key).update(objr, genericMapper, newDoc, rawDoc)
+                if ( (objr.id in treeDoc.objectMap) == False):
+                    addToObjectMap(treeDoc, childObj)
+                newObj.__setattr__(key, getProxy(childObj.objectNumber))
+                childObj.update(objr, mapper, treeDoc, rawDoc)
             else:
                 newObj.__setattr__(key, [])
-                genericListMapper(newObj.getAttr(key), objr, newDoc, rawDoc)
+                mapper(newObj.getAttr(key), objr, treeDoc, rawDoc)
             return True
         else:
             newObj.__setattr__(key, key + " object was not found")
@@ -156,12 +228,12 @@ def parseObjDef(obj):
                     newObj.generationNumber = splitObj[1]
                     rcList.append(newObj)                
             else:
-                if(len(obj) > 2 and obj[0].isnumeric() and obj[1].isnumeric() and obj[2].string() == "R"):
+                if(len(obj) > 2 and obj[0].isnumeric() and obj[1].isnumeric() and obj[2].strip() == "R"):
                     #do processing of decomposed
                     for i in range(0, len(obj), 3):
                         newObj = jobj.JObj()
                         newObj.objectNumber = obj[i]
-                        newObj.generationNumber = splitObj[i + 1]
+                        newObj.generationNumber = obj[i + 1]
                         rcList.append(newObj)                
 
     if(len(rcList) > 1):
@@ -169,6 +241,6 @@ def parseObjDef(obj):
     elif(len(rcList) == 1):
         return rcList[0]
     else:
-        return obj
+        return None
 
     

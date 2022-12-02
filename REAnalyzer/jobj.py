@@ -12,7 +12,9 @@ class JObj:
     def getAttr(self, name):
         return self.__dict__[name]
 
-    def update(self, obj, mapper, newDoc, rawDoc):
-        mapper(self, obj, newDoc, rawDoc)
+    def update(self, obj, mapper, treeDoc, rawDoc):
+
+        mapper(self, obj, treeDoc, rawDoc)
+
         #self.__dict__.update(obj._asdict().items())      
    
