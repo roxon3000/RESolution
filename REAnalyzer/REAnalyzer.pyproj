@@ -28,6 +28,7 @@
     <Compile Include="cmap.py" />
     <Compile Include="analyzer.py" />
     <Compile Include="jobj.py" />
+    <Compile Include="objectproxy.py" />
     <Compile Include="pdfanalyzer.py" />
     <Compile Include="pdfUtil.py" />
     <Compile Include="REAnalyzer.py" />
@@ -35,6 +36,9 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="rules\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="requirements.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in

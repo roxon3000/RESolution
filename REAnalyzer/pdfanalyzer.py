@@ -2,11 +2,14 @@
 import jobj 
 import pdfUtil
 import json
+import jsonref
+from objectproxy import getProxy 
 
 class PdfAnalyzer:
     def __init__(self, jsonObject):
         self.rawDoc = jsonObject      
-        self.newDoc = jobj.JObj()
+        self.treeDoc = jobj.JObj()
+        self.treeDoc.objectMap = {}
     
     def findTrailerObject(self):
         rcObj = None
@@ -18,7 +21,7 @@ class PdfAnalyzer:
 
     def processTrailerHeirarchy(self):
         rawDoc = self.rawDoc
-        newDoc = self.newDoc 
+        treeDoc = self.treeDoc 
 
         trailer = None
         #check for trailer object
@@ -33,6 +36,18 @@ class PdfAnalyzer:
             else:
                 raise Exception("Trailer Object Not Found in PDF")
 
+        #def genericObjRefHandler(key, val, rawDoc, treeDoc, newObj, mapper):
+
+        treeTrailer = jobj.JObj()
+        treeTrailer.objectNumber = '0'
+        treeTrailer.generationNumber = '0'
+        treeDoc.treeTrailer = treeTrailer
+        treeTrailer.update(trailer, pdfUtil.trailerMapper, treeDoc, rawDoc)
+
+        #pdfUtil.genericObjRefHandler('trailer', trailer, rawDoc, treeDoc, treeTrailer, pdfUtil.genericObjectMapper)
+        #pdfUtil.genericObjRefHandler('poopy', trailer.Info, rawDoc, treeDoc, treeDoc, pdfUtil.infoMapper)
+
+        """
         infoObjt = pdfUtil.parseObjDef(trailer.Info)
         rootObjt = pdfUtil.parseObjDef(trailer.Root)
 
@@ -40,42 +55,85 @@ class PdfAnalyzer:
         infoObjr = pdfUtil.findRawObj(rawDoc, infoObjt)
         rootObjr = pdfUtil.findRawObj(rawDoc, rootObjt)
 
-        newDoc.info = jobj.JObj()
+        treeDoc.info = jobj.JObj()
         if(infoObjr != None):
-            newDoc.info.update(infoObjr, pdfUtil.infoMapper, newDoc, rawDoc)
-            newDoc.info.objectNumber = infoObjr.id
-            newDoc.info.generationNumber = infoObjr.version
+            treeDoc.info.update(infoObjr, pdfUtil.infoMapper, treeDoc, rawDoc)
+            treeDoc.info.objectNumber = infoObjr.id
+            treeDoc.info.generationNumber = infoObjr.version
         else:
-            newDoc.info.message = "Info object was not found"
+            treeDoc.info.message = "Info object was not found"
 
-        newDoc.root = jobj.JObj()
+        treeDoc.root = jobj.JObj()
         if(rootObjr != None):
-            newDoc.root.update(rootObjr.meta, pdfUtil.rootMapper, newDoc, rawDoc)
-            newDoc.root.objectNumber = rootObjr.id
-            newDoc.root.generationNumber = rootObjr.version
+            treeDoc.root.update(rootObjr.meta, pdfUtil.rootMapper, treeDoc, rawDoc)
+            treeDoc.root.objectNumber = rootObjr.id
+            treeDoc.root.generationNumber = rootObjr.version
+
         else:
-            newDoc.root.message = "Root object was not found"
+            treeDoc.root.message = "Root object was not found"
 
-        #clean objects
-        #infoObjc = pdfUtil.cleanInfo(newDoc.info)
-
-        x =1
-        outputFile = "trailer.debug.json"
-        with open(outputFile, 'w', encoding="ascii", errors="surrogateescape") as fw:
-       
-            fw.write(json.dumps(newDoc, default=vars))
-            #test = vars(newDoc)
-            #json.dump(test, fw)
-
-        fw.close()
-
-
-
+        """
     def analyze(self):
         
         rawDoc = self.rawDoc
 
-        #create heirarchy from trailer or equivialent
+        #create object map
+        #TODO - need to create object map first... should have done this to begin with.
+
+        #create heirarchy from trailer or equivialent. This doc is used for object tree visualization and inspection
+        #also performs some defacto validation. TODO needs error handling
         self.processTrailerHeirarchy()
+
+        """
+        proxy = {'$ref' : "#/objectMap/" + self.treeDoc.info.objectNumber}
+
+        #proxy.ref = "#/objectMap/" + self.treeDoc.info.objectNumber
+
+        testdoc =  {
+            "data": ["a", "b", "c", {"id": "12"}],
+            "objectMap" : 
+                    {
+                        "1234" : {"$ref" : "#/objectMap/14"}
+                    }
+                ,
+            "more" : { 
+                "title" : "real data",
+                "producer" : getProxy("14")
+                }
+        }
+
+        testdoc['objectMap'][self.treeDoc.info.objectNumber] = self.treeDoc.info
+
+        testo = jsonref.replace_refs(testdoc)
+        print(testo)
+        
+        
+        #put object map into its own doc and clear from treeDoc
+        self.objectMap = testdoc
+        #self.treeDoc.objectMap = testo
+        """
+
+        #write output files
+        outputFile = "objecttree.json"
+        with open(outputFile, 'w', encoding="ascii", errors="surrogateescape") as fw:
+                  
+            fw.write(json.dumps(self.treeDoc, default=vars))
+            #test = vars(treeDoc)
+            #json.dump(test, fw)
+
+        fw.close()
+
+        """
+        outputFile = "objectmap.json"
+        with open(outputFile, 'w', encoding="ascii", errors="surrogateescape") as fw:
+                  
+            fw.write(json.dumps(self.objectMap, default=vars))
+            #test = vars(treeDoc)
+            #json.dump(test, fw)
+
+        fw.close()
+
+        """
+        
 
         

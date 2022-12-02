@@ -38,6 +38,7 @@
     <Compile Include="xrefUtil.py" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="requirements.txt" />
     <Content Include="The-Art-of-Sales.pdf" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />

@@ -26,6 +26,8 @@ class JObj:
     def mutate(self, word):
         word = self.parseBracketedList(word)
         if(self.propRulesCheck(word)): 
+            #replace \n \r \r\n with ' '
+            word = word.replace('\r\n', ' ').replace('\n', ' ').replace('\r', ' ').replace('[','').replace(']', '').replace(pdfparserconstants.FF, '').replace(pdfparserconstants.BB, '')
             keyval = word.split(' ')
             key = self.cleanValue(keyval[0], 'key')
             if(len(keyval) == 2):
@@ -35,7 +37,8 @@ class JObj:
                 self.__setattr__(key, True)
             else:
                 keyval.pop(0)
-                #check to see if value are obj refs
+                keyval = self.cleanValue(keyval, 'val')
+                #check to see if value is a single obj ref. if so, join to one value.  If list, join to one value per element
                 keyval = self.objectReferenceCheck(keyval)
                 self.__setattr__(key, keyval)
     def objectReferenceCheck(self, valList):
@@ -48,7 +51,7 @@ class JObj:
                 newList.pop(len(newList)-1)
                 #add back the R for fun and jic
                 for i in range(len(newList)):
-                    newList[i] = newList[i] + "R"
+                    newList[i] = newList[i].lstrip() + "R"
 
         return newList
 
@@ -64,6 +67,7 @@ class JObj:
 
         return True
     def parseBracketedList(self,word):
+        #ensure there is a space before open bracket
         #find open bracked
         bracketIndex = word.find('[')
         if(bracketIndex > 0 and word[bracketIndex-1:bracketIndex] != ' '):
@@ -75,10 +79,10 @@ class JObj:
         return word
     def cleanValue(self, value, source):
         newVal = ""
-        
+
         if(isinstance(value, str) and len(value) > 0):
             #remove LF
-            newVal = value.replace('\n', '')
+            newVal = value.replace('\n', ' ')
 
             #remove FF, BB ] [
             newVal = newVal.replace(pdfparserconstants.BB,'')
