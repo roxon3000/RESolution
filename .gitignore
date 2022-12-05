@@ -129,3 +129,6 @@ dmypy.json
 .pyre/
 /PdfREParser/The-Art-of-Sales.pdf.json
 /PdfREParser/The-Art-of-Sales.pdf.bin.txt
+/PdfREParser/flyer.pdf.json
+/PdfREParser/flyer.pdf.bin.txt
+/PdfREParser/flyer.pdf

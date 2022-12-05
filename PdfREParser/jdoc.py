@@ -1,6 +1,8 @@
 import jobj
 import pdfparserconstants
 import base64
+from hashlib import md5
+import re
 
 class JDoc:
     def __init__(meo, name):
@@ -53,11 +55,12 @@ class JDoc:
     #OBJ START RULES
         #if current line contains "obj" but not "endobj", meaning it is the start of the obj section.
         #look for obj on current line
+        objSearch = re.search('([0-9]+ [0-9]+ obj )', currentLine)
         objIndex = currentLine.find(pdfparserconstants.OBJ)
         #look for endobj on current line
         endobjIndex = currentLine.find(pdfparserconstants.ENDOBJ)
         #if current line contains "obj" but not "endobj", meaning it is the start of the obj section.
-        if objIndex > -1 and endobjIndex < 0 :
+        if (objSearch != None and endobjIndex < 0) :
             return pdfparserconstants.OBJ
 
     #OBJ END RULES
@@ -354,7 +357,7 @@ class JDoc:
             self.objs.append(currentObj)
 
     def processRawLine(self, rawline, rlState, unfilterStreamFlag):
-            
+        
         #since reading in binary, need to account for carriage returns
         asciiLine = rawline.decode(encoding="ascii", errors="surrogateescape")
         crLines = asciiLine.splitlines(keepends=True)
@@ -370,6 +373,9 @@ class JDoc:
             currentLine = str(line)
             if(rlState.isContinuation):
                 currentLine = rlState.lastLine + currentLine
+            #debug
+            if(rlState.rawlineCount == 18724):
+                x = 1
 
             lineType = self.determineLineType(currentLine, rlState.lastLine, rlState.lastLineType, rlState.lastObj, rlState.lastMetaObj)
 
@@ -430,6 +436,10 @@ class JDoc:
             rlState.streamObj.stream =  base64.b64encode(streamBuffer).decode(encoding="ascii", errors="strict")
             if(unfilterStreamFlag=="Y"):
                 rlState.streamObj.processStream(streamBuffer)
+            
+            hashl = md5()
+            hashl.update(streamBuffer)
+            rlState.currentObj.streamMd5 = hashl.hexdigest()
 
             rlState.streamPersist = None
 

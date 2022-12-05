@@ -2,7 +2,7 @@
 import jobj 
 import pdfUtil
 import json
-import jsonref
+
 from objectproxy import getProxy 
 
 class PdfAnalyzer:
@@ -18,6 +18,20 @@ class PdfAnalyzer:
             if(hasattr(obj, "meta") and hasattr(obj.meta, "Root") and hasattr(obj.meta, "Info")):
                 rcObj = obj
         return rcObj
+    def processOrphans(self):
+        if(self.treeDoc != None and self.treeDoc.objectMap != None):
+            for obj in self.rawDoc.objs:
+                if(self.treeDoc.objectMap.get(obj.id) == None):
+                    print(obj.id + " not found, is orphan")
+                    newObj = jobj.JObj()
+                    newObj.objectNumber = obj.id
+                    newObj.generationNumber = obj.version       
+                    newObj.orphan = True
+                    newObj.update(obj, pdfUtil.bruteForceMapper, self.treeDoc, self.rawDoc)
+                    if(self.treeDoc.objectMap.get(obj.id) == None):
+                        pdfUtil.addToObjectMap(self.treeDoc, newObj)
+
+                    
 
     def processTrailerHeirarchy(self):
         rawDoc = self.rawDoc
@@ -39,7 +53,7 @@ class PdfAnalyzer:
         #def genericObjRefHandler(key, val, rawDoc, treeDoc, newObj, mapper):
 
         treeTrailer = jobj.JObj()
-        treeTrailer.objectNumber = '0'
+        treeTrailer.objectNumber = 'trailer'
         treeTrailer.generationNumber = '0'
         treeDoc.treeTrailer = treeTrailer
         treeTrailer.update(trailer, pdfUtil.trailerMapper, treeDoc, rawDoc)
@@ -84,6 +98,7 @@ class PdfAnalyzer:
         #also performs some defacto validation. TODO needs error handling
         self.processTrailerHeirarchy()
 
+        self.processOrphans()
         """
         proxy = {'$ref' : "#/objectMap/" + self.treeDoc.info.objectNumber}
 
