@@ -2,7 +2,7 @@
 import jobj 
 import pdfUtil
 import json
-import jsonref
+
 from objectproxy import getProxy 
 
 class PdfAnalyzer:

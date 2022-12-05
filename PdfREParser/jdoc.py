@@ -1,6 +1,7 @@
 import jobj
 import pdfparserconstants
 import base64
+from hashlib import md5
 
 class JDoc:
     def __init__(meo, name):
@@ -430,6 +431,10 @@ class JDoc:
             rlState.streamObj.stream =  base64.b64encode(streamBuffer).decode(encoding="ascii", errors="strict")
             if(unfilterStreamFlag=="Y"):
                 rlState.streamObj.processStream(streamBuffer)
+            
+            hashl = md5()
+            hashl.update(streamBuffer)
+            rlState.currentObj.streamMd5 = hashl.hexdigest()
 
             rlState.streamPersist = None
 

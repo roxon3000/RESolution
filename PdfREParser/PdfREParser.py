@@ -3,6 +3,7 @@ import json
 import sys
 import pdfparserconstants
 import jdoc
+from hashlib import md5
 
 class RawLineState:
     def __init__(self, streamPersist, currentObj, lastObj, lastMetaObj, prevObj, streamObj, isContinuation, lastLine, lastLineType, currentMetaObj):
@@ -41,6 +42,12 @@ def main(arg1):
         tw.write(testBuff)
     tr.close()
 
+
+    with open(inputFile,'rb' ) as f:
+        hashl = md5()
+        hashl.update(f.read())
+        myDoc.fileMd5 = hashl.hexdigest()
+        f.close()
 
     with open(inputFile,'rb' ) as f:
         streamPersist = None

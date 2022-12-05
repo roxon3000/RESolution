@@ -16,10 +16,10 @@ def trailerMapper(newObj, obj, treeDoc, rawDoc):
 
             match key:
                 case "Info" :
-                    if(genericObjRefHandler(key, val, rawDoc, treeDoc, newObj, infoMapper) == False):
+                    if(genericObjRefHandler(key, val, rawDoc, treeDoc, newObj, bruteForceMapper) == False):
                         newObj.__setattr__(key, join(" " , obj._asdict().get(key)))
                 case "Root" :
-                    if(genericObjRefHandler(key, val, rawDoc, treeDoc, newObj, rootMapper) == False):
+                    if(genericObjRefHandler(key, val, rawDoc, treeDoc, newObj, bruteForceMapper) == False):
                         newObj.__setattr__(key, join(" " , obj._asdict().get(key)))
                 case "id" | "version":
                     pass 
@@ -71,7 +71,8 @@ def bruteForceObjectMapper(obj, rawDoc, treeDoc, newObj):
                 case "meta" | "Parent":
                     pass
                 case _:
-                    genericObjRefHandler(key, val, rawDoc, treeDoc, newObj, genericMapper)
+                    if( genericObjRefHandler(key, val, rawDoc, treeDoc, newObj, bruteForceMapper) == False):
+                        newObj.__setattr__(key, val)
 
 def genericObjectMapper(obj, rawDoc, treeDoc, newObj):
     items = None
@@ -135,7 +136,7 @@ def rootMapper(newObj, obj, treeDoc, rawDoc):
 
         match key:
             case "Pages":
-                genericObjRefHandler(key, val, rawDoc, treeDoc, newObj, genericMapper)
+                genericObjRefHandler(key, val, rawDoc, treeDoc, newObj,bruteForceMapper)
             case "Title":
                 newObj.Title = join(" " , obj.Title)
             case "id" | "version":
