@@ -44,15 +44,20 @@ def genericListMapper(newList, rawList, treeDoc, rawDoc):
          newObj = jobj.JObj()
          newObj.objectNumber = objr.id
          newObj.generationNumber = objr.version       
-         newObj.update(objr, genericMapper, treeDoc, rawDoc)
+         newObj.update(objr, bruteForceMapper, treeDoc, rawDoc)
          newList.append(newObj)
 
 def bruteForceMapper(newObj, obj, treeDoc, rawDoc):
-    #check for meta (flatten)
-    if(hasattr(obj, "meta") and hasattr(obj.meta, "_asdict")):
-        bruteForceObjectMapper(obj.meta, rawDoc, treeDoc, newObj)
+
+    #check for list
+    if(isinstance(obj, list)):
+        genericListMapper(newObj, obj, treeDoc, rawDoc)
+    else:
+        #check for meta (flatten)
+        if(hasattr(obj, "meta") and hasattr(obj.meta, "_asdict")):
+            bruteForceObjectMapper(obj.meta, rawDoc, treeDoc, newObj)
     
-    bruteForceObjectMapper(obj, rawDoc, treeDoc, newObj)
+        bruteForceObjectMapper(obj, rawDoc, treeDoc, newObj)
 
 def bruteForceObjectMapper(obj, rawDoc, treeDoc, newObj):
     items = None
