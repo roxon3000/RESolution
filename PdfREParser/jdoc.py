@@ -3,11 +3,14 @@ import pdfparserconstants
 import base64
 from hashlib import md5
 import re
+import xrefUtil 
 
 class JDoc:
     def __init__(meo, name):
         meo.name = name        
         meo.fileType = 'PDF'
+        meo.xrefObj = None
+        meo.xrefSet = False
 
     def determineLineType(self, currentLine, lastLine, lastLineType, lastObj, lastMetaObj):
 
@@ -51,6 +54,10 @@ class JDoc:
     #TRAILER
         if(currentLine.strip() == pdfparserconstants.TRAILER):
             return pdfparserconstants.TRAILER
+
+    #XREFSTART
+        if(currentLine.strip() == pdfparserconstants.XREFSTART):
+            return pdfparserconstants.XREFSTART
 
     #OBJ START RULES
         #if current line contains "obj" but not "endobj", meaning it is the start of the obj section.
@@ -142,8 +149,8 @@ class JDoc:
 
     def parseMetaObject(self, metaLine, sanityCheck):
         
-        if(metaLine.count('65 0 R') > 0):
-            x = 1
+        #if(metaLine.count('65 0 R') > 0):
+        #    x = 1
 
         #only allow 100 levels of recursivity
         if(sanityCheck > 100):
@@ -306,7 +313,8 @@ class JDoc:
         
 
         idOffsetPairs = unfilteredStreamLine[0:firstOffset]  # this should match firstOffset
-
+        #remove any new lines
+        idOffsetPairs = idOffsetPairs.replace('\n',' ')
         shardList = idOffsetPairs.split(' ')
         objRefList = []
         od = 0
@@ -355,8 +363,8 @@ class JDoc:
             currentObj.fromObjectStream = True
             currentObj.objectStreamId = parentId
             self.objs.append(currentObj)
-
-    def processRawLine(self, rawline, rlState, unfilterStreamFlag):
+       
+    def processRawLine(self, rawline, rlState, unfilterStreamFlag, fileStream):
         
         #since reading in binary, need to account for carriage returns
         asciiLine = rawline.decode(encoding="ascii", errors="surrogateescape")
@@ -388,6 +396,11 @@ class JDoc:
                         rlState.currentObj.content = rlState.lastLine
                     rlState.prevObj = rlState.currentObj
                     rlState.isContinuation = False
+                    #assign xref object, but only if not set
+                    if(hasattr(rlState.currentObj, "meta") and hasattr(rlState.currentObj.meta, "Type") and (rlState.currentObj.meta.Type == "XRef")
+                       and self.xrefObj == None):
+                        self.xrefObj = rlState.currentObj
+
                 case "obj-meta":
                     rlState.currentMetaObj = self.processObjMetaLine(currentLine, rlState.currentObj)
                     if(rlState.currentMetaObj.hasStream):
@@ -401,13 +414,60 @@ class JDoc:
                 case "obj-stream":
                     #if stream processing detected, break since string processing not necessary
                     containsStreamContent = True
+                    rlState.streamLineCount = rlState.streamLineCount + 1
+                    rlState.fileStreamPointer = fileStream.tell()
+                    #end stream is presumably always on a new line. no reason to iterate thru an object stream's cr lines
+                    # "fast forward" if Length is available
+                    #use xref fast forward, if not in xref mode since xreftable would not exist yet
+                    if(rlState.mode == 'Normal'):
+                        if(hasattr(self, "xrefType") and self.xrefType == "indirect"):
+                            curOffset = fileStream.tell()
+                            print('current at offset: ' + str(curOffset))
+                            ffOffset = xrefUtil.fastForward(curOffset, self.xreftable)
+                            print('fast forwarding to offset: ' + str(ffOffset))
+                            #need to back up the offset by a few bytes to capture the end of the object, so it can't back up farther than the current offset
+                            modOffset = ffOffset - 50
+                            if(modOffset > curOffset ):
+                                bytesToRead = modOffset - curOffset
+                                ffRaw = fileStream.read(bytesToRead)
+                                rawline = rawline + ffRaw
+
+                            rlState.lastLineType = lineType
+                            rlState.lastLine = currentLine
+                            break
+                        """
+                        if(hasattr(rlState.streamObj,"meta") and hasattr(rlState.streamObj.meta,"Length") and rlState.streamObj.meta.Length.isnumeric()):
+                            offset = int(rlState.streamObj.meta.Length)
+                            fileStream.seek(rlState.fileStreamPointer + offset - 10)
+                            rlState.streamLineCount = 0
+                        
+                            print("fast forwarding to offset : " + str(rlState.fileStreamPointer + offset - 10))
+                            rlState.lastLineType = lineType
+                            rlState.lastLine = currentLine
+                            break
+                        elif (hasattr(self, "xrefType") and self.xrefType == "indirect"):
+                            #use xref fast forward
+                            curOffset = fileStream.tell()
+                            print('current at offset: ' + str(curOffset))
+                            ffOffset = xrefUtil.fastForward(curOffset, self.xreftable)
+                            print('fast forwarding to offset: ' + str(ffOffset))
+                            fileStream.seek(ffOffset)
+                            rlState.lastLineType = lineType
+                            rlState.lastLine = currentLine
+                            break
+                        """
+
+
                 case "stream-start":
                     containsStreamStart = True
                     rlState.currentMetaObj.hasStream = True
+                    rlState.currentObj.hasStream = True
                 case "stream-end":
                     #flip this so stream is only processed once
-                    rlState.lastMetaObj.hasStream = False
+                    #rlState.lastMetaObj.hasStream = False
+                    #rlState.currentObj.hasStream = False
                     containsStreamEnd = True
+                    rlState.streamLineCount = 0
                 case "trailer":
                     rlState.lastObj = rlState.currentObj
                     rlState.currentObj = self.processStartTrailer()     
@@ -417,6 +477,8 @@ class JDoc:
                     rlState.isContinuation = True
                 case "content-cont":
                     rlState.isContinuation = True
+                case "startxref" | "xref":
+                    pass
                 case _:
                     pass
             rlState.lastLineType = lineType
@@ -435,7 +497,7 @@ class JDoc:
             streamBuffer = rlState.streamPersist[0: len(rlState.streamPersist)-2]
             rlState.streamObj.stream =  base64.b64encode(streamBuffer).decode(encoding="ascii", errors="strict")
             if(unfilterStreamFlag=="Y"):
-                rlState.streamObj.processStream(streamBuffer)
+                rlState.streamObj.processStream(streamBuffer, self)
             
             hashl = md5()
             hashl.update(streamBuffer)

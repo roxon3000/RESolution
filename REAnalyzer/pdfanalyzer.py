@@ -57,42 +57,10 @@ class PdfAnalyzer:
         treeTrailer.generationNumber = '0'
         treeDoc.treeTrailer = treeTrailer
         treeTrailer.update(trailer, pdfUtil.trailerMapper, treeDoc, rawDoc)
-
-        #pdfUtil.genericObjRefHandler('trailer', trailer, rawDoc, treeDoc, treeTrailer, pdfUtil.genericObjectMapper)
-        #pdfUtil.genericObjRefHandler('poopy', trailer.Info, rawDoc, treeDoc, treeDoc, pdfUtil.infoMapper)
-
-        """
-        infoObjt = pdfUtil.parseObjDef(trailer.Info)
-        rootObjt = pdfUtil.parseObjDef(trailer.Root)
-
-        #find info object
-        infoObjr = pdfUtil.findRawObj(rawDoc, infoObjt)
-        rootObjr = pdfUtil.findRawObj(rawDoc, rootObjt)
-
-        treeDoc.info = jobj.JObj()
-        if(infoObjr != None):
-            treeDoc.info.update(infoObjr, pdfUtil.infoMapper, treeDoc, rawDoc)
-            treeDoc.info.objectNumber = infoObjr.id
-            treeDoc.info.generationNumber = infoObjr.version
-        else:
-            treeDoc.info.message = "Info object was not found"
-
-        treeDoc.root = jobj.JObj()
-        if(rootObjr != None):
-            treeDoc.root.update(rootObjr.meta, pdfUtil.rootMapper, treeDoc, rawDoc)
-            treeDoc.root.objectNumber = rootObjr.id
-            treeDoc.root.generationNumber = rootObjr.version
-
-        else:
-            treeDoc.root.message = "Root object was not found"
-
-        """
+        
     def analyze(self):
         
         rawDoc = self.rawDoc
-
-        #create object map
-        #TODO - need to create object map first... should have done this to begin with.
 
         #create heirarchy from trailer or equivialent. This doc is used for object tree visualization and inspection
         #also performs some defacto validation. TODO needs error handling
@@ -136,19 +104,6 @@ class PdfAnalyzer:
             #test = vars(treeDoc)
             #json.dump(test, fw)
 
-        fw.close()
-
-        """
-        outputFile = "objectmap.json"
-        with open(outputFile, 'w', encoding="ascii", errors="surrogateescape") as fw:
-                  
-            fw.write(json.dumps(self.objectMap, default=vars))
-            #test = vars(treeDoc)
-            #json.dump(test, fw)
-
-        fw.close()
-
-        """
-        
+        fw.close()        
 
         

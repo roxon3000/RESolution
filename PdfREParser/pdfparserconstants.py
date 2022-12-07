@@ -15,3 +15,6 @@ STREAM_END = "stream-end"
 TRAILER = "trailer"
 UNKOWN = "unknown"
 CONTENT = "content"
+XREFSTART = "startxref"
+OBJ_REF_REGEX = '([0-9]+ [0-9]+ R)'
+OBJ_ID_REGEX = '([0-9]+ [0-9]+ obj)'

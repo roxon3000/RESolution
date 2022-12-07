@@ -1,3 +1,11 @@
+import os
+import jdoc
+from PdfREParser import RawLineState
+import pdfparserconstants
+import re 
+import jobj
+import sys 
+
 # From PDF 1.7 spec
 # 
 # << /Type /XRef
@@ -80,3 +88,132 @@
     3   The index of this object within the object stream.
 
 """
+
+EMPTY = pdfparserconstants.EMPTY 
+
+def fastForward(curOffset, xref):
+    nextObjOffset = curOffset
+
+    if(xref == None or hasattr(xref, "rows") == False or xref.rows == None) :
+        return nextObjOffset
+
+    #assume it's sorted? better be
+    for row in xref.rows:
+        if(row.col1 == 1 and row.col2 > curOffset):
+            nextObjOffset = row.col2
+            break
+
+    return nextObjOffset
+def decodeXrefObjectStream(xrefMeta, xrefBuffer):
+    width = [] 
+    #length = xrefMeta.Length
+    #index = xrefMeta.Index
+
+    #calc byte length of row
+    rowLength = 0
+    for wi in xrefMeta.W:
+        rowLength = rowLength + int(wi)
+        width.append(int(wi))
+
+    numberOfRows = int(len(xrefBuffer)/rowLength)
+    #if(width == [1,2,2]):
+    xreftable = jobj.JObj("xreftable")
+    xreftable.rows = []
+    
+    print('Found XREF Table in Object, printing.. ')
+    for i in range(numberOfRows):
+        row = xrefBuffer[i*rowLength: (i*rowLength) + rowLength ] 
+        
+        col1 = row[0:int(width[0])]
+        col2 = row[width[0]:width[0] + width[1]]
+        col3 = row[width[0] + width[1]:width[0] + width[1] + width[2]]
+
+        row = jobj.JObj('row')
+        row.rowNum = i
+        row.col1 = int.from_bytes(col1,'big')
+        row.col2 = int.from_bytes(col2,'big')
+        row.col3 = int.from_bytes(col3,'big')
+        
+        xreftable.rows.append(row)
+        
+        print( col1.hex() + ' ' + col2.hex() + ' ' + col3.hex() )
+
+    return xreftable
+
+
+
+def findXrefStart(fileStream, myDoc):
+    #find file length, back up.. some number of bytes and and proceed to find startxref
+
+    fileStream.seek(-500,os.SEEK_END)
+    
+    streamPersist = None
+    #N
+    currentObj= None
+    lastObj = None 
+    lastMetaObj = None
+    #N-1
+    prevObj = None
+    #object that is in queue to have its stream populated
+    streamObj = None
+    isContinuation = False
+    lastLine = EMPTY
+    lastLineType = EMPTY
+
+    rlState = RawLineState(streamPersist, currentObj, lastObj, lastMetaObj, prevObj, streamObj, isContinuation, EMPTY, EMPTY, None)
+    #TODO - need to add a performance improve for large object stream processing. large object streams can have a large number of internal new
+    # lines that do not need to be parsed. Should be able to use file.seek to skip most/all of the object.
+    #for rawline in fileStream:
+    
+    xfline = fileStream.read()
+    rlState.rawlineCount = rlState.rawlineCount + 1
+    print('Attempting to find and parse XREF table')
+    startxref = int(processFindXrefStartLine(xfline))
+
+    print('Found XREF table at offset ' + str(startxref))
+
+    fileStream.seek(startxref)
+    firstLine = True 
+    xrefType = "unknown"
+    rlState.lastLineType = "xrefstub"
+    rlState.mode = "xreftable"
+
+    for rawline in fileStream:
+        if(firstLine == True):
+            firstLine = False
+            #determine if xref is an object reference or a direct xref table
+            refObjMatch = re.search(pdfparserconstants.OBJ_ID_REGEX, str(rawline))
+            if(refObjMatch == None):
+                #do direct xref parse
+                xrefType = "direct"
+            else:
+                xrefType = "indirect"
+                
+
+        if(xrefType == "indirect"):
+            #parse xref object
+            myDoc.processRawLine(rawline, rlState, "Y", fileStream)
+            if(myDoc.xrefObj != None):
+                myDoc.xrefSet = True
+        else:
+            #direct
+            pass
+
+        if(myDoc.xrefSet == True):
+            break
+    
+    myDoc.xrefType = xrefType
+
+
+
+
+
+def processFindXrefStartLine(rawline):
+
+    asciiLine = rawline.decode(encoding="ascii", errors="surrogateescape")
+    crLines = asciiLine.splitlines(keepends=True)
+
+    #read in reverse until startxref is found
+    for i in reversed(range(len(crLines))):
+        if(crLines[i].strip() == pdfparserconstants.XREFSTART):
+            return crLines[i+1].strip()

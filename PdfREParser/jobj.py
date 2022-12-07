@@ -3,6 +3,7 @@ from cmath import isnan
 import pdfparserconstants
 import zlib
 import base64
+import xrefUtil
 
 class JObj:
     def __init__(meo, id):
@@ -98,11 +99,12 @@ class JObj:
                 #remove plus/minus sign
                 newVal = newVal.replace('+', '_')
                 newVal = newVal.replace('-', '_')
-                #remove parens, colon, period
+                #remove parens, colon, period, hash
                 newVal = newVal.replace('(', '_')
                 newVal = newVal.replace(')', '_')
                 newVal = newVal.replace(':', '_')
                 newVal = newVal.replace('.', '_')
+                newVal = newVal.replace('#', '_')
 
                 #first char cannot be an undercore
                 if(newVal[0:1] == '_'):
@@ -133,7 +135,7 @@ class JObj:
         deflatedBuffer = zobj.decompress(buffer)
                 
         return deflatedBuffer
-    def processStream(self, buffer):
+    def processStream(self, buffer, myDoc):
         unfilteredStream = None
         metaObj = self.meta
         encoding = "none"
@@ -152,6 +154,10 @@ class JObj:
                 print(inst)
                 flateDecodeFailed = True
         
+        if(hasattr(metaObj, "Type")  and metaObj.Type == "XRef"):
+            #do xref stream processing and set xreftable
+            myDoc.xreftable = xrefUtil.decodeXrefObjectStream(metaObj, uBuffer)
+            
         
         #attempt decoding, even if there is no filter or deflate was successful
         if(hasattr(metaObj, "Filter") == False or (flateDecodeFailed == False and uBuffer != None)):

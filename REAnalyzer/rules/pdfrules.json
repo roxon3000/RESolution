@@ -1,0 +1,87 @@
+{
+  "name": "pdfrules",
+  "fileType": "Rules",
+  "rules": [
+    {
+      "id": "10",
+      "ruleType": "AttributeExists",
+      "ruleValue": "AA",
+      "description": "flag automatic action attribute",
+      "category": "automatic action",
+      "priority": 1
+    },
+    {
+      "id": "20",
+      "ruleType": "AttributeExists",
+      "ruleValue": "OpenAction",
+      "description": "flag automatic action attribute",
+      "category": "automatic action",
+      "priority": 1
+    },
+    {
+      "id": "30",
+      "ruleType": "AttributeExists",
+      "ruleValue": "Launch",
+      "description": "launch external or internal programs or files",
+      "category": "launch",
+      "priority": 1
+    },
+    {
+      "id": "40",
+      "ruleType": "AttributeExists",
+      "ruleValue": "EmbeddedFiles",
+      "description": "internally embedded file",
+      "category": "launch",
+      "priority": 1
+    },
+    {
+      "id": "50",
+      "ruleType": "AttributeExists",
+      "ruleValue": "URI",
+      "description": "embedded link",
+      "category": "website interaction",
+      "priority": 1
+    },
+    {
+      "id": "60",
+      "ruleType": "AttributeExists",
+      "ruleValue": "SubmitForm",
+      "description": "submit html form to website",
+      "category": "website interaction",
+      "priority": 1
+    },
+    {
+      "id": "70",
+      "ruleType": "AttributeExists",
+      "ruleValue": "JS",
+      "description": "executable javascript",
+      "category": "script",
+      "priority": 1
+    },
+    {
+      "id": "30",
+      "ruleType": "AttributeExists",
+      "ruleValue": "JavaScript",
+      "description": "executable javascript",
+      "category": "script",
+      "priority": 1
+    },
+    {
+      "id": "30",
+      "ruleType": "AttributeExists",
+      "ruleValue": "AcroForm",
+      "description": "contains script",
+      "category": "script",
+      "priority": 1
+    },
+    {
+      "id": "30",
+      "ruleType": "AttributeExists",
+      "ruleValue": "XFA",
+      "description": "contains script",
+      "category": "script",
+      "priority": 1
+    }
+
+  ]  
+}

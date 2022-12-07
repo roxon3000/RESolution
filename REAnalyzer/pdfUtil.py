@@ -1,6 +1,8 @@
 import jobj
 import re 
 from objectproxy import getProxy
+import sys 
+from itertools import count
 
 OBJ_REF_REGEX = '([0-9]+ [0-9]+ R)'
 
@@ -76,7 +78,8 @@ def bruteForceObjectMapper(obj, rawDoc, treeDoc, newObj):
                 case "meta" | "Parent":
                     pass
                 case _:
-                    if( genericObjRefHandler(key, val, rawDoc, treeDoc, newObj, bruteForceMapper) == False):
+                    if( stack_size2a() > 50  or 
+                       genericObjRefHandler(key, val, rawDoc, treeDoc, newObj, bruteForceMapper) == False):
                         newObj.__setattr__(key, val)
 
 def genericObjectMapper(obj, rawDoc, treeDoc, newObj):
@@ -153,6 +156,7 @@ def addToObjectMap(treeDoc, obj):
     treeDoc.objectMap[obj.objectNumber] = obj
 
 def genericObjRefHandler(key, val, rawDoc, treeDoc, newObj, mapper):
+    
     objt = parseObjDef(val)
     if(objt != None):
         objr = findRawObj(rawDoc, objt)        
@@ -250,3 +254,12 @@ def parseObjDef(obj):
         return None
 
     
+def stack_size2a(size=2):
+    """Get stack size for caller's frame.
+    """
+    frame = sys._getframe(size)
+
+    for size in count(size):
+        frame = frame.f_back
+        if not frame:
+            return size
