@@ -8,7 +8,8 @@
       "ruleValue": "AA",
       "description": "flag automatic action attribute",
       "category": "automatic action",
-      "priority": 1
+      "priority": 1,
+      "match":  "strict"
     },
     {
       "id": "20",
@@ -16,7 +17,8 @@
       "ruleValue": "OpenAction",
       "description": "flag automatic action attribute",
       "category": "automatic action",
-      "priority": 1
+      "priority": 1,
+      "match": "strict"
     },
     {
       "id": "30",
@@ -24,7 +26,8 @@
       "ruleValue": "Launch",
       "description": "launch external or internal programs or files",
       "category": "launch",
-      "priority": 1
+      "priority": 1,
+      "match": "strict"
     },
     {
       "id": "40",
@@ -32,7 +35,8 @@
       "ruleValue": "EmbeddedFiles",
       "description": "internally embedded file",
       "category": "launch",
-      "priority": 1
+      "priority": 1,
+      "match": "strict"
     },
     {
       "id": "50",
@@ -40,7 +44,8 @@
       "ruleValue": "URI",
       "description": "embedded link",
       "category": "website interaction",
-      "priority": 1
+      "priority": 1,
+      "match": "strict"
     },
     {
       "id": "60",
@@ -48,7 +53,8 @@
       "ruleValue": "SubmitForm",
       "description": "submit html form to website",
       "category": "website interaction",
-      "priority": 1
+      "priority": 1,
+      "match": "strict"
     },
     {
       "id": "70",
@@ -56,7 +62,8 @@
       "ruleValue": "JS",
       "description": "executable javascript",
       "category": "script",
-      "priority": 1
+      "priority": 1,
+      "match": "strict"
     },
     {
       "id": "30",
@@ -64,7 +71,8 @@
       "ruleValue": "JavaScript",
       "description": "executable javascript",
       "category": "script",
-      "priority": 1
+      "priority": 1,
+      "match": "strict"
     },
     {
       "id": "30",
@@ -72,7 +80,8 @@
       "ruleValue": "AcroForm",
       "description": "contains script",
       "category": "script",
-      "priority": 1
+      "priority": 1,
+      "match": "strict"
     },
     {
       "id": "30",
@@ -80,7 +89,8 @@
       "ruleValue": "XFA",
       "description": "contains script",
       "category": "script",
-      "priority": 1
+      "priority": 1,
+      "match": "strict"
     }
 
   ]  

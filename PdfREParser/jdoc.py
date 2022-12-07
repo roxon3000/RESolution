@@ -130,6 +130,9 @@ class JDoc:
         return newObj
     def processObjMetaLine(self, currentLine, currentObj):
 
+        if(currentLine.count('Embedded') > 0):
+            x = 1
+
         #first build object tree
         #        
         metaObj = self.parseMetaObject(currentLine,  0)
@@ -146,6 +149,11 @@ class JDoc:
             return True
         else:
             return False
+    def removeFirstPatternFromString(self, word, pattern):
+        newWord = ""
+        span = re.search(re.escape(pattern), word).span()
+        newWord = word[0:span[0]] + word[span[1]:len(word)]
+        return newWord
 
     def parseMetaObject(self, metaLine, sanityCheck):
         
@@ -167,7 +175,7 @@ class JDoc:
             #add two for FF
             leftOver = metaLine[endOfMetaObjIndex + 2: len(metaLine)]
             #remove leftOver from metaLine. Only remove leftover if recursivivity is level 1
-            if(sanityCheck < 2):
+            if(sanityCheck < 20):
                 #print("Removing left over from metaLine: " + leftOver)
                 #metaLine = metaLine.replace(leftOver, "")
                 metaLine = metaLine[0: endOfMetaObjIndex + 2]
@@ -193,12 +201,28 @@ class JDoc:
             subObjKeyList = myword[0:keyEnd].split('/')
             #may not be first keyword, so split by '/' and take last key
             subObjKey = subObjKeyList[len(subObjKeyList)-1]
+            
+            #debug
+            if(subObjKey == "Names" or subObjKey == ""):
+                x = 1
+
             endPropLine = myword.find(subObjKey)
             propLine = propLine + myword[0:endPropLine]
-            myword = myword[keyEnd:len(myword)]               
-            mySubObj = self.parseMetaObject(myword, sanityCheck)
+            myword2 = myword[keyEnd:len(myword)]     
+            endOfSubObj = self.findEndOfObject(myword2)
+            myword3 = myword2[0:endOfSubObj+2]
+            mySubObj = self.parseMetaObject(myword3, sanityCheck)
             newMetaObj.__setattr__(subObjKey, mySubObj)
-                
+
+            #fix.. cannot use replace here as it will remove other duplicate matches.
+            #remove sub obj key and meta from metaline and myword
+            #metaLine = metaLine.replace(subObjKey, '').replace(myword3,'')
+            metaLine = self.removeFirstPatternFromString(metaLine, subObjKey)
+            metaLine = self.removeFirstPatternFromString(metaLine, myword3)
+
+            myword = self.removeFirstPatternFromString(myword, subObjKey)
+            myword = self.removeFirstPatternFromString(myword, myword3)
+
             #look at rest of line
             endOfMetaObjIndex = self.findEndOfObject(myword)
             #plus two for BB
@@ -208,13 +232,14 @@ class JDoc:
         #parse props
         if(propLine == "notset"):
             propLine = metaLine
+        #need fix - if sub prop was added, it needs to be removed from propline
 
         subProps = propLine.split('/')
         propRuleInEffect = "none"
         propBuilder = ""
         for prop in subProps:
             prop = prop.strip()
-            if(prop == pdfparserconstants.BB or prop == pdfparserconstants.FF):
+            if(prop == pdfparserconstants.BB or prop == pdfparserconstants.FF or len(prop) == 0):
                 continue
 
             if(propRuleInEffect == "BuildRule"):
