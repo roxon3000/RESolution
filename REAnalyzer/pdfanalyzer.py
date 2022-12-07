@@ -2,15 +2,20 @@
 import jobj 
 import pdfUtil
 import json
-
+import analyzer
+from collections import namedtuple
 from objectproxy import getProxy 
+from rulesengine import applyRule 
 
 class PdfAnalyzer:
     def __init__(self, jsonObject):
         self.rawDoc = jsonObject      
         self.treeDoc = jobj.JObj()
         self.treeDoc.objectMap = {}
-    
+        self.rules = None
+        self.rulesSummary = jobj.JObj()
+        self.rulesSummary.matchCount = 0
+
     def findTrailerObject(self):
         rcObj = None
 
@@ -18,6 +23,7 @@ class PdfAnalyzer:
             if(hasattr(obj, "meta") and hasattr(obj.meta, "Root") and hasattr(obj.meta, "Info")):
                 rcObj = obj
         return rcObj
+
     def processOrphans(self):
         if(self.treeDoc != None and self.treeDoc.objectMap != None):
             for obj in self.rawDoc.objs:
@@ -57,7 +63,37 @@ class PdfAnalyzer:
         treeTrailer.generationNumber = '0'
         treeDoc.treeTrailer = treeTrailer
         treeTrailer.update(trailer, pdfUtil.trailerMapper, treeDoc, rawDoc)
-        
+    
+    def executeRules(self):
+        #made decision to no run rules during heirarchy or orphan processing in order to simplify rules processing.  Decision will have a minor impact on performance.
+        #load and process rules
+        with open('rules/pdfrules.json', 'r') as tr:
+            
+            rulesDoc = json.load(tr, object_hook=analyzer.customDocDecoder)
+            self.rules = rulesDoc
+            objectMap = self.treeDoc.objectMap
+            for objId in  self.treeDoc.objectMap:
+                obj = objectMap.get(objId)
+                #obj.__setattr__('appliedRules',[])
+                obj.appliedRules = []
+                for rule in rulesDoc.rules:
+                    result = applyRule(rule, obj)
+                    if(result != None):
+                        obj.appliedRules.append(result)                    
+                        self.recordInRuleSummary(obj, result)
+
+        tr.close()
+    
+    def recordInRuleSummary(self, obj, result):
+        rule = result.appliedRule
+        if(result.match == True):
+            self.rulesSummary.matchCount = self.rulesSummary.matchCount + 1
+            if(hasattr(self.rulesSummary, rule['id']) == False):
+                ruleSummaryObj = jobj.JObj()
+                ruleSummaryObj.objs = []
+                self.rulesSummary.__setattr__(rule['id'], ruleSummaryObj)
+            self.rulesSummary.getAttr(rule['id']).objs.append(getProxy(obj.objectNumber))
+
     def analyze(self):
         
         rawDoc = self.rawDoc
@@ -67,6 +103,8 @@ class PdfAnalyzer:
         self.processTrailerHeirarchy()
 
         self.processOrphans()
+
+        self.executeRules()
         """
         proxy = {'$ref' : "#/objectMap/" + self.treeDoc.info.objectNumber}
 
@@ -106,4 +144,9 @@ class PdfAnalyzer:
 
         fw.close()        
 
+
+        outputFile = "rulessummary.json"
+        with open(outputFile, 'w', encoding="ascii", errors="surrogateescape") as fw:        
+            fw.write(json.dumps(self.rulesSummary, default=vars))
+        fw.close()  
         

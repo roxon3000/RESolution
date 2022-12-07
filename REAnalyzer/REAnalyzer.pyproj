@@ -5,14 +5,13 @@
     <ProjectGuid>a59e606b-468b-49f7-90cc-c5645b19ef6d</ProjectGuid>
     <ProjectHome>.</ProjectHome>
     <StartupFile>analyzer.py</StartupFile>
-    <SearchPath>
-    </SearchPath>
+    <SearchPath>../REAnalyzer</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <Name>REAnalyzer</Name>
     <RootNamespace>REAnalyzer</RootNamespace>
     <LaunchProvider>Standard Python launcher</LaunchProvider>
-    <CommandLineArguments>../PdfREParser/webprint.pdf.json</CommandLineArguments>
+    <CommandLineArguments>../PdfREParser/simple-pdf.pdf.json</CommandLineArguments>
     <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
     <IsWindowsApplication>False</IsWindowsApplication>
     <InterpreterId>MSBuild|env|$(MSBuildProjectFullPath)</InterpreterId>
@@ -33,7 +32,7 @@
     <Compile Include="pdfanalyzer.py" />
     <Compile Include="pdfUtil.py" />
     <Compile Include="REAnalyzer.py" />
-    <Compile Include="rules\pdfrules.py" />
+    <Compile Include="rulesengine.py" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="rules\" />

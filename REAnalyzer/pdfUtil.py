@@ -70,6 +70,8 @@ def bruteForceObjectMapper(obj, rawDoc, treeDoc, newObj):
 
     if(items != None):
         for key, val in items:
+            if(str(val).isprintable()):
+                print('brute force at key=' + key + ' value=' + str(val))
             match key:
                 case "id" | "version":
                     pass 
@@ -77,9 +79,11 @@ def bruteForceObjectMapper(obj, rawDoc, treeDoc, newObj):
                     newObj.generationNumber = val
                 case "meta" | "Parent":
                     pass
+                case "K":
+                    #K is causing problems with large lists.. currently banned.
+                    newObj.__setattr__(key, val)
                 case _:
-                    if( stack_size2a() > 50  or 
-                       genericObjRefHandler(key, val, rawDoc, treeDoc, newObj, bruteForceMapper) == False):
+                    if( genericObjRefHandler(key, val, rawDoc, treeDoc, newObj, bruteForceMapper) == False):
                         newObj.__setattr__(key, val)
 
 def genericObjectMapper(obj, rawDoc, treeDoc, newObj):
@@ -156,7 +160,7 @@ def addToObjectMap(treeDoc, obj):
     treeDoc.objectMap[obj.objectNumber] = obj
 
 def genericObjRefHandler(key, val, rawDoc, treeDoc, newObj, mapper):
-    
+
     objt = parseObjDef(val)
     if(objt != None):
         objr = findRawObj(rawDoc, objt)        
