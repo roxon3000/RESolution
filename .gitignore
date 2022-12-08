@@ -132,3 +132,6 @@ dmypy.json
 /PdfREParser/flyer.pdf.json
 /PdfREParser/flyer.pdf.bin.txt
 /PdfREParser/flyer.pdf
+/PdfREParser/webprint.pdf.json
+/PdfREParser/webprint.pdf.bin.txt
+/PdfREParser/webprint.pdf
