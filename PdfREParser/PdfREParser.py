@@ -4,6 +4,7 @@ import sys
 import pdfparserconstants
 import jdoc
 from hashlib import md5
+import xrefUtil
 
 class RawLineState:
     def __init__(self, streamPersist, currentObj, lastObj, lastMetaObj, prevObj, streamObj, isContinuation, lastLine, lastLineType, currentMetaObj):
@@ -18,8 +19,9 @@ class RawLineState:
         self.lastLineType = lastLineType
         self.currentMetaObj = currentMetaObj
         self.rawlineCount = 0
-
-
+        self.streamLineCount = 0
+        self.fileStreamPointer = 0
+        self.mode = "Normal"
 def main(arg1):
     
     ####### Parameters
@@ -36,6 +38,7 @@ def main(arg1):
 
     with open(inputFile, 'rb') as tr:
         testBuff = tr.read()
+        xrefUtil.findXrefStart(tr, myDoc)
     tr.close()
 
 
@@ -65,16 +68,19 @@ def main(arg1):
         lastLineType = EMPTY
 
         rlState = RawLineState(streamPersist, currentObj, lastObj, lastMetaObj, prevObj, streamObj, isContinuation, EMPTY, EMPTY, None)
-
+        #TODO - need to add a performance improve for large object stream processing. large object streams can have a large number of internal new
+        # lines that do not need to be parsed. Should be able to use file.seek to skip most/all of the object.
         for rawline in f:
+           
             rlState.rawlineCount = rlState.rawlineCount + 1
-            myDoc.processRawLine(rawline, rlState, unfilterStreamFlag)
+            print('parsing raw line : ' + str(rlState.rawlineCount))
+            myDoc.processRawLine(rawline, rlState, unfilterStreamFlag, f)
             
 
     f.close()
 
     #post parse processing of JSON
-
+    
     #Process compressed objects in ObjStm objects
     for obj in myDoc.objs:
         if(hasattr(obj, 'meta') and hasattr(obj.meta, 'Type') and obj.meta.Type == "ObjStm" and hasattr(obj, 'unfilteredStream') and obj.unfilteredStream != None

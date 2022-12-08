@@ -1,5 +1,5 @@
 
 
-def getProxy(id):
-    return {"$ref" : "#/objectMap/" + id}
+def getProxy(id, pool="objectMap"):
+    return {"$ref" : "#/" + pool + "/" + id, "id" : id}
 

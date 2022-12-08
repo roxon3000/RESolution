@@ -2,15 +2,20 @@
 import jobj 
 import pdfUtil
 import json
-
+import analyzer
+from collections import namedtuple
 from objectproxy import getProxy 
+from rulesengine import applyRule 
 
 class PdfAnalyzer:
     def __init__(self, jsonObject):
         self.rawDoc = jsonObject      
         self.treeDoc = jobj.JObj()
         self.treeDoc.objectMap = {}
-    
+        self.rules = None
+        self.rulesSummary = jobj.JObj()
+        self.rulesSummary.matchCount = 0
+
     def findTrailerObject(self):
         rcObj = None
 
@@ -18,6 +23,7 @@ class PdfAnalyzer:
             if(hasattr(obj, "meta") and hasattr(obj.meta, "Root") and hasattr(obj.meta, "Info")):
                 rcObj = obj
         return rcObj
+
     def processOrphans(self):
         if(self.treeDoc != None and self.treeDoc.objectMap != None):
             for obj in self.rawDoc.objs:
@@ -57,48 +63,48 @@ class PdfAnalyzer:
         treeTrailer.generationNumber = '0'
         treeDoc.treeTrailer = treeTrailer
         treeTrailer.update(trailer, pdfUtil.trailerMapper, treeDoc, rawDoc)
+    
+    def executeRules(self):
+        #made decision to no run rules during heirarchy or orphan processing in order to simplify rules processing.  Decision will have a minor impact on performance.
+        #load and process rules
+        with open('rules/pdfrules.json', 'r') as tr:
+            
+            rulesDoc = json.load(tr, object_hook=analyzer.customDocDecoder)
+            self.rules = rulesDoc
+            objectMap = self.treeDoc.objectMap
+            for objId in  self.treeDoc.objectMap:
+                obj = objectMap.get(objId)
+                #obj.__setattr__('appliedRules',[])
+                obj.appliedRules = []
+                for rule in rulesDoc.rules:
+                    result = applyRule(rule, obj)
+                    if(result != None):
+                        obj.appliedRules.append(result)                    
+                        self.recordInRuleSummary(obj, result)
 
-        #pdfUtil.genericObjRefHandler('trailer', trailer, rawDoc, treeDoc, treeTrailer, pdfUtil.genericObjectMapper)
-        #pdfUtil.genericObjRefHandler('poopy', trailer.Info, rawDoc, treeDoc, treeDoc, pdfUtil.infoMapper)
+        tr.close()
+    
+    def recordInRuleSummary(self, obj, result):
+        rule = result.appliedRule
+        if(result.match == True):
+            self.rulesSummary.matchCount = self.rulesSummary.matchCount + 1
+            if(hasattr(self.rulesSummary, rule['id']) == False):
+                ruleSummaryObj = jobj.JObj()
+                ruleSummaryObj.objs = []
+                self.rulesSummary.__setattr__(rule['id'], ruleSummaryObj)
+            self.rulesSummary.getAttr(rule['id']).objs.append(getProxy(obj.objectNumber))
 
-        """
-        infoObjt = pdfUtil.parseObjDef(trailer.Info)
-        rootObjt = pdfUtil.parseObjDef(trailer.Root)
-
-        #find info object
-        infoObjr = pdfUtil.findRawObj(rawDoc, infoObjt)
-        rootObjr = pdfUtil.findRawObj(rawDoc, rootObjt)
-
-        treeDoc.info = jobj.JObj()
-        if(infoObjr != None):
-            treeDoc.info.update(infoObjr, pdfUtil.infoMapper, treeDoc, rawDoc)
-            treeDoc.info.objectNumber = infoObjr.id
-            treeDoc.info.generationNumber = infoObjr.version
-        else:
-            treeDoc.info.message = "Info object was not found"
-
-        treeDoc.root = jobj.JObj()
-        if(rootObjr != None):
-            treeDoc.root.update(rootObjr.meta, pdfUtil.rootMapper, treeDoc, rawDoc)
-            treeDoc.root.objectNumber = rootObjr.id
-            treeDoc.root.generationNumber = rootObjr.version
-
-        else:
-            treeDoc.root.message = "Root object was not found"
-
-        """
     def analyze(self):
         
         rawDoc = self.rawDoc
-
-        #create object map
-        #TODO - need to create object map first... should have done this to begin with.
 
         #create heirarchy from trailer or equivialent. This doc is used for object tree visualization and inspection
         #also performs some defacto validation. TODO needs error handling
         self.processTrailerHeirarchy()
 
         self.processOrphans()
+
+        self.executeRules()
         """
         proxy = {'$ref' : "#/objectMap/" + self.treeDoc.info.objectNumber}
 
@@ -136,19 +142,11 @@ class PdfAnalyzer:
             #test = vars(treeDoc)
             #json.dump(test, fw)
 
-        fw.close()
+        fw.close()        
 
-        """
-        outputFile = "objectmap.json"
-        with open(outputFile, 'w', encoding="ascii", errors="surrogateescape") as fw:
-                  
-            fw.write(json.dumps(self.objectMap, default=vars))
-            #test = vars(treeDoc)
-            #json.dump(test, fw)
 
-        fw.close()
-
-        """
-        
-
+        outputFile = "rulessummary.json"
+        with open(outputFile, 'w', encoding="ascii", errors="surrogateescape") as fw:        
+            fw.write(json.dumps(self.rulesSummary, default=vars))
+        fw.close()  
         
