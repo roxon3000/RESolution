@@ -87,6 +87,23 @@ import sys
         0.)
     3   The index of this object within the object stream.
 
+
+Direct Xref example and explanation
+
+Example 3.5 shows a cross-reference section consisting of a single subsection
+with six entries: four that are in use (objects number 1, 2, 4, and 5) and two that
+are free (objects number 0 and 3). Object number 3 has been deleted, and the
+next object created with that object number is given a generation number of 7.
+Example 3.5
+xref
+0 6
+0000000003 65535 f
+0000000017 00000 n
+0000000081 00000 n
+0000000000 00007 f
+0000000331 00000 n
+0000000409 00000 n
+
 """
 
 EMPTY = pdfparserconstants.EMPTY 
@@ -104,6 +121,7 @@ def fastForward(curOffset, xref):
             break
 
     return nextObjOffset
+
 def decodeXrefObjectStream(xrefMeta, xrefBuffer):
     width = [] 
     #length = xrefMeta.Length
@@ -140,7 +158,8 @@ def decodeXrefObjectStream(xrefMeta, xrefBuffer):
 
     return xreftable
 
-
+def sortXrefTable(xreftable):
+    xreftable.rows.sort(key=lambda row: row.col2)
 
 def findXrefStart(fileStream, myDoc):
     #find file length, back up.. some number of bytes and and proceed to find startxref
@@ -177,6 +196,9 @@ def findXrefStart(fileStream, myDoc):
     xrefType = "unknown"
     rlState.lastLineType = "xrefstub"
     rlState.mode = "xreftable"
+    xrefCount = 0 #used for direct processing
+    xrefCountFlag = False #used for direct processing
+    xrefRowCount = 1 #used for direct processing
 
     for rawline in fileStream:
         if(firstLine == True):
@@ -184,11 +206,9 @@ def findXrefStart(fileStream, myDoc):
             #determine if xref is an object reference or a direct xref table
             refObjMatch = re.search(pdfparserconstants.OBJ_ID_REGEX, str(rawline))
             if(refObjMatch == None):
-                #do direct xref parse
                 xrefType = "direct"
             else:
                 xrefType = "indirect"
-                
 
         if(xrefType == "indirect"):
             #parse xref object
@@ -197,16 +217,49 @@ def findXrefStart(fileStream, myDoc):
                 myDoc.xrefSet = True
         else:
             #direct
-            pass
+            #parse xref section directly
+            myDoc.processRawLine(rawline, rlState, "N", fileStream)
+            if(xrefCountFlag):
+                xrefCount = xrefCount + 1
+
+            if(xrefCount >= xrefRowCount):
+                myDoc.xrefSet = True
+
+            #myDoc.xrefSet is set in jdoc processing
+            if(rlState.currentObj != None and rlState.currentObj.index != None and xrefCountFlag == False):
+                xrefCountFlag = True
+                xrefRowCount = int(rlState.currentObj.index.end)
 
         if(myDoc.xrefSet == True):
             break
     
     myDoc.xrefType = xrefType
+    #make sure table is sorted
+    sortXrefTable(myDoc.xreftable)
+
+def processOldXrefFixedFormatIndex(rawline, xreftable):
+    
+    xrefIndex = jobj.JObj('xrefindex')
+    iSplit = rawline.split(' ')
+
+    if(iSplit != None and len(iSplit) > 1):
+        xrefIndex.start = str(iSplit[0]).strip()
+        xrefIndex.end = str(iSplit[1]).strip()
+
+    xreftable.index = xrefIndex
 
 
+def processOldXrefFixedFormatRow(rawline, xreftable):
+    newRowNum = len(xreftable.rows)
+    newRow = jobj.JObj(newRowNum)
+    newRow.rowNum = newRowNum 
+    #conform to the standard of putting the offset in col2 
+    newRow.freeChar = str(rawline[17:20]).strip()
+    newRow.col1 = 1 #hard coded for direct to indicate it's not an embedded object
+    newRow.col2 = int(rawline[0:10])
+    newRow.col3 = int(rawline[11:16])
 
-
+    xreftable.rows.append(newRow)
 
 def processFindXrefStartLine(rawline):
 

@@ -43,6 +43,17 @@ class JDoc:
             case "stream-start":
                 hint = pdfparserconstants.OBJ_STREAM
                 authoritative = True
+            case "xref":
+                hint = pdfparserconstants.XREF_INDEX
+                authoritative = True
+            case "xrefindex":
+                hint = pdfparserconstants.XREF_ROW
+                authoritative = True
+            case "xrefrow":
+                #technically this assignment isn't valid for last row in table, but xref parsing has a special handler that
+                # knows how many rows to read based off of the xrefindex row
+                hint = pdfparserconstants.XREF_ROW
+                authoritative = True
             case _: 
                 hint = pdfparserconstants.UNKOWN
 
@@ -58,6 +69,10 @@ class JDoc:
     #XREFSTART
         if(currentLine.strip() == pdfparserconstants.XREFSTART):
             return pdfparserconstants.XREFSTART
+
+    #XREF TABLE FIRST LINE
+        if(currentLine.strip() == pdfparserconstants.XREF):
+            return pdfparserconstants.XREF
 
     #OBJ START RULES
         #if current line contains "obj" but not "endobj", meaning it is the start of the obj section.
@@ -268,6 +283,7 @@ class JDoc:
                 propBuilder = prop
             
             #common pattern where data is embedded inline
+            #TODO, improve this with an algorithm that isn't so hard coded
             if(   prop.count("U(") > 0
                or prop.count("O(") > 0
                or prop.count("CheckSum(") > 0
@@ -375,9 +391,6 @@ class JDoc:
            
             metaLine = unfilteredStreamLine[objRef.start:objRef.end]
             firstBBpos = metaLine.find(pdfparserconstants.BB)
-            #print('*********************************')
-            #print(metaLine)
-            #print('*********************************')
             currentObj = jobj.JObj(objId)
             currentObj.version = '0'
             if(firstBBpos >= 0):
@@ -445,44 +458,23 @@ class JDoc:
                     # "fast forward" if Length is available
                     #use xref fast forward, if not in xref mode since xreftable would not exist yet
                     if(rlState.mode == 'Normal'):
-                        if(hasattr(self, "xrefType") and self.xrefType == "indirect"):
-                            curOffset = fileStream.tell()
-                            print('current at offset: ' + str(curOffset))
-                            ffOffset = xrefUtil.fastForward(curOffset, self.xreftable)
+                        #TODO, remove xrefType check. may not matter if fastForward works the same way if xref table is mapped in a similar manner
+                        #if(hasattr(self, "xrefType") and self.xrefType == "indirect"):
+                        curOffset = fileStream.tell()
+                        #print('current at offset: ' + str(curOffset))
+                        ffOffset = xrefUtil.fastForward(curOffset, self.xreftable)
+
+                        #need to back up the offset by a few bytes to capture the end of the object, so it can't back up farther than the current offset
+                        modOffset = ffOffset - 50
+                        if(modOffset > curOffset ):
+                            bytesToRead = modOffset - curOffset
                             print('fast forwarding to offset: ' + str(ffOffset))
-                            #need to back up the offset by a few bytes to capture the end of the object, so it can't back up farther than the current offset
-                            modOffset = ffOffset - 50
-                            if(modOffset > curOffset ):
-                                bytesToRead = modOffset - curOffset
-                                ffRaw = fileStream.read(bytesToRead)
-                                rawline = rawline + ffRaw
+                            ffRaw = fileStream.read(bytesToRead)
+                            rawline = rawline + ffRaw
 
-                            rlState.lastLineType = lineType
-                            rlState.lastLine = currentLine
-                            break
-                        """
-                        if(hasattr(rlState.streamObj,"meta") and hasattr(rlState.streamObj.meta,"Length") and rlState.streamObj.meta.Length.isnumeric()):
-                            offset = int(rlState.streamObj.meta.Length)
-                            fileStream.seek(rlState.fileStreamPointer + offset - 10)
-                            rlState.streamLineCount = 0
-                        
-                            print("fast forwarding to offset : " + str(rlState.fileStreamPointer + offset - 10))
-                            rlState.lastLineType = lineType
-                            rlState.lastLine = currentLine
-                            break
-                        elif (hasattr(self, "xrefType") and self.xrefType == "indirect"):
-                            #use xref fast forward
-                            curOffset = fileStream.tell()
-                            print('current at offset: ' + str(curOffset))
-                            ffOffset = xrefUtil.fastForward(curOffset, self.xreftable)
-                            print('fast forwarding to offset: ' + str(ffOffset))
-                            fileStream.seek(ffOffset)
-                            rlState.lastLineType = lineType
-                            rlState.lastLine = currentLine
-                            break
-                        """
-
-
+                        rlState.lastLineType = lineType
+                        rlState.lastLine = currentLine
+                        break
                 case "stream-start":
                     containsStreamStart = True
                     rlState.currentMetaObj.hasStream = True
@@ -502,7 +494,20 @@ class JDoc:
                     rlState.isContinuation = True
                 case "content-cont":
                     rlState.isContinuation = True
-                case "startxref" | "xref":
+                case "xref":
+                    if(rlState.mode == "xreftable"):
+                        xreftable = jobj.JObj("xreftable")
+                        xreftable.rows = []
+                        xreftable.index = None
+                        rlState.currentObj = xreftable
+                        self.xreftable = xreftable
+                case "xrefindex":
+                    if(rlState.mode == "xreftable"):
+                        xrefUtil.processOldXrefFixedFormatIndex(currentLine, rlState.currentObj)
+                case "xrefrow":
+                    if(rlState.mode == "xreftable"):
+                        xrefUtil.processOldXrefFixedFormatRow(currentLine, rlState.currentObj)
+                case "startxref":
                     pass
                 case _:
                     pass

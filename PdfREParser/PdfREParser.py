@@ -5,6 +5,7 @@ import pdfparserconstants
 import jdoc
 from hashlib import md5
 import xrefUtil
+import fileExtUtil
 
 class RawLineState:
     def __init__(self, streamPersist, currentObj, lastObj, lastMetaObj, prevObj, streamObj, isContinuation, lastLine, lastLineType, currentMetaObj):
@@ -23,7 +24,11 @@ class RawLineState:
         self.fileStreamPointer = 0
         self.mode = "Normal"
 def main(arg1):
-    
+    #TODO: add support for Linearized PDF files
+    #TODO: improve stream output handling. Streams should be output to separate files for improved performance and ease of use with big files and streams.
+    #TODO: Extract Embedded files, similar to what needs to be done for streams 
+
+
     ####### Parameters
     #Flag to process stream filters
     unfilterStreamFlag = "Y" #TODO: add this as an argument
@@ -68,12 +73,11 @@ def main(arg1):
         lastLineType = EMPTY
 
         rlState = RawLineState(streamPersist, currentObj, lastObj, lastMetaObj, prevObj, streamObj, isContinuation, EMPTY, EMPTY, None)
-        #TODO - need to add a performance improve for large object stream processing. large object streams can have a large number of internal new
         # lines that do not need to be parsed. Should be able to use file.seek to skip most/all of the object.
         for rawline in f:
            
             rlState.rawlineCount = rlState.rawlineCount + 1
-            print('parsing raw line : ' + str(rlState.rawlineCount))
+            #print('parsing raw line : ' + str(rlState.rawlineCount))
             myDoc.processRawLine(rawline, rlState, unfilterStreamFlag, f)
             
 
@@ -86,6 +90,10 @@ def main(arg1):
         if(hasattr(obj, 'meta') and hasattr(obj.meta, 'Type') and obj.meta.Type == "ObjStm" and hasattr(obj, 'unfilteredStream') and obj.unfilteredStream != None
            and len(obj.unfilteredStream) > 0):
             myDoc.processObjectStreamLine(obj.unfilteredStream, int(obj.meta.First), int(obj.meta.N), obj.id)
+
+    #extract embedded files
+    for obj in myDoc.objs:
+        fileExtUtil.extractEmbeddedFile(obj, inputFile)
 
 
     with open(outputFile, 'w', encoding="ascii", errors="surrogateescape") as fw:

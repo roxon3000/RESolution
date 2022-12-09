@@ -29,6 +29,7 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="fileExtUtil.py" />
     <Compile Include="jdoc.py" />
     <Compile Include="jobj.py" />
     <Compile Include="pdfparserconstants.py" />

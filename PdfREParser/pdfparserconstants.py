@@ -18,3 +18,6 @@ CONTENT = "content"
 XREFSTART = "startxref"
 OBJ_REF_REGEX = '([0-9]+ [0-9]+ R)'
 OBJ_ID_REGEX = '([0-9]+ [0-9]+ obj)'
+XREF_INDEX = 'xrefindex'
+XREF = 'xref'
+XREF_ROW = 'xrefrow'
