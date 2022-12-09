@@ -141,7 +141,7 @@ class JObj:
         encoding = "none"
         uBuffer = None
         decodeBuffer = buffer 
-        flateDecodeFailed = False
+        skipBruteForce = False 
 
         if(hasattr(metaObj, "Filter") and metaObj.Filter == "FlateDecode"):
             
@@ -149,18 +149,28 @@ class JObj:
                 uBuffer = self.deflateBuffer(buffer)
                 #TODO: i don't like how I wrote this section in nested try/catch. will want to add more decoders later on
                 decodeBuffer = uBuffer            
+                if(hasattr(metaObj, "Type") and hasattr(metaObj, "Subtype") and metaObj.Type == "XObject" and metaObj.Subtype == "Image"):
+                    #set unfiltered stream to be the decompressed data in base64
+                    unfilteredStream  = base64.b64encode(uBuffer).decode(encoding="ascii", errors="strict")
+                    skipBruteForce = True
+                    encoding = "base64"
+                if(hasattr(metaObj, "Type")  and metaObj.Type == "XRef"):
+                    #do xref stream processing and set xreftable
+                    myDoc.xreftable = xrefUtil.decodeXrefObjectStream(metaObj, uBuffer)
+                    skipBruteForce = True
+
             except Exception as inst:
                 print("Error occurred during decompression:  Obj ID " + self.id)
                 print(inst)
-                flateDecodeFailed = True
-        
-        if(hasattr(metaObj, "Type")  and metaObj.Type == "XRef"):
-            #do xref stream processing and set xreftable
-            myDoc.xreftable = xrefUtil.decodeXrefObjectStream(metaObj, uBuffer)
+                
+        #TODO reorg code, probably to a switch statement
+
+
             
+
         
         #attempt decoding, even if there is no filter or deflate was successful
-        if(hasattr(metaObj, "Filter") == False or (flateDecodeFailed == False and uBuffer != None)):
+        if(skipBruteForce == False):
             try:
                 #try UTF-8. This may need to change or be configurable
                 unicodeLine = decodeBuffer.decode(encoding="UTF-8", errors="strict")

@@ -1,4 +1,5 @@
 import base64
+import os
 
 def extractEmbeddedFile(obj, parentFile):
     
@@ -14,7 +15,11 @@ def extractEmbeddedFile(obj, parentFile):
 
         outBuff = str.encode(obj.unfilteredStream)
 
-        fileName = parentFile + "." + obj.id + "." + subType
+        newpath = r'obj-' + obj.id 
+        if not os.path.exists(newpath):
+            os.makedirs(newpath)
+
+        fileName = newpath + "\\" + parentFile + "." + obj.id + "." + subType
 
         with open(fileName, 'wb') as fw:
        
