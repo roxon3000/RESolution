@@ -1,0 +1,20 @@
+.banner {
+    text-align: center;
+    border-style: solid;
+    border-width: thin;
+    border-color: #3f7a91;
+    background-color: #3f7a91;
+    margin-top:2rem;
+    margin-bottom: 1rem;
+    color: #ffffff;
+
+}
+
+.banner div>h1{
+    margin-bottom: 0rem;
+}
+
+.btn-primary {
+    background-color:#3f7a91 !important;
+    border-color: #3f7a91 !important;
+}

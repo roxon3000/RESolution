@@ -7,6 +7,8 @@ Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "PdfREParser", "PdfREParser\
 EndProject
 Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "REAnalyzer", "REAnalyzer\REAnalyzer.pyproj", "{A59E606B-468B-49F7-90CC-C5645B19EF6D}"
 EndProject
+Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "reviewer", "REViewer\reviewer.esproj", "{D9B356A0-C5EB-4A64-A7D9-D72BEE925B91}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -17,6 +19,12 @@ Global
 		{88E51B46-0BD9-44C4-9416-5EECF1C8B168}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A59E606B-468B-49F7-90CC-C5645B19EF6D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A59E606B-468B-49F7-90CC-C5645B19EF6D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D9B356A0-C5EB-4A64-A7D9-D72BEE925B91}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D9B356A0-C5EB-4A64-A7D9-D72BEE925B91}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D9B356A0-C5EB-4A64-A7D9-D72BEE925B91}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{D9B356A0-C5EB-4A64-A7D9-D72BEE925B91}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D9B356A0-C5EB-4A64-A7D9-D72BEE925B91}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D9B356A0-C5EB-4A64-A7D9-D72BEE925B91}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
