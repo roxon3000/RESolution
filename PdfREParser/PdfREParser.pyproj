@@ -13,7 +13,7 @@
     <RootNamespace>PdfREParser</RootNamespace>
     <IsWindowsApplication>False</IsWindowsApplication>
     <LaunchProvider>Standard Python launcher</LaunchProvider>
-    <CommandLineArguments>simple-pdf.pdf</CommandLineArguments>
+    <CommandLineArguments>The-Art-of-Sales.pdf</CommandLineArguments>
     <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
     <TestFramework>unittest</TestFramework>
     <UnitTestPattern>test*.py</UnitTestPattern>
@@ -29,6 +29,7 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="fileExtUtil.py" />
     <Compile Include="jdoc.py" />
     <Compile Include="jobj.py" />
     <Compile Include="pdfparserconstants.py" />

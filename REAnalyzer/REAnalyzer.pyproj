@@ -5,7 +5,7 @@
     <ProjectGuid>a59e606b-468b-49f7-90cc-c5645b19ef6d</ProjectGuid>
     <ProjectHome>.</ProjectHome>
     <StartupFile>analyzer.py</StartupFile>
-    <SearchPath>../REAnalyzer</SearchPath>
+    <SearchPath>..\REAnalyzer</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <Name>REAnalyzer</Name>

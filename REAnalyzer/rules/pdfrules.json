@@ -9,7 +9,7 @@
       "description": "flag automatic action attribute",
       "category": "automatic action",
       "priority": 1,
-      "match":  "strict"
+      "match": "strict"
     },
     {
       "id": "20",
@@ -33,6 +33,15 @@
       "id": "40",
       "ruleType": "AttributeExists",
       "ruleValue": "EmbeddedFiles",
+      "description": "internally embedded file",
+      "category": "launch",
+      "priority": 1,
+      "match": "strict"
+    },
+    {
+      "id": "41",
+      "ruleType": "AttributeEquals",
+      "ruleValue": "Type=EmbeddedFile",
       "description": "internally embedded file",
       "category": "launch",
       "priority": 1,
