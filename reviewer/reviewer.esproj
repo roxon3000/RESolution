@@ -10,4 +10,7 @@
     <ProductionBuildCommand>npm run build</ProductionBuildCommand>
     <!-- Folder where production build objects will be placed -->
   </PropertyGroup>
+  <ItemGroup>
+    <Folder Include="src\components\" />
+  </ItemGroup>
 </Project>

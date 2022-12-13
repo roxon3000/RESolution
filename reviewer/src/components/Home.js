@@ -2,21 +2,22 @@ import React from 'react';
 import {getHomeData} from '../services';
 import { connect } from 'react-redux';
 import Template from './Template'
-
+import CardList from './CardList'
 
 class Home extends React.Component {	
    constructor(props){
      super(props);
-     this.props.loadHomeData();
+       this.props.loadHomeData();
+     
    }
 
   render() {
       return (		
         <Template>
-              <div>
-                  Home  - add something here
+              <div className="row">
+                  <div className="col-md">Files For Reverse Engineering Analysis</div>
               </div>
-              
+              <CardList cards={this.props.files} />
         </Template>
       
     );
@@ -34,7 +35,7 @@ const mapDispatchToProps = dispatch =>  {
 const mapStateToProps = state => 
 (
   { //todo update this to new structure
-    cards: state
+    files: state.pdfreducer.files
   }
 );
 

@@ -6,7 +6,7 @@ export function getHomeData(){
 	
 		dispatch(getHomeInitial());
 
-		axios.get("/home.json")
+		axios.get("/files.json")
 			.then(
 				(response) => {
 					if (response['status'] === 200) {
