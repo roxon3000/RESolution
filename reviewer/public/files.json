@@ -1,14 +1,18 @@
 {
   "files": [
     {
+      "key" :  "1",
       "name": "simple-pdf",
-      "path": "simple-pdf.json"
+      "path": "/tree?file=objecttree.json",
+      "desc":  "object tree for simple-pdf.pdf"
     },
     {
+      "key": "2",
       "name": "simple-pdf1",
       "path": "simple-pdf.json"
     },
     {
+      "key": "3",
       "name": "simple-pdf2",
       "path": "simple-pdf.json"
     }

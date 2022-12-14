@@ -12,11 +12,12 @@ class Detail extends React.Component {
 
 
   render() {
-    var charts = this.props.charts
+    var tree = this.props.tree
 
       return (				
-        <Template>
-              <div> Details - add something here</div>        
+          <Template>
+              <div> Detail - add something here</div>        
+
         </Template>
       
     );
@@ -35,7 +36,7 @@ const mapDispatchToProps = dispatch =>  {
 const mapStateToProps = state => 
 (
   { 
-    charts: state,
+    tree: state,
     loading: state
   }
 )

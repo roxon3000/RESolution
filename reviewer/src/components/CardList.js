@@ -10,7 +10,7 @@ class CardList extends React.Component {
             <div className="row">
                 {
                     (cards == null) || (cards.map == undefined) ? "" : cards.map(
-                        (card) => <Card title={card.name} content={<div>test</div>} href={card.path} buttonContent={<div>Open</div>} />
+                        (card) => <Card key={card.key}  title={card.name} content={card.desc} href={card.path} buttonContent={<div>Open</div>} />
                     )
                 }
             </div>

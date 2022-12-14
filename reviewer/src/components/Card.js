@@ -10,7 +10,7 @@ class Card extends React.Component {
                 <div className="card homeCard">
                     <div className="card-body">
                         <h5 className="card-title">{this.props.title}</h5>
-                        <p className="card-text">{this.props.content}</p>
+                        <div className="card-text">{this.props.content}</div>
                         <a href={this.props.href} className="btn btn-primary">{this.props.buttonContent}</a>
                     </div>
                 </div>

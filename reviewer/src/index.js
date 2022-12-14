@@ -6,6 +6,9 @@ import reportWebVitals from './reportWebVitals';
 import configureStore from './configureStore.js'
 import { Provider } from 'react-redux';
 import 'bootstrap/dist/css/bootstrap.css';
+import "normalize.css";
+import "@blueprintjs/core/lib/css/blueprint.css";
+import "@blueprintjs/icons/lib/css/blueprint-icons.css";
 
 const rootElement = document.getElementById('root');
 const root = createRoot(rootElement);
