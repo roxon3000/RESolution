@@ -5,17 +5,10 @@ import {
 } from "../actionTypes";
 
 const initialState = {
-    home: {
-        cards: [],
-        data: []
-    },
-    trender: {
-        trends: {
-            top10: {}
-        }
+    pdfreducer: {
+        files: {}
     },
     loading: false,
-    trendsloading: false,
     charts: []
 };
 
@@ -31,32 +24,11 @@ export default function (state = initialState, action) {
             const serviceData = action.payload;
             return {
                 ...state,
-                home: serviceData,
+                files: serviceData.files,
                 loading: false
             };
         }
-        case GET_PTRENDS_INITIAL:
-        case GET_TRENDS_INITIAL: {
-            return {
-                ...state,
-                loading: true,
-                trendsloading: true
-            };
-        }
-        case GET_DPHRASE_SUCCESS:
-        case GET_TRENDS_SUCCESS:
-        case GET_PTRENDS_SUCCESS: {
-            var wut = action.payload;
-
-            return {
-                ...state,
-                loading: false,
-                trendsloading: true,
-                charts: [...state.charts, wut]
-            };
-
-        }
         default:
-            return state;
+            return state.pdfreducer;
     }
 }
