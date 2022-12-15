@@ -2,6 +2,7 @@ import React from 'react';
 import { getDetailData } from '../services';
 import { connect } from 'react-redux';
 import Template from './Template'
+import { TreeExample } from '../redux/reducers/exampletree'
 
 // example = https://github.com/palantir/blueprint/blob/develop/packages/docs-app/src/examples/core-examples/treeExample.tsx
 // 
@@ -20,7 +21,7 @@ class ObjectTree extends React.Component {
         return (
             <Template>
                 <div> Object Tree - add something here</div>
-
+                <TreeExample></TreeExample>
             </Template>
 
         );

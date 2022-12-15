@@ -4,6 +4,8 @@
   "private": true,
   "dependencies": {
     "@blueprintjs/core": "^4.13.0",
+    "@blueprintjs/docs-theme": "^4.4.20",
+    "@blueprintjs/popover2": "^1.10.2",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
