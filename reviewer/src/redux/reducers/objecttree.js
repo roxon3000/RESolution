@@ -1,23 +1,29 @@
 import * as React from "react";
 import {
-    GET_TRENDS_INITIAL, GET_TRENDS_SUCCESS,
-    GET_PTRENDS_INITIAL, GET_PTRENDS_SUCCESS,
-    GET_HOME_INITIAL, GET_HOME_SUCCESS, GET_DPHRASE_SUCCESS
+    GET_OBJ_TREE_INITIAL, GET_OBJ_TREE_SUCCESS
 } from "../actionTypes";
 import { Classes, Icon, Intent, Tree, TreeNodeInfo } from "@blueprintjs/core";
 import { ContextMenu2, Classes as Popover2Classes, Tooltip2 } from "@blueprintjs/popover2";
 import cloneDeep from "lodash/cloneDeep"; 
 import { Example, ExampleProps } from "@blueprintjs/docs-theme";
 
-const initialState = {
-    pdfreducer: {
-        files: {}
-    },
-    loading: false,
-    charts: []
-};
+
 const contentSizing = { popoverProps: { popoverClassName: Popover2Classes.POPOVER2_CONTENT_SIZING } };
-const INITIAL_STATE: TreeNodeInfo[] =
+const INITIAL_STATE = {
+    tree : 
+        [
+            {
+                id: 0,
+                hasCaret: false,
+                icon: "folder-close",
+                label: ""
+            }
+        ],
+    loading: true,
+    raw : null
+
+    }
+const INITIAL_STATE_example =
 [
     {
         id: 0,
@@ -95,15 +101,16 @@ const INITIAL_STATE: TreeNodeInfo[] =
         label: "Super secret files",
         disabled: true,
     },
-];
+    ];
+/*
 type NodePath = number[];
 
 type TreeAction =
     | { type: "SET_IS_EXPANDED"; payload: { path: NodePath; isExpanded: boolean } }
     | { type: "DESELECT_ALL" }
     | { type: "SET_IS_SELECTED"; payload: { path: NodePath; isSelected: boolean } };
-
-function forEachNode(nodes: TreeNodeInfo[] | undefined, callback: (node: TreeNodeInfo) => void) {
+    */
+function forEachNode(nodes, callback) {
     if (nodes === undefined) {
         return;
     }
@@ -114,11 +121,37 @@ function forEachNode(nodes: TreeNodeInfo[] | undefined, callback: (node: TreeNod
     }
 }
 
-function forNodeAtPath(nodes, path, callback: (node: TreeNodeInfo) => void) {
+function forNodeAtPath(nodes, path, callback) {
     callback(Tree.nodeFromPath(path, nodes));
 }
 
-export function treeExampleReducer(state = INITIAL_STATE, action: TreeAction) {
+function generateObjectTree(rawData, layers) {
+    /* 
+     {
+        id: 0,
+        hasCaret: true,
+        icon: "folder-close",
+        label: (
+            <ContextMenu2 {...contentSizing} content={<div>Hello there!</div>}>
+                Folder 0
+            </ContextMenu2>
+        ),
+    },
+   */
+    var objectTree = []
+    var root = {
+        id: rawData.treeTrailer.id,
+        hasCaret: true,
+        icone: "folder-close",
+        label: rawData.treeTrailer.objectNumber,
+        isExpanded : false
+    }
+
+    objectTree.push(root)
+
+    return objectTree
+}
+export default function (state = INITIAL_STATE, action) {
     switch (action.type) {
         case "DESELECT_ALL":
             const newState1 = cloneDeep(state);
@@ -132,51 +165,18 @@ export function treeExampleReducer(state = INITIAL_STATE, action: TreeAction) {
             const newState3 = cloneDeep(state);
             forNodeAtPath(newState3, action.payload.path, node => (node.isSelected = action.payload.isSelected));
             return newState3;
+        case GET_OBJ_TREE_INITIAL:
+            return state;
+        case GET_OBJ_TREE_SUCCESS:
+            var serviceData = action.payload;
+            var  tree = generateObjectTree(serviceData, 3)
+            return {
+                ...state,
+                tree: tree,
+                raw: serviceData,
+                loading: false
+            };
         default:
             return state;
     }
 }
-
-export const TreeExample: React.FC<ExampleProps> = props => {
-    const [nodes, dispatch] = React.useReducer(treeExampleReducer, INITIAL_STATE);
-
-    const handleNodeClick = React.useCallback(
-        (node: TreeNodeInfo, nodePath: NodePath, e: React.MouseEvent<HTMLElement>) => {
-            const originallySelected = node.isSelected;
-            if (!e.shiftKey) {
-                dispatch({ type: "DESELECT_ALL" });
-            }
-            dispatch({
-                payload: { path: nodePath, isSelected: originallySelected == null ? true : !originallySelected },
-                type: "SET_IS_SELECTED",
-            });
-        },
-        [],
-    );
-
-    const handleNodeCollapse = React.useCallback((_node: TreeNodeInfo, nodePath: NodePath) => {
-        dispatch({
-            payload: { path: nodePath, isExpanded: false },
-            type: "SET_IS_EXPANDED",
-        });
-    }, []);
-
-    const handleNodeExpand = React.useCallback((_node: TreeNodeInfo, nodePath: NodePath) => {
-        dispatch({
-            payload: { path: nodePath, isExpanded: true },
-            type: "SET_IS_EXPANDED",
-        });
-    }, []);
-
-    return (
-        <Example options={false} {...props}>
-            <Tree
-                contents={nodes}
-                onNodeClick={handleNodeClick}
-                onNodeCollapse={handleNodeCollapse}
-                onNodeExpand={handleNodeExpand}
-                className={Classes.ELEVATION_0}
-            />
-        </Example>
-    );
-};

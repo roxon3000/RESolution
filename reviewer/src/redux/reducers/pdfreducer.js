@@ -29,6 +29,8 @@ export default function (state = initialState, action) {
             };
         }
         default:
-            return state.pdfreducer;
+            return { ...state
+                 }
+;
     }
 }

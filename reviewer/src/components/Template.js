@@ -18,7 +18,9 @@ class Template extends React.Component {
             <div className="col-sm">
                 <a href="/Detail" className="btn btn-primary">Detail</a>
             </div>
-
+            <div className="col-sm">
+                <a href="/exampletree" className="btn btn-primary">Example</a>
+            </div>
         </div>
         {this.props.children}
       </div>

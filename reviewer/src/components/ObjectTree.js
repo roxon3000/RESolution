@@ -1,8 +1,8 @@
 import React from 'react';
-import { getDetailData } from '../services';
+import { getObjectTree } from '../services';
 import { connect } from 'react-redux';
 import Template from './Template'
-import { TreeExample } from '../redux/reducers/exampletree'
+import { Classes, Icon, Intent, Tree, TreeNodeInfo } from "@blueprintjs/core";
 
 // example = https://github.com/palantir/blueprint/blob/develop/packages/docs-app/src/examples/core-examples/treeExample.tsx
 // 
@@ -11,17 +11,28 @@ class ObjectTree extends React.Component {
 
     constructor(props) {
         super(props)
-
+        this.props.loadObjTreeData()
     }
 
 
     render() {
-        var tree = this.props.tree
+        var nodes = this.props.tree
 
         return (
             <Template>
                 <div> Object Tree - add something here</div>
-                <TreeExample></TreeExample>
+                <div>
+                    
+                </div>
+                <Tree
+                    contents={nodes}
+                    //onNodeClick={handleNodeClick}
+                    //onNodeCollapse={handleNodeCollapse}
+                    //onNodeExpand={handleNodeExpand}
+                    className={Classes.ELEVATION_0}
+                />
+
+                
             </Template>
 
         );
@@ -31,8 +42,8 @@ class ObjectTree extends React.Component {
 
 const mapDispatchToProps = dispatch => {
     return {
-        loadTrendData: () => {
-            dispatch(getDetailData());
+        loadObjTreeData: () => {
+            dispatch(getObjectTree());
         }
     }
 }
@@ -40,7 +51,7 @@ const mapDispatchToProps = dispatch => {
 const mapStateToProps = state =>
 (
     {
-        tree: state,
+        tree: state.objecttree.tree,
         loading: state
     }
 )
