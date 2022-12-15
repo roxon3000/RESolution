@@ -1,5 +1,9 @@
 import axios from 'axios';
-import {getHomeSuccess, getHomeFailure, getHomeInitial} from './redux/actions';
+import {
+	getHomeSuccess, getHomeFailure, getHomeInitial,
+	getObjectTreeFailure, getObjectTreeInitial, getObjectTreeSuccess
+} from './redux/actions';
+
 
 export function getHomeData(){
 	return (dispatch, getState) => { 
@@ -16,6 +20,26 @@ export function getHomeData(){
 						// Send the error from API back
 						dispatch(getHomeFailure(response));
 					} 
+				}
+			);
+	}
+}
+
+export function getObjectTree() {
+	return (dispatch, getState) => {
+
+		dispatch(getObjectTreeInitial());
+
+		axios.get("/objecttree.json")
+			.then(
+				(response) => {
+					if (response['status'] === 200) {
+						// Login the user using dispatch                
+						dispatch(getObjectTreeSuccess(response.data));
+					} else {
+						// Send the error from API back
+						dispatch(getObjectTreeFailure(response));
+					}
 				}
 			);
 	}

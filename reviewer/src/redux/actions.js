@@ -1,47 +1,19 @@
-import { SET_FILTER, GET_TRENDS_INITIAL, GET_TRENDS_SUCCESS, GET_TRENDS_FAILURE,
-  GET_PTRENDS_INITIAL, GET_PTRENDS_SUCCESS, GET_PTRENDS_FAILURE,
-  GET_HOME_INITIAL, GET_HOME_SUCCESS, GET_HOME_FAILURE,
-  GET_DPHRASE_FAILURE, GET_DPHRASE_INITIAL, GET_DPHRASE_SUCCESS} from "./actionTypes";
+import {
+    SET_FILTER, GET_OBJ_TREE_INITIAL, GET_OBJ_TREE_SUCCESS, GET_OBJ_TREE_FAILURE,
+  GET_HOME_INITIAL, GET_HOME_SUCCESS, GET_HOME_FAILURE  } from "./actionTypes";
 
-  export const getDailyPhrasesInitial = parm1 => ({
-    type: GET_DPHRASE_INITIAL
-  });
-  
-  export const getDailyPhrasesSuccess = data => ({
-    type: GET_DPHRASE_SUCCESS,
-    payload: data
-  });
-  
-  export const getDailyPhrasesFailure = data => ({
-    type: GET_DPHRASE_FAILURE,
-    payload: data
-  });
-
-export const getPersistentTrendsInitial = parm1 => ({
-  type: GET_PTRENDS_INITIAL
+ 
+export const getObjectTreeInitial = parm1 => ({
+    type: GET_OBJ_TREE_INITIAL
 });
 
-export const getPersistentTrendsSuccess = data => ({
-  type: GET_PTRENDS_SUCCESS,
+export const getObjectTreeSuccess = data => ({
+    type: GET_OBJ_TREE_SUCCESS,
   payload: data
 });
 
-export const getPersistentTrendsFailure = data => ({
-  type: GET_PTRENDS_FAILURE,
-  payload: data
-});
-
-export const getTrendsInitial = parm1 => ({
-  type: GET_TRENDS_INITIAL
-});
-
-export const getTrendsSuccess = data => ({
-  type: GET_TRENDS_SUCCESS,
-  payload: data
-});
-
-export const getTrendsFailure = data => ({
-  type: GET_TRENDS_FAILURE,
+export const getObjectTreeFailure = data => ({
+    type: GET_OBJ_TREE_FAILURE,
   payload: data
 });
 
