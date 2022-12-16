@@ -4,25 +4,12 @@ import sys
 import pdfparserconstants
 import jdoc
 from hashlib import md5
-import xrefUtil
-import fileExtUtil
+from util import *
 
-class RawLineState:
-    def __init__(self, streamPersist, currentObj, lastObj, lastMetaObj, prevObj, streamObj, isContinuation, lastLine, lastLineType, currentMetaObj):
-        self.streamPersist = streamPersist
-        self.currentObj = currentObj
-        self.lastObj = lastObj
-        self.lastMetaObj = lastMetaObj
-        self.prevObj = prevObj
-        self.streamObj = streamObj
-        self.isContinuation = isContinuation
-        self.lastLine = lastLine
-        self.lastLineType = lastLineType
-        self.currentMetaObj = currentMetaObj
-        self.rawlineCount = 0
-        self.streamLineCount = 0
-        self.fileStreamPointer = 0
-        self.mode = "Normal"
+
+
+
+
 def main(arg1):
     #TODO: add support for Linearized PDF files
     #TODO: improve stream output handling. Streams should be output to separate files for improved performance and ease of use with big files and streams.
@@ -43,20 +30,20 @@ def main(arg1):
 
     with open(inputFile, 'rb') as tr:
         testBuff = tr.read()
-        xrefUtil.findXrefStart(tr, myDoc)
-    tr.close()
+        findXrefStart(tr, myDoc)
+
 
 
     with open(inputFile + '.bin' + '.txt', 'wb') as tw:
         tw.write(testBuff)
-    tr.close()
+
 
 
     with open(inputFile,'rb' ) as f:
         hashl = md5()
         hashl.update(f.read())
         myDoc.fileMd5 = hashl.hexdigest()
-        f.close()
+
 
     with open(inputFile,'rb' ) as f:
         streamPersist = None
@@ -81,7 +68,7 @@ def main(arg1):
             myDoc.processRawLine(rawline, rlState, unfilterStreamFlag, f)
             
 
-    f.close()
+
 
     #post parse processing of JSON
     
@@ -93,7 +80,7 @@ def main(arg1):
 
     #extract embedded files
     for obj in myDoc.objs:
-        fileExtUtil.extractEmbeddedFile(obj, inputFile)
+        extractEmbeddedFile(obj, inputFile)
 
 
     with open(outputFile, 'w', encoding="ascii", errors="surrogateescape") as fw:
