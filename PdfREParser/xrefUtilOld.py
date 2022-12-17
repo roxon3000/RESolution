@@ -1,6 +1,6 @@
 import os
 import jdoc
-from PdfREParser import RawLineState
+from util import *
 import pdfparserconstants
 import re 
 import jobj

@@ -1,13 +1,15 @@
 
 import json
 import sys
-import pdfparserconstants
-import jdoc
+
+
 from hashlib import md5
-from util import *
-
-
-
+#from util import *
+from util import pdfparserconstants
+from util import jdoc
+from util import fileExtUtil
+from util import objectUtil
+from util import xrefUtil
 
 
 def main(arg1):
@@ -30,7 +32,7 @@ def main(arg1):
 
     with open(inputFile, 'rb') as tr:
         testBuff = tr.read()
-        findXrefStart(tr, myDoc)
+        xrefUtil.findXrefStart(tr, myDoc)
 
 
 
@@ -59,7 +61,7 @@ def main(arg1):
         lastLine = EMPTY
         lastLineType = EMPTY
 
-        rlState = RawLineState(streamPersist, currentObj, lastObj, lastMetaObj, prevObj, streamObj, isContinuation, EMPTY, EMPTY, None)
+        rlState = xrefUtil.RawLineState(streamPersist, currentObj, lastObj, lastMetaObj, prevObj, streamObj, isContinuation, EMPTY, EMPTY, None)
         # lines that do not need to be parsed. Should be able to use file.seek to skip most/all of the object.
         for rawline in f:
            
@@ -80,7 +82,7 @@ def main(arg1):
 
     #extract embedded files
     for obj in myDoc.objs:
-        extractEmbeddedFile(obj, inputFile)
+        fileExtUtil.extractEmbeddedFile(obj, inputFile)
 
 
     with open(outputFile, 'w', encoding="ascii", errors="surrogateescape") as fw:

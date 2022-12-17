@@ -1,10 +1,11 @@
 """This module handles all code for the Jdoc class"""
+
 import base64
 import re
 from hashlib import md5
-import jobj
 import pdfparserconstants
-from util import *
+import objectUtil
+import xrefUtil 
 
 class JDoc:
     """Jdoc class for handling json"""
@@ -136,14 +137,14 @@ class JDoc:
         #version is second element
         version = objline[1]
         #add new object
-        newObj = jobj.JObj(id)
+        newObj = objectUtil.JObj(id)
         newObj.version = version
         #add empty meta section
         newObj.meta = []
         self.objs.append(newObj)
         return newObj
     def processStartTrailer(self):
-        newObj = jobj.JObj('trailer')
+        newObj = objectUtil.JObj('trailer')
         self.trailer = newObj
         return newObj
     def processObjMetaLine(self, currentLine, currentObj):
@@ -184,7 +185,7 @@ class JDoc:
 
         sanityCheck = sanityCheck + 1
 
-        newMetaObj = jobj.JObj("meta")
+        newMetaObj = objectUtil.JObj("meta")
         #find the end of the meta obj
         endOfMetaObjIndex = self.findEndOfObject(metaLine)
         #identify leftover on the line after end of object. most often demarcation of stream
@@ -212,7 +213,7 @@ class JDoc:
                 propLine = "notset"
                 break
             
-            mySubObj = jobj.JObj("sub-meta")    
+            mySubObj = objectUtil.JObj("sub-meta")    
             #more parsing needed since it's an object
             #identify and remove subObj's key
             keyEnd = myword.find(pdfparserconstants.BB)
@@ -362,7 +363,7 @@ class JDoc:
         shardList = idOffsetPairs.split(' ')
         objRefList = []
         od = 0
-        newObjRef = jobj.JObj(0)
+        newObjRef = objectUtil.JObj(0)
         prevObjRef = None
         shardCount = 0
         for shard in shardList:
@@ -377,7 +378,7 @@ class JDoc:
                     prevObjRef.end = newObjRef.start  
                 objRefList.append(newObjRef)
                 prevObjRef = newObjRef
-                newObjRef = jobj.JObj(0)
+                newObjRef = objectUtil.JObj(0)
 
             if(od == 0):
                 od = 1
@@ -394,7 +395,7 @@ class JDoc:
            
             metaLine = unfilteredStreamLine[objRef.start:objRef.end]
             firstBBpos = metaLine.find(pdfparserconstants.BB)
-            currentObj = jobj.JObj(objId)
+            currentObj = objectUtil.JObj(objId)
             currentObj.version = '0'
             if(firstBBpos >= 0):
                 self.processObjMetaLine(metaLine, currentObj)
@@ -465,7 +466,7 @@ class JDoc:
                         #if(hasattr(self, "xrefType") and self.xrefType == "indirect"):
                         curOffset = fileStream.tell()
                         #print('current at offset: ' + str(curOffset))
-                        ffOffset = fastForward(curOffset, self.xreftable)
+                        ffOffset = xrefUtil.fastForward(curOffset, self.xreftable)
 
                         #need to back up the offset by a few bytes to capture the end of the object, so it can't back up farther than the current offset
                         modOffset = ffOffset - 50
@@ -499,17 +500,17 @@ class JDoc:
                     rlState.isContinuation = True
                 case "xref":
                     if(rlState.mode == "xreftable"):
-                        xreftable = jobj.JObj("xreftable")
+                        xreftable = objectUtil.JObj("xreftable")
                         xreftable.rows = []
                         xreftable.index = None
                         rlState.currentObj = xreftable
                         self.xreftable = xreftable
                 case "xrefindex":
                     if(rlState.mode == "xreftable"):
-                        processOldXrefFixedFormatIndex(currentLine, rlState.currentObj)
+                        xrefUtil.processOldXrefFixedFormatIndex(currentLine, rlState.currentObj)
                 case "xrefrow":
                     if(rlState.mode == "xreftable"):
-                        processOldXrefFixedFormatRow(currentLine, rlState.currentObj)
+                        xrefUtil.processOldXrefFixedFormatRow(currentLine, rlState.currentObj)
                 case "startxref":
                     pass
                 case _:

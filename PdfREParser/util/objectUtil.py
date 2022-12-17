@@ -1,9 +1,8 @@
-from base64 import b85decode
+﻿from base64 import b85decode
 from cmath import isnan
 import pdfparserconstants
 import zlib
 import base64
-import xrefUtil
 
 class JObj:
     def __init__(meo, id):
@@ -135,6 +134,41 @@ class JObj:
         deflatedBuffer = zobj.decompress(buffer)
                 
         return deflatedBuffer
+    def decodeXrefObjectStream(self, xrefMeta, xrefBuffer):
+        width = [] 
+        #length = xrefMeta.Length
+        #index = xrefMeta.Index
+
+        #calc byte length of row
+        rowLength = 0
+        for wi in xrefMeta.W:
+            rowLength = rowLength + int(wi)
+            width.append(int(wi))
+
+        numberOfRows = int(len(xrefBuffer)/rowLength)
+        #if(width == [1,2,2]):
+        xreftable = JObj("xreftable")
+        xreftable.rows = []
+    
+        print('Found XREF Table in Object, printing.. ')
+        for i in range(numberOfRows):
+            row = xrefBuffer[i*rowLength: (i*rowLength) + rowLength ] 
+        
+            col1 = row[0:int(width[0])]
+            col2 = row[width[0]:width[0] + width[1]]
+            col3 = row[width[0] + width[1]:width[0] + width[1] + width[2]]
+
+            row = JObj('row')
+            row.rowNum = i
+            row.col1 = int.from_bytes(col1,'big')
+            row.col2 = int.from_bytes(col2,'big')
+            row.col3 = int.from_bytes(col3,'big')
+        
+            xreftable.rows.append(row)
+        
+            print( col1.hex() + ' ' + col2.hex() + ' ' + col3.hex() )
+
+            return xreftable
     def processStream(self, buffer, myDoc):
         unfilteredStream = None
         metaObj = self.meta
@@ -156,7 +190,7 @@ class JObj:
                     encoding = "base64"
                 if(hasattr(metaObj, "Type")  and metaObj.Type == "XRef"):
                     #do xref stream processing and set xreftable
-                    myDoc.xreftable = xrefUtil.decodeXrefObjectStream(metaObj, uBuffer)
+                    myDoc.xreftable = self.decodeXrefObjectStream(metaObj, uBuffer)
                     skipBruteForce = True
 
             except Exception as inst:

@@ -14,6 +14,34 @@ class ObjectTree extends React.Component {
         this.props.loadObjTreeData()
     }
 
+    handleNodeClick = React.useCallback(
+        (node, nodePath, e) => {
+            const originallySelected = node.isSelected;
+            if (!e.shiftKey) {
+                dispatch({ type: "DESELECT_ALL" });
+            }
+            dispatch({
+                payload: { path: nodePath, isSelected: originallySelected == null ? true : !originallySelected },
+                type: "SET_IS_SELECTED",
+            });
+        },
+        [],
+    );
+
+    handleNodeCollapse = React.useCallback((_node, nodePath) => {
+        dispatch({
+            payload: { path: nodePath, isExpanded: false },
+            type: "SET_IS_EXPANDED",
+        });
+    }, []);
+
+    handleNodeExpand = React.useCallback((_node, nodePath) => {
+        dispatch({
+            payload: { path: nodePath, isExpanded: true },
+            type: "SET_IS_EXPANDED",
+        });
+    }, []);
+
 
     render() {
         var nodes = this.props.tree
@@ -55,5 +83,6 @@ const mapStateToProps = state =>
         loading: state
     }
 )
+
 
 export default connect(mapStateToProps, mapDispatchToProps)(ObjectTree);

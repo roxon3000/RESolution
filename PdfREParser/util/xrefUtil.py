@@ -1,8 +1,8 @@
 import os
 import re 
-
+from objectUtil import JObj
 import pdfparserconstants
-from jdoc import jobj
+
 
 
 # From PDF 1.7 spec
@@ -153,7 +153,7 @@ def decodeXrefObjectStream(xrefMeta, xrefBuffer):
 
     numberOfRows = int(len(xrefBuffer)/rowLength)
     #if(width == [1,2,2]):
-    xreftable = jobj.JObj("xreftable")
+    xreftable = JObj("xreftable")
     xreftable.rows = []
     
     print('Found XREF Table in Object, printing.. ')
@@ -164,7 +164,7 @@ def decodeXrefObjectStream(xrefMeta, xrefBuffer):
         col2 = row[width[0]:width[0] + width[1]]
         col3 = row[width[0] + width[1]:width[0] + width[1] + width[2]]
 
-        row = jobj.JObj('row')
+        row = JObj('row')
         row.rowNum = i
         row.col1 = int.from_bytes(col1,'big')
         row.col2 = int.from_bytes(col2,'big')
@@ -257,7 +257,7 @@ def findXrefStart(fileStream, myDoc):
 
 def processOldXrefFixedFormatIndex(rawline, xreftable):
     
-    xrefIndex = jobj.JObj('xrefindex')
+    xrefIndex = JObj('xrefindex')
     iSplit = rawline.split(' ')
 
     if(iSplit != None and len(iSplit) > 1):
@@ -269,7 +269,7 @@ def processOldXrefFixedFormatIndex(rawline, xreftable):
 
 def processOldXrefFixedFormatRow(rawline, xreftable):
     newRowNum = len(xreftable.rows)
-    newRow = jobj.JObj(newRowNum)
+    newRow = JObj(newRowNum)
     newRow.rowNum = newRowNum 
     #conform to the standard of putting the offset in col2 
     newRow.freeChar = str(rawline[17:20]).strip()

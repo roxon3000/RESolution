@@ -139,18 +139,36 @@ function generateObjectTree(rawData, layers) {
     },
    */
     var objectTree = []
-    var root = {
+    var trailer = {
         id: rawData.treeTrailer.id,
-        hasCaret: true,
-        icone: "folder-close",
+        hasCaret: false,
+        icon: "flow-branch",
         label: rawData.treeTrailer.objectNumber,
-        isExpanded : false
+        isExpanded: true,
+        childNodes: []
+    }
+    for (var key in rawData.treeTrailer){
+        var node = newNode(trailer.id + key, false, 'flow-end', key, false)
+        trailer.childNodes.push(node)
     }
 
-    objectTree.push(root)
+
+    objectTree.push(trailer)
 
     return objectTree
 }
+
+function newNode(id, hasCaret, icon, label, isExpanded) {
+    var node = {
+        id: id,
+        hasCaret: hasCaret,
+        icon: icon,
+        label: label,
+        isExpanded: isExpanded
+    }
+    return node
+}
+
 export default function (state = INITIAL_STATE, action) {
     switch (action.type) {
         case "DESELECT_ALL":
