@@ -20,7 +20,8 @@ const INITIAL_STATE = {
             }
         ],
     loading: true,
-    raw : null
+    raw: null,
+    selectedNode: null
 
 }
 
@@ -103,7 +104,14 @@ export default function (state = INITIAL_STATE, action) {
             return newState2;
         case "SET_IS_SELECTED":
             const newState3 = cloneDeep(state);
-            forNodeAtPath(newState3.tree, action.payload.path, node => (node.isSelected = action.payload.isSelected));
+            forNodeAtPath(
+                newState3.tree,
+                action.payload.path,
+                node => {
+                    node.isSelected = action.payload.isSelected;
+                    newState3.selectedNode = node
+                }
+            );
             return newState3;
         case GET_OBJ_TREE_INITIAL:
             return state;
