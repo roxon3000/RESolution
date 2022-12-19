@@ -105,48 +105,24 @@ class PdfAnalyzer:
         self.processOrphans()
 
         self.executeRules()
-        """
-        proxy = {'$ref' : "#/objectMap/" + self.treeDoc.info.objectNumber}
-
-        #proxy.ref = "#/objectMap/" + self.treeDoc.info.objectNumber
-
-        testdoc =  {
-            "data": ["a", "b", "c", {"id": "12"}],
-            "objectMap" : 
-                    {
-                        "1234" : {"$ref" : "#/objectMap/14"}
-                    }
-                ,
-            "more" : { 
-                "title" : "real data",
-                "producer" : getProxy("14")
-                }
-        }
-
-        testdoc['objectMap'][self.treeDoc.info.objectNumber] = self.treeDoc.info
-
-        testo = jsonref.replace_refs(testdoc)
-        print(testo)
         
-        
-        #put object map into its own doc and clear from treeDoc
-        self.objectMap = testdoc
-        #self.treeDoc.objectMap = testo
-        """
 
         #write output files
-        outputFile = "objecttree.json"
+        pre = self.treeDoc.id
+        if(hasattr(rawDoc, "fileName") and len(rawDoc.fileName) > 0):
+            pre = rawDoc.fileName
+
+        outputFile = pre + ".obj.json"
         with open(outputFile, 'w', encoding="ascii", errors="surrogateescape") as fw:
                   
             fw.write(json.dumps(self.treeDoc, default=vars))
             #test = vars(treeDoc)
             #json.dump(test, fw)
 
-        fw.close()        
+            
 
 
-        outputFile = "rulessummary.json"
+        outputFile = pre + ".dat.json"
         with open(outputFile, 'w', encoding="ascii", errors="surrogateescape") as fw:        
             fw.write(json.dumps(self.rulesSummary, default=vars))
-        fw.close()  
         

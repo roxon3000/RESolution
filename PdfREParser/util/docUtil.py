@@ -16,7 +16,11 @@ class JDoc:
         self.xrefSet = False
         self.objs = []
 
-    def determineLineType(self, currentLine, lastLine, lastLineType, lastObj, lastMetaObj):
+    def determineLineType(self, currentLine, rlState):
+        lastLine = rlState.lastLine
+        lastLineType = rlState.lastLineType
+        lastObj = rlState.lastObj
+        lastMetaObj = rlState.lastMetaObj
 
         #remove any extraneous LF or CR
         currentLine = currentLine.replace('\n',' ')
@@ -57,7 +61,8 @@ class JDoc:
                 #technically this assignment isn't valid for last row in table, but xref parsing has a special handler that
                 # knows how many rows to read based off of the xrefindex row
                 hint = pdfparserconstants.XREF_ROW
-                authoritative = True
+                if(rlState.mode == 'xreftable'):
+                    authoritative = True
             case _: 
                 hint = pdfparserconstants.UNKOWN
 
@@ -424,10 +429,10 @@ class JDoc:
             if(rlState.isContinuation):
                 currentLine = rlState.lastLine + currentLine
             #debug
-            if(rlState.rawlineCount == 18724):
+            if(currentLine.count("trailer") > 0):
                 x = 1
 
-            lineType = self.determineLineType(currentLine, rlState.lastLine, rlState.lastLineType, rlState.lastObj, rlState.lastMetaObj)
+            lineType = self.determineLineType(currentLine, rlState)
 
             match lineType:
                 case "obj":

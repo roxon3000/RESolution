@@ -27,7 +27,7 @@ def main(arg1):
     
     myDoc = docUtil.JDoc("default")
     myDoc.objs = []
-
+    myDoc.fileName = inputFile
 
     with open(inputFile, 'rb') as tr:
         testBuff = tr.read()
