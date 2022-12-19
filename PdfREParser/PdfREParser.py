@@ -6,9 +6,8 @@ import sys
 from hashlib import md5
 #from util import *
 from util import pdfparserconstants
-from util import jdoc
+from util import docUtil
 from util import fileExtUtil
-from util import objectUtil
 from util import xrefUtil
 
 
@@ -26,7 +25,7 @@ def main(arg1):
     ####################
     EMPTY = pdfparserconstants.EMPTY
     
-    myDoc = jdoc.JDoc("default")
+    myDoc = docUtil.JDoc("default")
     myDoc.objs = []
 
 

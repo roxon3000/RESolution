@@ -30,9 +30,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="fileExtUtil.py" />
-    <Compile Include="jdocOld.py" />
-    <Compile Include="jobjOld.py" />
-    <Compile Include="pdfparserconstants.py" />
     <Compile Include="PdfREParser.py" />
     <Compile Include="tests\test_cases1.py" />
     <Compile Include="tests\test_lines.py" />
