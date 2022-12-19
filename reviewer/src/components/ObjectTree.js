@@ -3,7 +3,7 @@ import { getObjectTree } from '../services';
 import { connect, useDispatch, useSelector } from 'react-redux';
 import Template from './Template'
 import { Classes, Icon, Intent, Tree, TreeNodeInfo } from "@blueprintjs/core";
-import { useParams } from "react-router-dom"
+import { useSearchParams } from "react-router-dom";
 
 // example = https://github.com/palantir/blueprint/blob/develop/packages/docs-app/src/examples/core-examples/treeExample.tsx
 //
@@ -11,16 +11,17 @@ import { useParams } from "react-router-dom"
 function ObjectTree(props) {
 
     const dispatch = useDispatch();
-    var nodes = useSelector((state) => state.objecttree.tree);
-    var loading = useSelector(
+    let nodes = useSelector((state) => state.objecttree.tree);
+    let loading = useSelector(
         (state) => state.objecttree.loading
     );
-
+    let [searchParams, setSearchParams] = useSearchParams();
+    let file = searchParams.get('file');
     useEffect(
 
         () => {
             if (loading) {
-                dispatch(getObjectTree());
+                dispatch(getObjectTree(file));
             }
         }
 
