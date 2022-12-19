@@ -141,7 +141,7 @@ function generateObjectTree(rawData, layers) {
     var objectTree = []
     var trailer = {
         id: rawData.treeTrailer.id,
-        hasCaret: false,
+        hasCaret: true,
         icon: "flow-branch",
         label: rawData.treeTrailer.objectNumber,
         isExpanded: true,
@@ -173,15 +173,15 @@ export default function (state = INITIAL_STATE, action) {
     switch (action.type) {
         case "DESELECT_ALL":
             const newState1 = cloneDeep(state);
-            forEachNode(newState1, node => (node.isSelected = false));
+            forEachNode(newState1.tree, node => (node.isSelected = false));
             return newState1;
         case "SET_IS_EXPANDED":
             const newState2 = cloneDeep(state);
-            forNodeAtPath(newState2, action.payload.path, node => (node.isExpanded = action.payload.isExpanded));
+            forNodeAtPath(newState2.tree, action.payload.path, node => (node.isExpanded = action.payload.isExpanded));
             return newState2;
         case "SET_IS_SELECTED":
             const newState3 = cloneDeep(state);
-            forNodeAtPath(newState3, action.payload.path, node => (node.isSelected = action.payload.isSelected));
+            forNodeAtPath(newState3.tree, action.payload.path, node => (node.isSelected = action.payload.isSelected));
             return newState3;
         case GET_OBJ_TREE_INITIAL:
             return state;

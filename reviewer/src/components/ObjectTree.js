@@ -13,7 +13,7 @@ class ObjectTree extends React.Component {
         super(props)
         this.props.loadObjTreeData()
     }
-
+    /*
     handleNodeClick = React.useCallback(
         (node, nodePath, e) => {
             const originallySelected = node.isSelected;
@@ -41,7 +41,7 @@ class ObjectTree extends React.Component {
             type: "SET_IS_EXPANDED",
         });
     }, []);
-
+    */
 
     render() {
         var nodes = this.props.tree
@@ -54,9 +54,9 @@ class ObjectTree extends React.Component {
                 </div>
                 <Tree
                     contents={nodes}
-                    //onNodeClick={handleNodeClick}
-                    //onNodeCollapse={handleNodeCollapse}
-                    //onNodeExpand={handleNodeExpand}
+                    onNodeClick={this.props.handleNodeClick}
+                    onNodeCollapse={this.props.handleNodeCollapse}
+                    onNodeExpand={this.props.handleNodeExpand}
                     className={Classes.ELEVATION_0}
                 />
 
@@ -72,6 +72,28 @@ const mapDispatchToProps = dispatch => {
     return {
         loadObjTreeData: () => {
             dispatch(getObjectTree());
+        },
+        handleNodeExpand: (node, nodePath) => {
+            dispatch({
+                payload: { path: nodePath, isExpanded: true },
+                type: "SET_IS_EXPANDED",
+            });
+        },
+        handleNodeClick: (node, nodePath, e) => {
+            const originallySelected = node.isSelected;
+            if (!e.shiftKey) {
+                dispatch({ type: "DESELECT_ALL" });
+            }
+            dispatch({
+                payload: { path: nodePath, isSelected: originallySelected == null ? true : !originallySelected },
+                type: "SET_IS_SELECTED",
+            });
+        },
+        handleNodeCollapse: (_node, nodePath) => {
+            dispatch({
+                payload: { path: nodePath, isExpanded: false },
+                type: "SET_IS_EXPANDED",
+            });
         }
     }
 }
