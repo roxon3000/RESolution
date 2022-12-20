@@ -74,12 +74,13 @@ class PdfAnalyzer:
             objectMap = self.treeDoc.objectMap
             for objId in  self.treeDoc.objectMap:
                 obj = objectMap.get(objId)
-                #obj.__setattr__('appliedRules',[])
-                obj.appliedRules = []
+                #obj.appliedRules = []
                 for rule in rulesDoc.rules:
                     result = applyRule(rule, obj)
                     if(result != None):
-                        obj.appliedRules.append(result)                    
+                        #adding applied results into the object map is overkill.. makes the files too large and is unnecessary. 
+                        #  leaving uncommented for now in case I want to add it back.
+                       #obj.appliedRules.append(result)                    
                         self.recordInRuleSummary(obj, result)
 
         tr.close()

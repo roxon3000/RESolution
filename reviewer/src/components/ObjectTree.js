@@ -13,18 +13,24 @@ function ObjectTree(props) {
     const dispatch = useDispatch();
     let nodes = useSelector((state) => state.objecttree.tree);
     let selectedNode = useSelector((state) => state.objecttree.selectedNode);
+    let selectedRawObj = useSelector((state) => state.objecttree.selectedRawObj);
+
     let loading = useSelector(
         (state) => state.objecttree.loading
     );
     let [searchParams, setSearchParams] = useSearchParams();
     let file = searchParams.get('file');
-    const selNodeKeys = (selectedNode == null) ? [] : Object.getOwnPropertyNames(selectedNode)
-
     const entries = (selectedNode == null) ? [] : Object.entries(selectedNode).filter(entry => !Array.isArray(entry[1]));
     const listItems = (selectedNode == null) ? null : entries.map((attr) =>    
         <li key={attr[0]}>{attr[0]} : {String(attr[1])}
             </li>
-    );    
+    );   
+    const rawEntries = (selectedRawObj == null) ? [] : Object.entries(selectedRawObj).filter(entry => !Array.isArray(entry[1]));
+    const rawListItems = (selectedRawObj == null) ? null : rawEntries.map((attr) =>
+        <li key={attr[0]}>{attr[0]} : {String(attr[1])}
+        </li>
+    );   
+
     useEffect(
 
         () => {
@@ -79,8 +85,15 @@ function ObjectTree(props) {
                         <div className="col-lg">
                             <div className="container">
                                 <div className="col-sm">
-                                    <b></b>
-                                    <ul>{listItems}</ul>
+                                    <b>Selected Node</b>
+                                    <ul>
+                                        {listItems}
+                                    </ul>
+                                    <b>Selected Raw Object</b>
+                                    <ul>
+                                        {rawListItems}
+                                    </ul>
+
                                 </div>
                             </div>
                         </div>

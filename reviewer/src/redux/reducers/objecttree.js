@@ -48,37 +48,99 @@ function forNodeAtPath(nodes, path, callback) {
     callback(Tree.nodeFromPath(path, nodes));
 }
 
-function generateObjectTree(rawData, layers) {
-    /* 
-     {
-        id: 0,
+function findRawObj(refId, raw) {
+
+    return (refId === "trailer") ? raw.treeTrailer : raw.objectMap[refId];
+}
+
+function generateObjectBranch(node, rawObj) {
+
+    let trailer = {
+        id: rawObj.id,
         hasCaret: true,
-        icon: "folder-close",
-        label: (
-            <ContextMenu2 {...contentSizing} content={<div>Hello there!</div>}>
-                Folder 0
-            </ContextMenu2>
-        ),
-    },
-   */
-    var objectTree = []
-    var trailer = {
-        id: rawData.treeTrailer.id,
-        hasCaret: true,
-        icon: "flow-branch",
-        label: rawData.treeTrailer.objectNumber,
-        isExpanded: true,
-        childNodes: []
+        icon: "circle",
+        label: rawObj.objectNumber,
+        isExpanded: false,
+        childNodes: null
     }
-    for (var key in rawData.treeTrailer){
-        var node = newNode(trailer.id + key, false, 'flow-end', key, false)
-        trailer.childNodes.push(node)
+    //special edit for trailer
+    if (rawObj.objectNumber === "trailer") {
+        node = trailer;
+        node.ref = rawObj.objectNumber;
+    }
+    let propCount = 0;
+    for (var key in rawObj) {
+        if (node.childNodes == null) {
+            node.childNodes = [];
+        }
+        propCount = propCount + 1;
+        let propObj = rawObj[key];
+        let propNode = null;
+        //if rawObj is a JSON Ref, then add ref to node for lazy loading in UI component
+        if (typeof propObj === "object" && propObj.hasOwnProperty("$ref")) {
+            let label = key + " #" + propObj.id;
+            propNode = newNode(rawObj.id + key, true, 'circle', label, false);
+            propNode.ref = propObj["id"];
+            propNode.isArray = false;
+            propNode.isObject = true;
+            node.childNodes.push(propNode);
+        } else if (Array.isArray(propObj)) {
+            propNode = newNode(rawObj.id + key + String(propCount), true, 'array', key, false);
+            propNode.isArray = true;
+            propNode.isObject = false;
+            propNode.ref = rawObj.objectNumber + "," + key;
+            node.childNodes.push(propNode);
+        }
+        
+    }
+    //check for empty child nodes. this is necessary because of lazy loading
+    if (node.childNodes.length === 0) {
+        node.hasCaret = false;
+    }
+    return node
+}
+
+function generateList(expNode, raw) { 
+    if (expNode == null || expNode.ref == null) {
+        return;
     }
 
+    let ref = expNode.ref.split(",");
+    let rawParentObj = findRawObj(ref[0], raw);
+    let rawObj = rawParentObj[ref[1]];
 
-    objectTree.push(trailer)
+    expNode.childNodes = [];
+    let propCount = 0;
+    for (var key in rawObj) {
+     
+        propCount = propCount + 1;
+        let propObj = rawObj[key];
+        let propNode = null
+        //if rawObj is a JSON Ref, then add ref to node for lazy loading in UI component
+        if (typeof propObj === "object" && propObj.hasOwnProperty("objectNumber")) {
+            let label = "OBJ #" + propObj.objectNumber
+            propNode = newNode(propObj.id + key, true, 'circle', label, false)
+            propNode.ref = propObj.objectNumber;
+            propNode.isArray = false
+            propNode.isObject = true
+            expNode.childNodes.push(propNode)
+        } else if (Array.isArray(propObj)) {
+            //to limit potentil recursive loops, may need to remove support of lists within lists. 
+            propNode = newNode(propObj.id + key + String(propCount), true, 'array', key, false)
+            propNode.isArray = true
+            propNode.isObject = false
+            propNode.ref = propObj.objectNumber + "," + key;
+            expNode.childNodes.push(propNode)
+        } else {
+            let primNode = newNode(expNode.ref, false, "citation", rawObj[key], false);
+            primNode.isArray = false;
+            primNode.isObject = false;
+            expNode.childNodes.push(primNode);
+            
+        }
 
-    return objectTree
+    }
+
 }
 
 function newNode(id, hasCaret, icon, label, isExpanded) {
@@ -100,7 +162,24 @@ export default function (state = INITIAL_STATE, action) {
             return newState1;
         case "SET_IS_EXPANDED":
             const newState2 = cloneDeep(state);
-            forNodeAtPath(newState2.tree, action.payload.path, node => (node.isExpanded = action.payload.isExpanded));
+            forNodeAtPath(
+                newState2.tree,
+                action.payload.path,
+                node => {
+                    node.isExpanded = action.payload.isExpanded
+                    newState2.expandedNode = node
+                });
+            if (action.payload.isExpanded === true &&
+                newState2.expandedNode.childNodes === undefined &&
+                newState2.expandedNode.isObject === true) {
+                let exprawObj = findRawObj(newState2.expandedNode.ref, newState2.raw);
+                generateObjectBranch(newState2.expandedNode, exprawObj)
+            } else if (action.payload.isExpanded === true &&
+                newState2.expandedNode.childNodes === undefined &&
+                newState2.expandedNode.isArray === true) {
+
+                generateList(newState2.expandedNode, newState2.raw) 
+            }
             return newState2;
         case "SET_IS_SELECTED":
             const newState3 = cloneDeep(state);
@@ -112,12 +191,14 @@ export default function (state = INITIAL_STATE, action) {
                     newState3.selectedNode = node
                 }
             );
+            newState3.selectedRawObj = findRawObj(newState3.selectedNode.ref, newState3.raw);
             return newState3;
         case GET_OBJ_TREE_INITIAL:
             return state;
         case GET_OBJ_TREE_SUCCESS:
-            var serviceData = action.payload;
-            var  tree = generateObjectTree(serviceData, 3)
+            let serviceData = action.payload;            
+            let tree = [];
+            tree.push(generateObjectBranch(null, serviceData.treeTrailer))
             return {
                 ...state,
                 tree: tree,
