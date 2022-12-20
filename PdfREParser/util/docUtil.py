@@ -159,7 +159,7 @@ class JDoc:
 
         #first build object tree
         #        
-        metaObj = self.parseMetaObject(currentLine,  0)
+        metaObj = self.parseMetaObject(currentLine,  0, None)
         if(metaObj.hasStream):
             currentObj.hasStream = metaObj.hasStream
         currentObj.meta = metaObj   
@@ -179,17 +179,17 @@ class JDoc:
         newWord = word[0:span[0]] + word[span[1]:len(word)]
         return newWord
 
-    def parseMetaObject(self, metaLine, sanityCheck):
+    def parseMetaObject(self, metaLine, sanityCheck, metaList):
         
-        #if(metaLine.count('65 0 R') > 0):
-        #    x = 1
+        if(metaLine.count('DescendantFonts') > 0):
+            x = 1
 
         #only allow 100 levels of recursivity
         if(sanityCheck > 100):
             return None
 
         sanityCheck = sanityCheck + 1
-
+        
         newMetaObj = objectUtil.JObj("meta")
         #find the end of the meta obj
         endOfMetaObjIndex = self.findEndOfObject(metaLine)
@@ -197,48 +197,80 @@ class JDoc:
         leftOver = ""
         if(endOfMetaObjIndex < len(metaLine)):
             #add two for FF
-            leftOver = metaLine[endOfMetaObjIndex + 2: len(metaLine)]
+            leftOver = metaLine[endOfMetaObjIndex: len(metaLine)]
             #remove leftOver from metaLine. Only remove leftover if recursivivity is level 1
             if(sanityCheck < 20):
                 #print("Removing left over from metaLine: " + leftOver)
                 #metaLine = metaLine.replace(leftOver, "")
-                metaLine = metaLine[0: endOfMetaObjIndex + 2]
+                metaLine = metaLine[0: endOfMetaObjIndex]
                 #determine if leftover is stream demarcation since it may not have a new line
                 if(leftOver.find("stream") > -1):
                     newMetaObj.hasStream = True
 
-        #assum first 2 chars are BB
-        myword = metaLine[2 : endOfMetaObjIndex - 1]
+        #first start of meta object, todo make into a function
+        bbMatch = re.search(re.escape(pdfparserconstants.BB), metaLine)
+        brkMatch = re.search(re.escape('['), metaLine)
+        startMetaObjIndex = 0
+        bbIndex = 99999
+        brkIndex = 99999
+        if(brkMatch):
+            brkIndex = brkMatch.span()[1]
+        if(bbMatch):
+            bbIndex = bbMatch.span()[1]
+
+        if(bbIndex < brkIndex):
+            startMetaObjIndex = bbIndex
+        else:
+            startMetaObjIndex = brkIndex
+        myword = metaLine[startMetaObjIndex : endOfMetaObjIndex-2].strip()
         propLine = ""
 
-        #check for any deeper meta's. There may be multiple trees per level, thus the While loop 
+        #check for any deeper meta's. There may be multiple trees per level, thus the While loop         
         while True:
             
             if(myword.count(pdfparserconstants.BB) <= 0):
                 propLine = "notset"
                 break
             
-            mySubObj = objectUtil.JObj("sub-meta")    
+            mySubObj = objectUtil.JObj("sub-meta") 
+            subObjList = None
             #more parsing needed since it's an object
             #identify and remove subObj's key
             keyEnd = myword.find(pdfparserconstants.BB)
+            #check for open bracket as sub object may also be a list.
+            bracketEnd = myword.find('[')
+            if(bracketEnd > -1 and bracketEnd < keyEnd):
+                keyEnd = bracketEnd
+                subObjList = []
+
             subObjKeyList = myword[0:keyEnd].split('/')
             #may not be first keyword, so split by '/' and take last key
             subObjKey = subObjKeyList[len(subObjKeyList)-1]
             
             #debug
-            if(subObjKey == "Names" or subObjKey == ""):
+            if(subObjKey == "CIDSystemInfo " or subObjKey == ""):
                 x = 1
 
             endPropLine = myword.find(subObjKey)
             propLine = propLine + myword[0:endPropLine]
             myword2 = myword[keyEnd:len(myword)]     
             endOfSubObj = self.findEndOfObject(myword2)
-            myword3 = myword2[0:endOfSubObj+2]
-            mySubObj = self.parseMetaObject(myword3, sanityCheck)
-            newMetaObj.__setattr__(subObjKey, mySubObj)
+            #debug 
+            if(endOfSubObj == -1):
+                x =1 
 
-            #fix.. cannot use replace here as it will remove other duplicate matches.
+            myword3 = myword2[0:endOfSubObj]
+            mySubObj = self.parseMetaObject(myword3, sanityCheck, subObjList)
+
+            #if meta list exists, add to list instead of as a property
+            # this may mean that key is messed up as well.. todo
+            if(metaList == None):
+                newMetaObj.__setattr__(subObjKey, mySubObj)
+            else:
+                metaList.append(mySubObj)
+            
+
+
             #remove sub obj key and meta from metaline and myword
             #metaLine = metaLine.replace(subObjKey, '').replace(myword3,'')
             metaLine = self.removeFirstPatternFromString(metaLine, subObjKey)
@@ -249,10 +281,10 @@ class JDoc:
 
             #look at rest of line
             endOfMetaObjIndex = self.findEndOfObject(myword)
-            #plus two for BB
-            myword = myword[endOfMetaObjIndex+2:len(myword)]
+         
+            myword = myword[endOfMetaObjIndex-1:len(myword)]
 
-        
+ 
         #parse props
         if(propLine == "notset"):
             propLine = metaLine
@@ -293,6 +325,7 @@ class JDoc:
             
             #common pattern where data is embedded inline
             #TODO, improve this with an algorithm that isn't so hard coded
+            '''
             if(   prop.count("U(") > 0
                or prop.count("O(") > 0
                or prop.count("CheckSum(") > 0
@@ -303,13 +336,14 @@ class JDoc:
                or prop.count("Title(") > 0
                or prop.count("ActualText(") > 0
                or prop.count("CreationDate(") > 0):
-
+            '''
+            if( prop.count("(") ) > 0:
                 #check for close paren to make sure this crap closes
                 if(prop.count(')') == 0):
                     propRuleInEffect = "BuildRuleParen"
                     propBuilder = prop
 
-                prop = prop.replace('(', ' ').replace(')', '')
+                #prop = prop.replace('(', ' ').replace(')', '')
 
             #prop may contain a bracket list
             if(prop.count('[') == 1 and prop.count(']') == 0):
@@ -317,28 +351,49 @@ class JDoc:
                 propBuilder = prop
             
             if(propRuleInEffect == "none"):
-                newMetaObj.mutate(prop)
+                if(metaList == None):
+                    newMetaObj.mutate(prop)
+                else:
+                    if(len(prop.replace('[','').replace(']','').strip())>0):
+                        metaList.append(prop.replace('[','').replace(']','').strip())
 
         #print("left over in meta line: " + leftOver)
-        return newMetaObj
+        if(metaList == None):
+            return newMetaObj
+        else:
+            return metaList
 
     def findEndOfObject(self, metaLine):
         #returns most senior (outer) object end location
         testFF = -1
         endOfObjIndex = -1
         level = 0
+        testBB = -1
+        testBracketOpen = -1
+        testBracketClose = -1
 
         for i in range(0, len(metaLine)):
             
-            #don't allow for two subsequent reads in case two FF's are right next to each other ">>>>". This gives a false positive on middle >>
-            if(testFF >=0):
+            #don't allow for two subsequent reads in case two FF's are right next to each other ">>>>". This gives a false positive on middle >>, same for other char combos
+            if(testFF >=0 or testBB >=0 or testBracketOpen >= 0 or testBracketClose >= 0):
                 testFF = -1
-                continue
+                testBB = -1
+                testBracketOpen = -1
+                testBracketClose = -1
+                #exceptions.. i don't like this code
+                if(testWord == '[<' or testWord == ']>'):
+                    pass
+                else:
+                    continue
+
 
             testWord = metaLine[i:i+2]
             testFF = testWord.find(pdfparserconstants.FF)
             testBB = testWord.find(pdfparserconstants.BB)
-            
+            #test for brackets as objects may be bounded as lists
+            testBracketOpen = testWord.find('[')
+            testBracketClose = testWord.find(']')
+
             #if a BB is found, then encountered another sub meta object
             if(testBB >= 0):
                 level = level + 1
@@ -347,9 +402,17 @@ class JDoc:
             if(testFF >= 0):
                 level = level -1
 
+            #if a BB is found, then encountered another sub meta object
+            if(testBracketOpen >= 0):
+                level = level + 1
+
+            #if a FF is found, a pairing is complete, so take a level off
+            if(testBracketClose >= 0):
+                level = level -1
+
             #level can be -1 since we don't count the initial BB - maybe it should. to be reviewed
             if(level <= 0):
-                endOfObjIndex = i
+                endOfObjIndex = i+2  #+2 for zero base and extra character in two char search
                 break;
 
             if(i+2 == len(metaLine)):
@@ -433,6 +496,17 @@ class JDoc:
                 x = 1
 
             lineType = self.determineLineType(currentLine, rlState)
+
+            #debug
+            '''
+            xtest = "notset"
+            if(rlState.currentObj != None):
+                xtest = rlState.currentObj.id
+            if(xtest == "220"):
+                x=12321
+                b=12312312
+                xtest = "2123123123"
+            ''' 
 
             match lineType:
                 case "obj":
