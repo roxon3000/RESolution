@@ -11,10 +11,11 @@
     <Name>REAnalyzer</Name>
     <RootNamespace>REAnalyzer</RootNamespace>
     <LaunchProvider>Standard Python launcher</LaunchProvider>
-    <CommandLineArguments>../PdfREParser/simple-pdf.pdf.json</CommandLineArguments>
+    <CommandLineArguments>../PdfREParser/link.pdf.json</CommandLineArguments>
     <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
     <IsWindowsApplication>False</IsWindowsApplication>
     <InterpreterId>MSBuild|env|$(MSBuildProjectFullPath)</InterpreterId>
+    <SuppressPackageInstallationPrompt>True</SuppressPackageInstallationPrompt>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -31,7 +32,6 @@
     <Compile Include="objectproxy.py" />
     <Compile Include="pdfanalyzer.py" />
     <Compile Include="pdfUtil.py" />
-    <Compile Include="REAnalyzer.py" />
     <Compile Include="rulesengine.py" />
   </ItemGroup>
   <ItemGroup>

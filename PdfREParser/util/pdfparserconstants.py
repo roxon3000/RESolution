@@ -1,0 +1,23 @@
+
+OBJ = "obj"
+BB = "<<"
+FF = ">>"
+STREAM = "stream"
+ENDSTREAM="endstream"
+ENDOBJ = "endobj"
+EMPTY = "empty"
+PDF_FIRSTLINE = "pdf-firstline"
+OBJ_META = "obj-meta"
+OBJ_META_CONT = "obj-meta-cont"
+OBJ_STREAM = "obj-stream"
+STREAM_START = "stream-start"
+STREAM_END = "stream-end"
+TRAILER = "trailer"
+UNKOWN = "unknown"
+CONTENT = "content"
+XREFSTART = "startxref"
+OBJ_REF_REGEX = '([0-9]+ [0-9]+ R)'
+OBJ_ID_REGEX = '([0-9]+ [0-9]+ obj)'
+XREF_INDEX = 'xrefindex'
+XREF = 'xref'
+XREF_ROW = 'xrefrow'

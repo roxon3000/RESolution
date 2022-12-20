@@ -25,12 +25,12 @@ export function getHomeData(){
 	}
 }
 
-export function getObjectTree() {
+export function getObjectTree(file) {
 	return (dispatch, getState) => {
 
 		dispatch(getObjectTreeInitial());
 
-		axios.get("/objecttree.json")
+		axios.get("/" + file)
 			.then(
 				(response) => {
 					if (response['status'] === 200) {

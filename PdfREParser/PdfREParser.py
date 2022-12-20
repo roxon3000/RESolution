@@ -1,28 +1,16 @@
 
 import json
 import sys
-import pdfparserconstants
-import jdoc
-from hashlib import md5
-import xrefUtil
-import fileExtUtil
 
-class RawLineState:
-    def __init__(self, streamPersist, currentObj, lastObj, lastMetaObj, prevObj, streamObj, isContinuation, lastLine, lastLineType, currentMetaObj):
-        self.streamPersist = streamPersist
-        self.currentObj = currentObj
-        self.lastObj = lastObj
-        self.lastMetaObj = lastMetaObj
-        self.prevObj = prevObj
-        self.streamObj = streamObj
-        self.isContinuation = isContinuation
-        self.lastLine = lastLine
-        self.lastLineType = lastLineType
-        self.currentMetaObj = currentMetaObj
-        self.rawlineCount = 0
-        self.streamLineCount = 0
-        self.fileStreamPointer = 0
-        self.mode = "Normal"
+
+from hashlib import md5
+#from util import *
+from util import pdfparserconstants
+from util import docUtil
+from util import fileExtUtil
+from util import xrefUtil
+
+
 def main(arg1):
     #TODO: add support for Linearized PDF files
     #TODO: improve stream output handling. Streams should be output to separate files for improved performance and ease of use with big files and streams.
@@ -37,26 +25,26 @@ def main(arg1):
     ####################
     EMPTY = pdfparserconstants.EMPTY
     
-    myDoc = jdoc.JDoc("default")
+    myDoc = docUtil.JDoc("default")
     myDoc.objs = []
-
+    myDoc.fileName = inputFile
 
     with open(inputFile, 'rb') as tr:
         testBuff = tr.read()
         xrefUtil.findXrefStart(tr, myDoc)
-    tr.close()
+
 
 
     with open(inputFile + '.bin' + '.txt', 'wb') as tw:
         tw.write(testBuff)
-    tr.close()
+
 
 
     with open(inputFile,'rb' ) as f:
         hashl = md5()
         hashl.update(f.read())
         myDoc.fileMd5 = hashl.hexdigest()
-        f.close()
+
 
     with open(inputFile,'rb' ) as f:
         streamPersist = None
@@ -72,7 +60,7 @@ def main(arg1):
         lastLine = EMPTY
         lastLineType = EMPTY
 
-        rlState = RawLineState(streamPersist, currentObj, lastObj, lastMetaObj, prevObj, streamObj, isContinuation, EMPTY, EMPTY, None)
+        rlState = xrefUtil.RawLineState(streamPersist, currentObj, lastObj, lastMetaObj, prevObj, streamObj, isContinuation, EMPTY, EMPTY, None)
         # lines that do not need to be parsed. Should be able to use file.seek to skip most/all of the object.
         for rawline in f:
            
@@ -81,7 +69,7 @@ def main(arg1):
             myDoc.processRawLine(rawline, rlState, unfilterStreamFlag, f)
             
 
-    f.close()
+
 
     #post parse processing of JSON
     

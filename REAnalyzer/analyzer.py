@@ -20,7 +20,7 @@ def analyze(inputFile):
 
         results = analyzer.analyze()
 
-    tr.close()
+    
 
 def customDocDecoder(docDict):
     return namedtuple('ParserJson', docDict.keys())(*docDict.values())

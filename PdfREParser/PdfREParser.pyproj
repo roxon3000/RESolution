@@ -5,20 +5,20 @@
     <ProjectGuid>88e51b46-0bd9-44c4-9416-5eecf1c8b168</ProjectGuid>
     <ProjectHome>.</ProjectHome>
     <StartupFile>PdfREParser.py</StartupFile>
-    <SearchPath>
-    </SearchPath>
+    <SearchPath>..\..\..\..\..\..\util\;util</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <Name>PdfREParser</Name>
     <RootNamespace>PdfREParser</RootNamespace>
     <IsWindowsApplication>False</IsWindowsApplication>
     <LaunchProvider>Standard Python launcher</LaunchProvider>
-    <CommandLineArguments>The-Art-of-Sales.pdf</CommandLineArguments>
+    <CommandLineArguments>link.pdf</CommandLineArguments>
     <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
     <TestFramework>unittest</TestFramework>
     <UnitTestPattern>test*.py</UnitTestPattern>
     <UnitTestRootDirectory>.</UnitTestRootDirectory>
     <InterpreterId>MSBuild|env|$(MSBuildProjectFullPath)</InterpreterId>
+    <SuppressPackageInstallationPrompt>True</SuppressPackageInstallationPrompt>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -30,14 +30,18 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="fileExtUtil.py" />
-    <Compile Include="jdoc.py" />
-    <Compile Include="jobj.py" />
-    <Compile Include="pdfparserconstants.py" />
     <Compile Include="PdfREParser.py" />
-    <Compile Include="test_streams.py" />
-    <Compile Include="test_lines.py" />
-    <Compile Include="test_cases1.py" />
-    <Compile Include="xrefUtil.py" />
+    <Compile Include="tests\test_cases1.py" />
+    <Compile Include="tests\test_lines.py" />
+    <Compile Include="tests\test_streams.py" />
+    <Compile Include="util\debugUtil.py" />
+    <Compile Include="util\docUtil.py" />
+    <Compile Include="util\fileExtUtil.py" />
+    <Compile Include="util\objectUtil.py" />
+    <Compile Include="util\pdfparserconstants.py" />
+    <Compile Include="util\xrefUtil.py" />
+    <Compile Include="util\__init__.py" />
+    <Compile Include="xrefUtilOld.py" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="requirements.txt" />
@@ -53,6 +57,10 @@
       <PathEnvironmentVariable>PYTHONPATH</PathEnvironmentVariable>
       <Architecture>X64</Architecture>
     </Interpreter>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="tests\" />
+    <Folder Include="util\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
