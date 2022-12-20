@@ -13,8 +13,8 @@
     },
     {
       "key": "3",
-      "name": "simple-pdf2",
-      "path": "simple-pdf.json"
+      "name": "link.pdf",
+      "path": "/tree?file=link.pdf.obj.json"
     }
   ]
 }

@@ -25,11 +25,19 @@ class JObj:
 
     def mutate(self, word):
         word = self.parseBracketedList(word)
+        #debug
+        if(word.count(']') > 0):
+            x = 1
+
         if(self.propRulesCheck(word)): 
             #replace \n \r \r\n with ' '
             word = word.replace('\r\n', ' ').replace('\n', ' ').replace('\r', ' ').replace('[','').replace(']', '').replace(pdfparserconstants.FF, '').replace(pdfparserconstants.BB, '')
             keyval = word.split(' ')
             key = self.cleanValue(keyval[0], 'key')
+            #don't like this check, but current issue (19 Dec 2022 Gooder) with bracket in sub-meta objects needs to be fixed.  ] bracket causes empty key
+            if(len(key) < 1):
+                return 
+
             if(len(keyval) == 2):
                 val = self.cleanValue(keyval[1], 'val')                   
                 self.__setattr__(key, val)
