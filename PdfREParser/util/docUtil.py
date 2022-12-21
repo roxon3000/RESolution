@@ -63,6 +63,9 @@ class JDoc:
                 hint = pdfparserconstants.XREF_ROW
                 if(rlState.mode == 'xreftable'):
                     authoritative = True
+            case "trailer":
+                hint = "trailer-cont"
+                authoritative = True
             case _: 
                 hint = pdfparserconstants.UNKOWN
 
@@ -94,10 +97,6 @@ class JDoc:
         if (objSearch != None and endobjIndex < 0) :
             return pdfparserconstants.OBJ
 
-    #OBJ END RULES
-        if(endobjIndex >= 0):
-            return pdfparserconstants.ENDOBJ
-
     #OBJ META LINE RULES
         bbIndex = currentLine.find(pdfparserconstants.BB)
         if (bbIndex == 0 and hint == pdfparserconstants.OBJ_META):
@@ -106,6 +105,9 @@ class JDoc:
             else:
                 return pdfparserconstants.OBJ_META_CONT
 
+    #OBJ END RULES
+        if(endobjIndex >= 0):
+            return pdfparserconstants.ENDOBJ
 
     #STREAM END RULES
         if(currentLine.strip() == pdfparserconstants.ENDSTREAM):
@@ -206,6 +208,10 @@ class JDoc:
                 #determine if leftover is stream demarcation since it may not have a new line
                 if(leftOver.find("stream") > -1):
                     newMetaObj.hasStream = True
+                    #clear out leftOver as streams are handled different. avoids double processing.  this can be cleaned up but special stream processing needs to be removed.
+                    newMetaObj.leftOver = None
+                else:
+                    newMetaObj.leftOver = leftOver.strip()
 
         #first start of meta object, todo make into a function
         bbMatch = re.search(re.escape(pdfparserconstants.BB), metaLine)
@@ -248,7 +254,7 @@ class JDoc:
             subObjKey = subObjKeyList[len(subObjKeyList)-1]
             
             #debug
-            if(subObjKey == "CIDSystemInfo " or subObjKey == ""):
+            if(subObjKey.strip() == "Info" or subObjKey == ""):
                 x = 1
 
             endPropLine = myword.find(subObjKey)
@@ -319,6 +325,7 @@ class JDoc:
                 or propTest == "filter"
                 or propTest == "filter["
                 or propTest == "subtype"
+                or propTest == "smask"
                 or propTest == "baseversion"):
                 propRuleInEffect = "BuildRule"
                 propBuilder = prop
@@ -498,15 +505,15 @@ class JDoc:
             lineType = self.determineLineType(currentLine, rlState)
 
             #debug
-            '''
+            
             xtest = "notset"
             if(rlState.currentObj != None):
                 xtest = rlState.currentObj.id
-            if(xtest == "220"):
+            if(xtest == "2"):
                 x=12321
                 b=12312312
                 xtest = "2123123123"
-            ''' 
+             
 
             match lineType:
                 case "obj":
@@ -528,6 +535,8 @@ class JDoc:
                         containsStreamStart = True
                     rlState.lastMetaObj = rlState.currentMetaObj
                     rlState.isContinuation = False
+                    if(hasattr(rlState.currentMetaObj,'leftOver') and rlState.currentMetaObj.leftOver != None and len(rlState.currentMetaObj.leftOver) > 0):
+                        crLines.append(rlState.currentMetaObj.leftOver)
                 case "obj-meta-cont":
                     rlState.isContinuation = True            
                 case "pdf-firstline":
@@ -554,6 +563,8 @@ class JDoc:
                             print('fast forwarding to offset: ' + str(ffOffset))
                             ffRaw = fileStream.read(bytesToRead)
                             rawline = rawline + ffRaw
+                            #troubleshooting stream processing help
+                            rlState.streamObj.fastForward = True
 
                         rlState.lastLineType = lineType
                         rlState.lastLine = currentLine

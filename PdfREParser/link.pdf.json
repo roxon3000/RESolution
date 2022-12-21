@@ -27,6 +27,7 @@
       "meta": {
         "id": "meta",
         "hasStream": true,
+        "leftOver": "",
         "Filter": "FlateDecode",
         "Length": "186112",
         "Length1": "549892",
@@ -44,6 +45,7 @@
       "meta": {
         "id": "meta",
         "hasStream": false,
+        "leftOver": "",
         "DescendantFonts": [
           {
             "id": "meta",
@@ -107,6 +109,7 @@
       "meta": {
         "id": "meta",
         "hasStream": true,
+        "leftOver": "",
         "Filter": "FlateDecode",
         "Length": "286"
       },
@@ -122,6 +125,7 @@
       "meta": {
         "id": "meta",
         "hasStream": false,
+        "leftOver": "",
         "Font": {
           "id": "meta",
           "hasStream": false,
@@ -136,6 +140,7 @@
       "meta": {
         "id": "meta",
         "hasStream": false,
+        "leftOver": "",
         "Contents": "12 0 R",
         "CropBox": [
           "0.0",
@@ -162,6 +167,7 @@
       "meta": {
         "id": "meta",
         "hasStream": true,
+        "leftOver": "",
         "Length": "521"
       }
     },
@@ -188,6 +194,7 @@
       "meta": {
         "id": "meta",
         "hasStream": false,
+        "leftOver": "",
         "Count": "1",
         "Kids": "3 0 R",
         "Type": "Pages"
@@ -200,6 +207,7 @@
       "meta": {
         "id": "meta",
         "hasStream": false,
+        "leftOver": "",
         "Pages": "2 0 R",
         "Type": "Catalog"
       }
@@ -211,6 +219,7 @@
       "meta": {
         "id": "meta",
         "hasStream": false,
+        "leftOver": "",
         "Author": "jgood",
         "CreationDate": "D:20221128131653-05'00'",
         "ModDate": "D:20221128131653-05'00'",
@@ -376,6 +385,7 @@
     "meta": {
       "id": "meta",
       "hasStream": false,
+      "leftOver": "",
       "Info": "14 0 R",
       "Root": "1 0 R",
       "Size": "15"
