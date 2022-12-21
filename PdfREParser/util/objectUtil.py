@@ -26,7 +26,7 @@ class JObj:
     def mutate(self, word):
         word = self.parseBracketedList(word)
         #debug
-        if(word.count(']') > 0):
+        if(word.count('None') > 0):
             x = 1
 
         if(self.propRulesCheck(word)): 
@@ -190,9 +190,13 @@ class JObj:
         decodeBuffer = buffer 
         skipBruteForce = False 
 
+        if(hasattr(self,"fastForward") and self.fastForward == True):
+            x=1 
         if(hasattr(metaObj, "Filter") and metaObj.Filter == "FlateDecode"):
             
             try:
+                if(hasattr(self,"fastForward") and self.fastForward == True):
+                    x =1 
                 uBuffer = self.deflateBuffer(buffer)
                 #TODO: i don't like how I wrote this section in nested try/catch. will want to add more decoders later on
                 decodeBuffer = uBuffer            

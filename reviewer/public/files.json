@@ -15,6 +15,12 @@
       "key": "3",
       "name": "link.pdf",
       "path": "/tree?file=link.pdf.obj.json"
+    },
+    {
+      "key": "4",
+      "name": "flyer.pdf (BIG FILE)",
+      "path": "/tree?file=flyer.pdf.obj.json"
     }
+  
   ]
 }
