@@ -135,3 +135,14 @@ dmypy.json
 /PdfREParser/webprint.pdf.json
 /PdfREParser/webprint.pdf.bin.txt
 /PdfREParser/webprint.pdf
+/PdfREParser/examples/form-example.content.txt
+/PdfREParser/examples/form-example.content.json
+/PdfREParser/examples/form-example.pdf.json
+/PdfREParser/examples/form-example.pdf.bin.txt
+/PdfREParser/examples/IF107-guide.pdf.json
+/PdfREParser/examples/IF107-guide.pdf.bin.txt
+/PdfREParser/examples/link.pdf.json
+/PdfREParser/examples/link.pdf.bin.txt
+/PdfREParser/examples/simple-pdf.pdf.json
+/PdfREParser/examples/simple-pdf.pdf.bin.txt
+/PdfREParser/examples/simple-pdf.pdf.16.application#2Fvnd.jgraph.mxfile
