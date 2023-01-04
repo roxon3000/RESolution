@@ -1,44 +1,27 @@
-import React from 'react';
-import {getDetailData} from '../services';
-import {connect} from 'react-redux';
+import React, { useEffect } from 'react';
 import Template from './Template'
+import Summary from './Summary'
+import ObjectTree from './ObjectTree'
+function Detail(props) {
 
-class Detail extends React.Component {																										
-  
-  constructor(props){
-    super(props)
-   
-  }
+   return (
+       <Template>
+           <div className="container">
+               <div className="row">
+                   <div className="col">
+                       <Summary></Summary>
+                   </div>
+               </div>
+               <div className="row">
+                   <div className="col">
+                       <ObjectTree></ObjectTree>
+                   </div>
+               </div>
 
+           </div>
 
-  render() {
-    var tree = this.props.tree
-
-      return (				
-          <Template>
-              <div> Detail - add something here</div>        
-
-        </Template>
-      
+       </Template>
     );
-  }
-}				
-
-
-const mapDispatchToProps = dispatch =>  {
-  return {
-    loadTrendData: () => {
-          dispatch(getDetailData());
-    }
-  }
 }
 
-const mapStateToProps = state => 
-(
-  { 
-    tree: state,
-    loading: state
-  }
-)
-
-export default  connect(mapStateToProps, mapDispatchToProps) (Detail);
+export default Detail;

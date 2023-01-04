@@ -88,7 +88,7 @@ def main(arg1):
        
             fw.write(json.dumps(myDoc, default=vars))
 
-    fw.close()
+    
 
     return myDoc
 

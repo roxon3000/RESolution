@@ -68,41 +68,45 @@ function ObjectTree(props) {
         });
     };
     return (
-        <Template>
-            <div className="container">
-
-                <div className="row">
-                    <div className="col-lg">
-                        <Tree
-                            contents={nodes}
-                            onNodeClick={handleNodeClick}
-                            onNodeCollapse={handleNodeCollapse}
-                            onNodeExpand={handleNodeExpand}
-                            className={Classes.ELEVATION_0}
-                        />
-                    </div>
-                    {selectedNode && 
-                        <div className="col-lg">
-                            <div className="container">
-                                <div className="col-sm">
-                                    <b>Selected Node</b>
-                                    <ul>
-                                        {listItems}
-                                    </ul>
-                                    <b>Selected Raw Object</b>
-                                    <ul>
-                                        {rawListItems}
-                                    </ul>
-
-                                </div>
-                            </div>
-                        </div>
-                    }
+        
+        <div className="container">
+            <div className="row">
+                <div className="col-lg">
+                    Object Tree
                 </div>
             </div>
+            <div className="row">
+                <div className="col-lg">
+                    <Tree
+                        contents={nodes}
+                        onNodeClick={handleNodeClick}
+                        onNodeCollapse={handleNodeCollapse}
+                        onNodeExpand={handleNodeExpand}
+                        className={Classes.ELEVATION_0}
+                    />
+                </div>
+                {selectedNode && 
+                    <div className="col-lg">
+                        <div className="container">
+                            <div className="col-sm">
+                                <b>Selected Node</b>
+                                <ul>
+                                    {listItems}
+                                </ul>
+                                <b>Selected Raw Object</b>
+                                <ul>
+                                    {rawListItems}
+                                </ul>
+
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
 
 
-        </Template>
+    
 
     );
 }

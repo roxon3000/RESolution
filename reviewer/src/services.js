@@ -1,7 +1,9 @@
 import axios from 'axios';
 import {
 	getHomeSuccess, getHomeFailure, getHomeInitial,
-	getObjectTreeFailure, getObjectTreeInitial, getObjectTreeSuccess
+	getObjectTreeFailure, getObjectTreeInitial, getObjectTreeSuccess,
+	getPdfRulesFailure, getPdfRulesInitial, getPdfRulesSuccess, getSummaryFailure,
+	getSummaryInitial, getSummarySuccess
 } from './redux/actions';
 
 
@@ -25,12 +27,52 @@ export function getHomeData(){
 	}
 }
 
+export function getPdfRuleDefinitions() {
+	return (dispatch, getState) => {
+
+		dispatch(getPdfRulesInitial());
+
+		axios.get("/pdfrules.json")
+			.then(
+				(response) => {
+					if (response['status'] === 200) {
+						// Login the user using dispatch                
+						dispatch(getPdfRulesSuccess(response.data));
+					} else {
+						// Send the error from API back
+						dispatch(getPdfRulesFailure(response));
+					}
+				}
+			);
+	}
+}
+
+export function getSummary(file) {
+	return (dispatch, getState) => {
+
+		dispatch(getSummaryInitial());
+
+		axios.get("/" + file + ".dat.json")
+			.then(
+				(response) => {
+					if (response['status'] === 200) {
+						// Login the user using dispatch                
+						dispatch(getSummarySuccess(response.data));
+					} else {
+						// Send the error from API back
+						dispatch(getSummaryFailure(response));
+					}
+				}
+			);
+	}
+}
+
 export function getObjectTree(file) {
 	return (dispatch, getState) => {
 
 		dispatch(getObjectTreeInitial());
 
-		axios.get("/" + file)
+		axios.get("/" + file + ".obj.json")
 			.then(
 				(response) => {
 					if (response['status'] === 200) {
@@ -44,6 +86,7 @@ export function getObjectTree(file) {
 			);
 	}
 }
+
 
 export function getDetailData() {
 	return (dispatch, getState) => {

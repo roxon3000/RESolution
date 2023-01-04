@@ -21,6 +21,7 @@ function Template(props) {
                     <a href="/exampletree" className="btn btn-primary">Example</a>
                 </div>
             </div>
+            <div style={{ marginTop: "10px" }} ></div>
             {props.children}
         </div>
 

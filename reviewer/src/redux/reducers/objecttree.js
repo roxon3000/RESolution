@@ -194,7 +194,10 @@ export default function (state = INITIAL_STATE, action) {
             newState3.selectedRawObj = findRawObj(newState3.selectedNode.ref, newState3.raw);
             return newState3;
         case GET_OBJ_TREE_INITIAL:
-            return state;
+            return {
+                ...state,
+                loading: true
+            };
         case GET_OBJ_TREE_SUCCESS:
             let serviceData = action.payload;            
             let tree = [];
