@@ -3,23 +3,23 @@
     {
       "key": "1",
       "name": "simple-pdf.pdf",
-      "path": "/tree?file=simple-pdf.pdf.obj.json",
+      "path": "/detail?file=simple-pdf.pdf",
       "desc": "object tree for simple-pdf.pdf"
     },
     {
       "key": "2",
       "name": "The-Art-of-Sales.pdf",
-      "path": "/tree?file=The-Art-of-Sales.pdf.obj.json"
+      "path": "/tree?file=The-Art-of-Sales.pdf"
     },
     {
       "key": "3",
       "name": "link.pdf",
-      "path": "/tree?file=link.pdf.obj.json"
+      "path": "/tree?file=link.pdf"
     },
     {
       "key": "4",
       "name": "flyer.pdf (BIG FILE)",
-      "path": "/tree?file=flyer.pdf.obj.json"
+      "path": "/tree?file=flyer.pdf"
     }
   
   ]

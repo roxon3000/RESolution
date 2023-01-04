@@ -112,8 +112,12 @@ class PdfAnalyzer:
         pre = self.treeDoc.id
         if(hasattr(rawDoc, "fileName") and len(rawDoc.fileName) > 0):
             pre = rawDoc.fileName
+            #if file name contains folders, find and use actual file name
+            if(pre.count('/') > 0 ):
+                fileSplit = pre.split('/')
+                pre = fileSplit[len(fileSplit)-1]
 
-        outputFile = pre + ".obj.json"
+        outputFile = "./output/" + pre + ".obj.json"
         with open(outputFile, 'w', encoding="ascii", errors="surrogateescape") as fw:
                   
             fw.write(json.dumps(self.treeDoc, default=vars))
@@ -123,7 +127,7 @@ class PdfAnalyzer:
             
 
 
-        outputFile = pre + ".dat.json"
+        outputFile = "./output/" + pre + ".dat.json"
         with open(outputFile, 'w', encoding="ascii", errors="surrogateescape") as fw:        
             fw.write(json.dumps(self.rulesSummary, default=vars))
         

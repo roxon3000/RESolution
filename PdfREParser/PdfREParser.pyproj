@@ -12,7 +12,7 @@
     <RootNamespace>PdfREParser</RootNamespace>
     <IsWindowsApplication>False</IsWindowsApplication>
     <LaunchProvider>Standard Python launcher</LaunchProvider>
-    <CommandLineArguments>flyer.pdf</CommandLineArguments>
+    <CommandLineArguments>./examples/simple-pdf.pdf</CommandLineArguments>
     <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
     <TestFramework>unittest</TestFramework>
     <UnitTestPattern>test*.py</UnitTestPattern>
@@ -29,7 +29,6 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="fileExtUtil.py" />
     <Compile Include="PdfREParser.py" />
     <Compile Include="tests\test_cases1.py" />
     <Compile Include="tests\test_lines.py" />
@@ -41,11 +40,26 @@
     <Compile Include="util\pdfparserconstants.py" />
     <Compile Include="util\xrefUtil.py" />
     <Compile Include="util\__init__.py" />
-    <Compile Include="xrefUtilOld.py" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="examples\form-example.content.json" />
+    <Content Include="examples\form-example.content.txt" />
+    <Content Include="examples\form-example.pdf" />
+    <Content Include="examples\form-example.pdf.bin.txt" />
+    <Content Include="examples\form-example.pdf.json" />
+    <Content Include="examples\IF107-guide.pdf" />
+    <Content Include="examples\IF107-guide.pdf.bin.txt" />
+    <Content Include="examples\IF107-guide.pdf.json" />
+    <Content Include="examples\link.pdf" />
+    <Content Include="examples\link.pdf.bin.txt" />
+    <Content Include="examples\link.pdf.json" />
+    <Content Include="examples\msftwebprint.pdf" />
+    <Content Include="examples\simple-pdf.pdf" />
+    <Content Include="examples\simple-pdf.pdf.16.application#2Fvnd.jgraph.mxfile" />
+    <Content Include="examples\simple-pdf.pdf.bin.txt" />
+    <Content Include="examples\simple-pdf.pdf.json" />
+    <Content Include="examples\The-Art-of-Sales.pdf" />
     <Content Include="requirements.txt" />
-    <Content Include="The-Art-of-Sales.pdf" />
   </ItemGroup>
   <ItemGroup>
     <Interpreter Include="env\">
@@ -59,6 +73,7 @@
     </Interpreter>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="examples\" />
     <Folder Include="tests\" />
     <Folder Include="util\" />
   </ItemGroup>

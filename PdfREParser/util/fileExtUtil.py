@@ -6,6 +6,10 @@ def extractEmbeddedFile(obj, parentFile):
     #debug
     if(obj.id == '16'):
         x = 1
+    #if file name contains folders, find and use actual file name
+    if(parentFile.count('/') > 0 ):
+        fileSplit = parentFile.split('/')
+        parentFile = fileSplit[len(fileSplit)-1]
 
     if( hasattr(obj, "meta") and hasattr(obj.meta, "Type") and obj.meta.Type == "EmbeddedFile" 
       and hasattr(obj, "unfilteredStream") and obj.unfilteredStream != None) :
