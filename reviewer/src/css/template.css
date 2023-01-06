@@ -1,20 +1,31 @@
 .banner {
     text-align: center;
+    vertical-align: middle;
     border-style: solid;
     border-width: thin;
-    border-color: #3f7a91;
-    background-color: #3f7a91;
-    margin-top:2rem;
-    margin-bottom: 1rem;
+    border-color: #F0B726;
+    background-color: #383E47;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
     color: #ffffff;
-
 }
 
-.banner div>h1{
-    margin-bottom: 0rem;
-}
+
 
 .btn-primary {
-    background-color:#3f7a91 !important;
-    border-color: #3f7a91 !important;
+    background-color: #383E47 !important;
+    border-color: #F0B726 !important;
+    margin-bottom: 1rem;
+}
+
+.app-table {
+    border-style: solid;
+    border-width: thin;
+    border-color: inherit;
+}
+
+.app-table td {
+    border-style: solid;
+    border-width: thin;
+    border-color: inherit;
 }

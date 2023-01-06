@@ -50,16 +50,29 @@ def genericListMapper(newList, rawList, treeDoc, rawDoc):
          newList.append(newObj)
 
 def bruteForceMapper(newObj, obj, treeDoc, rawDoc):
+    
+
 
     #check for list
     if(isinstance(obj, list)):
+        print("bruteForceMapper List Count" + str(len(obj)))
         genericListMapper(newObj, obj, treeDoc, rawDoc)
     else:
+        poolObj = treeDoc.objectMap.get(obj.id)
+        if(poolObj != None):
+            if(hasattr(poolObj, "mapped") and poolObj.mapped == True):
+                return
+            else:
+                poolObj.mapped = True
+
         #check for meta (flatten)
+        print("bruteForceMapper obj.id=" + obj.id)
         if(hasattr(obj, "meta") and hasattr(obj.meta, "_asdict")):
             bruteForceObjectMapper(obj.meta, rawDoc, treeDoc, newObj)
     
         bruteForceObjectMapper(obj, rawDoc, treeDoc, newObj)
+
+       
 
 def bruteForceObjectMapper(obj, rawDoc, treeDoc, newObj):
     items = None
@@ -71,20 +84,23 @@ def bruteForceObjectMapper(obj, rawDoc, treeDoc, newObj):
     if(items != None):
         for key, val in items:
             if(str(val).isprintable()):
-                print('brute force at key=' + key + ' value=' + str(val))
+                #print('brute force at key=' + key + ' value=' + str(val))
+                pass
             match key:
                 case "id" | "version":
                     pass 
                 case "version":
                     newObj.generationNumber = val
-                case "meta" | "Parent":
+                case "meta" :
                     pass
-                case "K":
-                    #K is causing problems with large lists.. currently banned.
+                case "K" | "Parent" | "raw" :
+                    #K is causing problems with large lists.. currently banned. Parent and raw banned to prevent recursive loops
                     newObj.__setattr__(key, val)
                 case _:
                     if( genericObjRefHandler(key, val, rawDoc, treeDoc, newObj, bruteForceMapper) == False):
                         newObj.__setattr__(key, val)
+    print("bruteForceObjectMapper obj.id=" + obj.id)
+    x = 1
 
 def genericObjectMapper(obj, rawDoc, treeDoc, newObj):
     items = None

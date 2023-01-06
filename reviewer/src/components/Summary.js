@@ -29,10 +29,10 @@ function Summary(props) {
         </div>
     );
     const htmlRows = (matchedRules == null) ? null : matchedRules.map((attr) =>
-        <tr key="{attr.id}" className="row">
-            <td className="col-sm">{attr.id}</td>
-            <td className="col-sm">{attr.objectRefId}</td>
-            <td className="col-sm">{attr.ruleRefId}</td>
+        <tr key="{attr.id}">
+            <td>{attr.id}</td>
+            <td>{attr.objectRefId}</td>
+            <td>{attr.ruleRefId}</td>
         </tr>
     );
     //const rawEntries = (selectedRawObj == null) ? [] : Object.entries(selectedRawObj).filter(entry => !Array.isArray(entry[1]));
@@ -53,36 +53,30 @@ function Summary(props) {
 
     return (
 
-            <div className="container">
-
-                <div className="row">
-                    <div className="col-lg">
-                    Summary Rules Results here
-                        <div key="header" className="row">
-                            <div className="col-sm">ID</div>
-                            <div className="col-sm">Object Ref ID</div>
-                            <div className="col-sm">Rule Ref ID</div>
-                        </div>
-                        <div className="container">
-                            {rows}
-                        </div>
-
-                        <table>
-                            <tr>
-                                <td>
-                                    Col1
-                                </td>
-                                <td>
-                                    Col2
-                                </td>
-                                <td>
-                                    Col3
-                                </td>
-                            </tr>
-                        {htmlRows}
-                        </table>
-                    </div>
+        <div className="container">
+            <div className="row">
+                <div className="col-lg">
+                    <h3>Rules Summary</h3>
                 </div>
+            </div>
+            <div className="row">
+                <div className="col-lg">
+                    <table className="app-table">
+                        <tr>
+                            <td>
+                                Col1
+                            </td>
+                            <td>
+                                Col2
+                            </td>
+                            <td>
+                                Col3
+                            </td>
+                        </tr>
+                    {htmlRows}
+                    </table>
+                </div>
+            </div>
             </div>
 
 

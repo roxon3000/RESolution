@@ -72,7 +72,7 @@ function ObjectTree(props) {
         <div className="container">
             <div className="row">
                 <div className="col-lg">
-                    Object Tree
+                    <h3>Object Tree</h3>
                 </div>
             </div>
             <div className="row">

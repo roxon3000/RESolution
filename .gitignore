@@ -146,3 +146,9 @@ dmypy.json
 /PdfREParser/examples/simple-pdf.pdf.json
 /PdfREParser/examples/simple-pdf.pdf.bin.txt
 /PdfREParser/examples/simple-pdf.pdf.16.application#2Fvnd.jgraph.mxfile
+/PdfREParser/examples/The-Art-of-Sales.pdf.json
+/PdfREParser/examples/The-Art-of-Sales.pdf.bin.txt
+/REAnalyzer/output/The-Art-of-Sales.pdf.obj.json
+/REAnalyzer/output/The-Art-of-Sales.pdf.dat.json
+/REAnalyzer/output/simple-pdf.pdf.obj.json
+/REAnalyzer/output/simple-pdf.pdf.dat.json

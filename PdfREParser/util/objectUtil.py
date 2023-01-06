@@ -16,7 +16,7 @@ class JObj:
         name = self.cleanValue(name, 'key')
 
         #don't clean streams
-        if(name == 'unfilteredStream' or name == 'stream'):
+        if(name == 'unfilteredStream' or name == 'stream' or name == 'raw'):
             pass
         else:
             newVal = self.cleanValue(value, 'val')
