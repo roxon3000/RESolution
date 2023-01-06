@@ -49,7 +49,6 @@ function forNodeAtPath(nodes, path, callback) {
 }
 
 function findRawObj(refId, raw) {
-
     return (refId === "trailer") ? raw.treeTrailer : raw.objectMap[refId];
 }
 
@@ -88,9 +87,18 @@ function generateObjectBranch(node, rawObj) {
             propNode = newNode(rawObj.id + key + String(propCount), true, 'array', key, false);
             propNode.isArray = true;
             propNode.isObject = false;
-            propNode.ref = rawObj.objectNumber + "," + key;
+            //propNode.ref = rawObj.objectNumber + "," + key;
+            propNode.ref = node.ref + ',' + key
             node.childNodes.push(propNode);
-        }
+        } else if (typeof propObj === "object") {
+            let label = key;
+            propNode = newNode(rawObj.id + key, true, 'circle', label, false);
+            propNode.isArray = false;
+            propNode.isObject = true;
+            propNode.ref = node.ref + ',' + key
+            node.childNodes.push(propNode);
+            generateObjectBranch(propNode, propObj)
+        } 
         
     }
     //check for empty child nodes. this is necessary because of lazy loading
@@ -100,14 +108,30 @@ function generateObjectBranch(node, rawObj) {
     return node
 }
 
+function dereference(rawRef, raw) {
+    let ref = rawRef.split(",");
+    let rawParentObj = findRawObj(ref[0], raw);
+    let rawObj = rawParentObj; // rawParentObj[ref[1]];
+    let tempParent = rawParentObj;
+    for (let ri = 1; ri < ref.length; ri++) {
+        let interObject = tempParent[ref[ri]];
+
+        if (ri < (ref.length - 1)) {
+            tempParent = interObject;
+        } else {
+            rawObj = interObject;
+        }
+    }
+
+    return rawObj;
+}
+
 function generateList(expNode, raw) { 
     if (expNode == null || expNode.ref == null) {
         return;
     }
 
-    let ref = expNode.ref.split(",");
-    let rawParentObj = findRawObj(ref[0], raw);
-    let rawObj = rawParentObj[ref[1]];
+    let rawObj = dereference(expNode.ref, raw);
 
     expNode.childNodes = [];
     let propCount = 0;
@@ -115,12 +139,13 @@ function generateList(expNode, raw) {
      
         propCount = propCount + 1;
         let propObj = rawObj[key];
+        
         let propNode = null
         //if rawObj is a JSON Ref, then add ref to node for lazy loading in UI component
-        if (typeof propObj === "object" && propObj.hasOwnProperty("objectNumber")) {
-            let label = "OBJ #" + propObj.objectNumber
+        if (typeof propObj === "object" && propObj.hasOwnProperty("$ref")) {
+            let label = "OBJ #" + propObj.id
             propNode = newNode(propObj.id + key, true, 'circle', label, false)
-            propNode.ref = propObj.objectNumber;
+            propNode.ref = propObj.id;
             propNode.isArray = false
             propNode.isObject = true
             expNode.childNodes.push(propNode)
@@ -132,7 +157,7 @@ function generateList(expNode, raw) {
             propNode.ref = propObj.objectNumber + "," + key;
             expNode.childNodes.push(propNode)
         } else {
-            let primNode = newNode(expNode.ref, false, "citation", rawObj[key], false);
+            let primNode = newNode(expNode.ref + String(propCount), false, "citation", rawObj[key], false);
             primNode.isArray = false;
             primNode.isObject = false;
             expNode.childNodes.push(primNode);
@@ -191,7 +216,7 @@ export default function (state = INITIAL_STATE, action) {
                     newState3.selectedNode = node
                 }
             );
-            newState3.selectedRawObj = findRawObj(newState3.selectedNode.ref, newState3.raw);
+            newState3.selectedRawObj = dereference(newState3.selectedNode.ref, newState3.raw);
             return newState3;
         case GET_OBJ_TREE_INITIAL:
             return {

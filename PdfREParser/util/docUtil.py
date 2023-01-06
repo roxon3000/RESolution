@@ -499,21 +499,11 @@ class JDoc:
             if(rlState.isContinuation):
                 currentLine = rlState.lastLine + currentLine
             #debug
-            if(currentLine.count("CIDFont") > 0):
+            if(currentLine.count("XObject") > 0):
                 x = 1
 
             lineType = self.determineLineType(currentLine, rlState)
-
-            #debug
-            
-            xtest = "notset"
-            if(rlState.currentObj != None):
-                xtest = rlState.currentObj.id
-            if(xtest == "2"):
-                x=12321
-                b=12312312
-                xtest = "2123123123"
-             
+       
 
             match lineType:
                 case "obj":
@@ -537,6 +527,7 @@ class JDoc:
                     rlState.isContinuation = False
                     if(hasattr(rlState.currentMetaObj,'leftOver') and rlState.currentMetaObj.leftOver != None and len(rlState.currentMetaObj.leftOver) > 0):
                         crLines.append(rlState.currentMetaObj.leftOver)
+                    rlState.currentMetaObj.raw = currentLine
                 case "obj-meta-cont":
                     rlState.isContinuation = True            
                 case "pdf-firstline":

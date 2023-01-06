@@ -9,17 +9,17 @@
     {
       "key": "2",
       "name": "The-Art-of-Sales.pdf",
-      "path": "/tree?file=The-Art-of-Sales.pdf"
+      "path": "/detail?file=The-Art-of-Sales.pdf"
     },
     {
       "key": "3",
       "name": "link.pdf",
-      "path": "/tree?file=link.pdf"
+      "path": "/detail?file=link.pdf"
     },
     {
       "key": "4",
       "name": "flyer.pdf (BIG FILE)",
-      "path": "/tree?file=flyer.pdf"
+      "path": "/detail?file=flyer.pdf"
     }
   
   ]

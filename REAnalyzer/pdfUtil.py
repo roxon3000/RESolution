@@ -43,23 +43,37 @@ def genericListMapper(newList, rawList, treeDoc, rawDoc):
         raise Exception("object must be a list in a list mapper")
 
     for objr in rawList:
-         newObj = jobj.JObj()
-         newObj.objectNumber = objr.id
-         newObj.generationNumber = objr.version       
-         newObj.update(objr, bruteForceMapper, treeDoc, rawDoc)
-         newList.append(newObj)
+         genericObjRefHandlerForListItem(objr, rawDoc, treeDoc, newList, bruteForceMapper)
+         #if( genericObjRefHandler(key, val, rawDoc, treeDoc, newObj, bruteForceMapper) == False):
+         #   newObj.__setattr__(key, val)
+         #newObj.update(objr, bruteForceMapper, treeDoc, rawDoc)
+         #newList.append(newObj)
 
 def bruteForceMapper(newObj, obj, treeDoc, rawDoc):
+    
+
 
     #check for list
     if(isinstance(obj, list)):
+        print("bruteForceMapper List Count" + str(len(obj)))
         genericListMapper(newObj, obj, treeDoc, rawDoc)
     else:
+        poolObj = treeDoc.objectMap.get(obj.id)
+        if(poolObj != None):
+            if(hasattr(poolObj, "mapped") and poolObj.mapped == True):
+                #return
+                pass
+            else:
+                poolObj.mapped = True
+
         #check for meta (flatten)
+        print("bruteForceMapper obj.id=" + obj.id)
         if(hasattr(obj, "meta") and hasattr(obj.meta, "_asdict")):
             bruteForceObjectMapper(obj.meta, rawDoc, treeDoc, newObj)
     
         bruteForceObjectMapper(obj, rawDoc, treeDoc, newObj)
+
+       
 
 def bruteForceObjectMapper(obj, rawDoc, treeDoc, newObj):
     items = None
@@ -68,23 +82,34 @@ def bruteForceObjectMapper(obj, rawDoc, treeDoc, newObj):
     else:
         items = obj.__dict__.items()
 
+    #debug
+    if(obj.id == "6"):
+        x=2
+
     if(items != None):
         for key, val in items:
             if(str(val).isprintable()):
-                print('brute force at key=' + key + ' value=' + str(val))
+                #print('brute force at key=' + key + ' value=' + str(val))
+                pass
             match key:
-                case "id" | "version":
+                case "id" | "version" | "meta":
                     pass 
                 case "version":
                     newObj.generationNumber = val
-                case "meta" | "Parent":
-                    pass
-                case "K":
-                    #K is causing problems with large lists.. currently banned.
+                case "K" | "Parent" | "raw" :
+                    #K is causing problems with large lists.. currently banned. Parent and raw banned to prevent recursive loops
                     newObj.__setattr__(key, val)
                 case _:
-                    if( genericObjRefHandler(key, val, rawDoc, treeDoc, newObj, bruteForceMapper) == False):
-                        newObj.__setattr__(key, val)
+                    if(hasattr(val,'_fields')):
+                        subObj = jobj.JObj()
+                        subObj.id = key + obj.id
+                        subObj.update(val, bruteForceMapper, treeDoc, rawDoc)
+                        newObj.__setattr__(key, subObj)
+                    else:
+                        if( genericObjRefHandler(key, val, rawDoc, treeDoc, newObj, bruteForceMapper) == False):
+                            newObj.__setattr__(key, val)
+    print("bruteForceObjectMapper obj.id=" + obj.id)
+    
 
 def genericObjectMapper(obj, rawDoc, treeDoc, newObj):
     items = None
@@ -182,6 +207,25 @@ def genericObjRefHandler(key, val, rawDoc, treeDoc, newObj, mapper):
             return False
 
     return False
+
+def genericObjRefHandlerForListItem(val, rawDoc, treeDoc, newList, mapper):
+
+    
+    if(val != None):
+        if(isinstance(val, list) == False):
+            childObj = jobj.JObj()
+            childObj.objectNumber = val.id
+            childObj.generationNumber = val.version       
+            if ( (val.id in treeDoc.objectMap) == False):
+                addToObjectMap(treeDoc, childObj)
+            newList.append(getProxy(childObj.objectNumber))
+            childObj.update(val, mapper, treeDoc, rawDoc)
+        else:
+            newList.append(val)
+        return True
+    else:
+        return False
+
 
 def findRawObj(rawDoc, tObject):
 
