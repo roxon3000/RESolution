@@ -499,7 +499,7 @@ class JDoc:
             if(rlState.isContinuation):
                 currentLine = rlState.lastLine + currentLine
             #debug
-            if(currentLine.count("CIDFont") > 0):
+            if(currentLine.count("XObject") > 0):
                 x = 1
 
             lineType = self.determineLineType(currentLine, rlState)

@@ -115,12 +115,13 @@ function generateList(expNode, raw) {
      
         propCount = propCount + 1;
         let propObj = rawObj[key];
+        
         let propNode = null
         //if rawObj is a JSON Ref, then add ref to node for lazy loading in UI component
-        if (typeof propObj === "object" && propObj.hasOwnProperty("objectNumber")) {
-            let label = "OBJ #" + propObj.objectNumber
+        if (typeof propObj === "object" && propObj.hasOwnProperty("$ref")) {
+            let label = "OBJ #" + propObj.id
             propNode = newNode(propObj.id + key, true, 'circle', label, false)
-            propNode.ref = propObj.objectNumber;
+            propNode.ref = propObj.id;
             propNode.isArray = false
             propNode.isObject = true
             expNode.childNodes.push(propNode)
