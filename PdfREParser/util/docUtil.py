@@ -474,6 +474,8 @@ class JDoc:
             currentObj.version = '0'
             if(firstBBpos >= 0):
                 self.processObjMetaLine(metaLine, currentObj)
+                if(hasattr(currentObj,"meta") and currentObj.meta != None):
+                    currentObj.meta.raw = metaLine
             else:
                 currentObj.content = metaLine
 
