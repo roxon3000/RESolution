@@ -83,24 +83,37 @@ def processTextline(textLine, textObj, uniObj):
     ENDTEXTOBJECT = "ET"
     TXTARRAY = "TJ"
     TXTGROUP = "Tj"
-  
-    btIndex = textLine.find(BEGINTEXTOBJECT)
-    if( btIndex >= 0 ):
-        etIndex = textLine.find(ENDTEXTOBJECT)
-        textObjWord = textLine[btIndex + len(BEGINTEXTOBJECT):etIndex].strip()
-        tjArrIndex = textObjWord.find(TXTARRAY)
-        if( tjArrIndex >= 0):
-            tjWord = textObjWord[0:tjArrIndex + len(TXTARRAY)].strip()
-            tjStart = tjWord.rfind('[')
-            tjEnd = tjWord.rfind(']')
-            tjArrWord = re.findall("(?<=<)[A-Za-z0-9]+(?=>)", tjWord[tjStart:tjEnd])
-            translated = []
-            if( tjArrWord != None and len(tjArrWord) > 0):
-                for code in tjArrWord:
-                    translated.append(translateUnicode(uniObj, code))
-                textObj.translatedContent = "".join(translated)
-                
-               
+    textObj.translatedContent = [] 
+    workLine = textLine
+
+    while(True):
+        btIndex = workLine.find(BEGINTEXTOBJECT)
+        if( btIndex >= 0 ):
+            etIndex = workLine.find(ENDTEXTOBJECT)
+            textObjWord = workLine[btIndex + len(BEGINTEXTOBJECT):etIndex].strip()
+        
+            while(True):
+                tjArrIndex = textObjWord.find(TXTARRAY)
+                if( tjArrIndex >= 0):
+                    tjWord = textObjWord[0:tjArrIndex + len(TXTARRAY)].strip()
+                    tjStart = tjWord.rfind('[')
+                    tjEnd = tjWord.rfind(']')
+                    tjArrWord = re.findall("(?<=<)[A-Za-z0-9]+(?=>)", tjWord[tjStart:tjEnd])
+                    translated = []
+                    if( tjArrWord != None and len(tjArrWord) > 0):
+                        for code in tjArrWord:
+                            translated.append(translateUnicode(uniObj, code))
+                        textObj.translatedContent.append("".join(translated))
+                    #check if any more data left in text object
+                    if((tjArrIndex+len(TXTARRAY)) >= len(textObjWord)):    
+                        break
+                    textObjWord = workLine[tjEnd:etIndex] 
+            if((etIndex + len(ENDTEXTOBJECT)) >= len(workLine)):
+                break
+            else:
+                workLine = workLine[etIndex + len(ENDTEXTOBJECT):len(workLine)]
+        else:
+            break
 
     return None
 def translateUnicode(uniObj, code):
