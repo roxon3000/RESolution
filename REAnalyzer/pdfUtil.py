@@ -3,6 +3,7 @@ import re
 from objectproxy import getProxy
 import sys 
 from itertools import count
+import unicodedata
 
 OBJ_REF_REGEX = '([0-9]+ [0-9]+ R)'
 
@@ -74,6 +75,47 @@ def bruteForceMapper(newObj, obj, treeDoc, rawDoc):
         bruteForceObjectMapper(obj, rawDoc, treeDoc, newObj)
 
        
+def processTextline(textLine, textObj, uniObj):
+    #CID line will contain a mix of meta object data and CID script
+    # for simplicity in initial release, code is only focusing base font char mappings (beginbfchar/endbfchar) and base font range mappings (beginbfrange/endbfrange)
+
+    BEGINTEXTOBJECT = "BT"
+    ENDTEXTOBJECT = "ET"
+    TXTARRAY = "TJ"
+    TXTGROUP = "Tj"
+  
+    btIndex = textLine.find(BEGINTEXTOBJECT)
+    if( btIndex >= 0 ):
+        etIndex = textLine.find(ENDTEXTOBJECT)
+        textObjWord = textLine[btIndex + len(BEGINTEXTOBJECT):etIndex].strip()
+        tjArrIndex = textObjWord.find(TXTARRAY)
+        if( tjArrIndex >= 0):
+            tjWord = textObjWord[0:tjArrIndex + len(TXTARRAY)].strip()
+            tjStart = tjWord.rfind('[')
+            tjEnd = tjWord.rfind(']')
+            tjArrWord = re.findall("(?<=<)[A-Za-z0-9]+(?=>)", tjWord[tjStart:tjEnd])
+            translated = []
+            if( tjArrWord != None and len(tjArrWord) > 0):
+                for code in tjArrWord:
+                    translated.append(translateUnicode(uniObj, code))
+                textObj.translatedContent = "".join(translated)
+                
+               
+
+    return None
+def translateUnicode(uniObj, code):
+    if(uniObj == None):
+        return None
+
+    if(uniObj.bfCharObj != None and uniObj.bfCharObj.charMapping != None and len(uniObj.bfCharObj.charMapping) > 0):
+        charMapping = uniObj.bfCharObj.charMapping
+        for mapping in charMapping:
+            testm = mapping.baseFontCode.replace("<","").replace(">","")
+            if(testm == code):
+                outChar = mapping.rearrangeFontCode.replace("<","").replace(">","")
+                return chr(int(outChar,16))
+
+    return code
 
 def bruteForceObjectMapper(obj, rawDoc, treeDoc, newObj):
     items = None
@@ -105,9 +147,13 @@ def bruteForceObjectMapper(obj, rawDoc, treeDoc, newObj):
                         subObj.id = key + obj.id
                         subObj.update(val, bruteForceMapper, treeDoc, rawDoc)
                         newObj.__setattr__(key, subObj)
+                    elif(isinstance(val, list) and len(val) > 0 and hasattr(val[0], '_fields')):
+                        newObj.__setattr__(key, [])
+                        bruteForceMapper(newObj.getAttr(key), val, treeDoc, rawDoc)
                     else:
                         if( genericObjRefHandler(key, val, rawDoc, treeDoc, newObj, bruteForceMapper) == False):
                             newObj.__setattr__(key, val)
+
     print("bruteForceObjectMapper obj.id=" + obj.id)
     
 
@@ -193,7 +239,12 @@ def genericObjRefHandler(key, val, rawDoc, treeDoc, newObj, mapper):
             if(isinstance(objr, list) == False):
                 childObj = jobj.JObj()
                 childObj.objectNumber = objr.id
-                childObj.generationNumber = objr.version       
+                childObj.generationNumber = objr.version 
+                if(key == "Contents"):
+                    childObj.textContent = True
+                if(key == "ToUnicode"):
+                    childObj.toUnicode = True
+                    treeDoc.toUnicode = childObj
                 if ( (objr.id in treeDoc.objectMap) == False):
                     addToObjectMap(treeDoc, childObj)
                 newObj.__setattr__(key, getProxy(childObj.objectNumber))
@@ -215,10 +266,15 @@ def genericObjRefHandlerForListItem(val, rawDoc, treeDoc, newList, mapper):
         if(isinstance(val, list) == False):
             childObj = jobj.JObj()
             childObj.objectNumber = val.id
-            childObj.generationNumber = val.version       
-            if ( (val.id in treeDoc.objectMap) == False):
-                addToObjectMap(treeDoc, childObj)
-            newList.append(getProxy(childObj.objectNumber))
+            #check for version, if it is not there then it's not an object ref
+            if(hasattr(val, "version")):
+                childObj.generationNumber = val.version       
+                if ( (val.id in treeDoc.objectMap) == False):
+                    addToObjectMap(treeDoc, childObj)
+                newList.append(getProxy(childObj.objectNumber))
+            else:
+                newList.append(childObj)
+
             childObj.update(val, mapper, treeDoc, rawDoc)
         else:
             newList.append(val)

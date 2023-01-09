@@ -37,7 +37,14 @@ class PdfAnalyzer:
                     if(self.treeDoc.objectMap.get(obj.id) == None):
                         pdfUtil.addToObjectMap(self.treeDoc, newObj)
 
-                    
+    def processTextContent(self):                
+        objectMap = self.treeDoc.objectMap
+        for objId in  self.treeDoc.objectMap:
+            obj = objectMap.get(objId)
+            if(hasattr(obj, "textContent") and obj.textContent == True):
+                pdfUtil.processTextline(obj.unfilteredStream, obj, self.treeDoc.toUnicode)
+            else:
+                continue
 
     def processTrailerHeirarchy(self):
         rawDoc = self.rawDoc
@@ -104,6 +111,8 @@ class PdfAnalyzer:
         self.processTrailerHeirarchy()
 
         self.processOrphans()
+
+        self.processTextContent()
 
         self.executeRules()
         

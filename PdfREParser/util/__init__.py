@@ -3,3 +3,4 @@ import fileExtUtil
 import objectUtil
 import pdfparserconstants 
 import xrefUtil
+import cidUtil

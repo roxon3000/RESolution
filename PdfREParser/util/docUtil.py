@@ -150,6 +150,8 @@ class JDoc:
         newObj.meta = []
         self.objs.append(newObj)
         return newObj
+    def processCidInit(self, currentLine):
+        pass
     def processStartTrailer(self):
         newObj = objectUtil.JObj('trailer')
         self.trailer = newObj
