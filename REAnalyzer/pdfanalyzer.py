@@ -42,7 +42,8 @@ class PdfAnalyzer:
         for objId in  self.treeDoc.objectMap:
             obj = objectMap.get(objId)
             if(hasattr(obj, "textContent") and obj.textContent == True):
-                pdfUtil.processTextline(obj.unfilteredStream, obj, self.treeDoc.toUnicode)
+                pdfUtil.processTextlineArray(obj.unfilteredStream, obj, self.treeDoc.toUnicode)
+                pdfUtil.processTextlineGroup(obj.unfilteredStream, obj, self.treeDoc.toUnicode)
             else:
                 continue
 

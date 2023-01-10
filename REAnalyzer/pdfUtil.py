@@ -75,14 +75,13 @@ def bruteForceMapper(newObj, obj, treeDoc, rawDoc):
         bruteForceObjectMapper(obj, rawDoc, treeDoc, newObj)
 
        
-def processTextline(textLine, textObj, uniObj):
+def processTextlineArray(textLine, textObj, uniObj):
     #CID line will contain a mix of meta object data and CID script
     # for simplicity in initial release, code is only focusing base font char mappings (beginbfchar/endbfchar) and base font range mappings (beginbfrange/endbfrange)
 
     BEGINTEXTOBJECT = "BT"
     ENDTEXTOBJECT = "ET"
     TXTARRAY = "TJ"
-    TXTGROUP = "Tj"
     textObj.translatedContent = [] 
     workLine = textLine
 
@@ -108,6 +107,7 @@ def processTextline(textLine, textObj, uniObj):
                     if((tjArrIndex+len(TXTARRAY)) >= len(textObjWord)):    
                         break
                     textObjWord = workLine[tjEnd:etIndex] 
+                break
             if((etIndex + len(ENDTEXTOBJECT)) >= len(workLine)):
                 break
             else:
@@ -116,6 +116,48 @@ def processTextline(textLine, textObj, uniObj):
             break
 
     return None
+       
+def processTextlineGroup(textLine, textObj, uniObj):
+    #CID line will contain a mix of meta object data and CID script
+    # for simplicity in initial release, code is only focusing base font char mappings (beginbfchar/endbfchar) and base font range mappings (beginbfrange/endbfrange)
+
+    BEGINTEXTOBJECT = "BT"
+    ENDTEXTOBJECT = "ET"
+    TXTGROUP = "Tj"
+    workLine = textLine
+
+    while(True):
+        btIndex = workLine.find(BEGINTEXTOBJECT)
+        if( btIndex >= 0 ):
+            etIndex = workLine.find(ENDTEXTOBJECT)
+            textObjWord = workLine[btIndex + len(BEGINTEXTOBJECT):etIndex].strip()
+        
+            while(True):
+                tjArrIndex = textObjWord.find(TXTGROUP)
+                if( tjArrIndex >= 0):
+                    tjWord = textObjWord[0:tjArrIndex + len(TXTGROUP)].strip()
+                    tjStart = tjWord.rfind('<')
+                    tjEnd = tjWord.rfind('>')
+                    tjArrWord = re.findall("[A-Za-z0-9]{4}", tjWord[tjStart:tjEnd])
+                    translated = []
+                    if( tjArrWord != None and len(tjArrWord) > 0):
+                        for code in tjArrWord:
+                            translated.append(translateUnicode(uniObj, code))
+                        textObj.translatedContent.append("".join(translated))
+                    #check if any more data left in text object
+                    if((tjArrIndex+len(TXTGROUP)) >= len(textObjWord)):    
+                        break
+                    textObjWord = workLine[tjEnd:etIndex] 
+                break
+            if((etIndex + len(ENDTEXTOBJECT)) >= len(workLine)):
+                break
+            else:
+                workLine = workLine[etIndex + len(ENDTEXTOBJECT):len(workLine)]
+        else:
+            break
+
+    return None
+
 def translateUnicode(uniObj, code):
     if(uniObj == None):
         return None
@@ -127,7 +169,25 @@ def translateUnicode(uniObj, code):
             if(testm == code):
                 outChar = mapping.rearrangeFontCode.replace("<","").replace(">","")
                 return chr(int(outChar,16))
+    
+    rangeCode = searchBaseFontRange(uniObj, code)
+    if(rangeCode != code):
+        return rangeCode
+    return code
 
+def searchBaseFontRange(uniObj, code):
+    intCode = int(code,16)
+
+    if(uniObj.bfRangeObj != None and uniObj.bfRangeObj.charMapping != None and len(uniObj.bfRangeObj.charMapping) > 0):
+        charMapping = uniObj.bfRangeObj.charMapping
+        for mapping in charMapping:
+            baseRangeStart = int(mapping.baseRangeStart.replace("<","").replace(">",""),16)
+            baseRangeEnd = int(mapping.baseRangeEnd.replace("<","").replace(">",""),16)
+            if(intCode >= baseRangeStart and intCode <= baseRangeEnd):
+                outChar = mapping.rearrangeFontCode.replace("<","").replace(">","")
+                intChar = int(outChar,16)
+                intChar = intChar + (intCode - baseRangeStart )
+                return chr(intChar)
     return code
 
 def bruteForceObjectMapper(obj, rawDoc, treeDoc, newObj):
