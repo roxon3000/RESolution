@@ -14,7 +14,7 @@ function Detail(props) {
            <div className="container">
                <div className="row">
                    <div className="col">
-                       <h1>Select File: {file}</h1>
+                       <h1>Selected File: {file}</h1>
                    </div>
                </div>
                <div className="row">
