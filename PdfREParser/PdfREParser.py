@@ -9,7 +9,7 @@ from util import pdfparserconstants
 from util import docUtil
 from util import fileExtUtil
 from util import xrefUtil
-
+from util import cidUtil
 
 def main(arg1):
     #TODO: add support for Linearized PDF files
@@ -79,10 +79,10 @@ def main(arg1):
            and len(obj.unfilteredStream) > 0):
             myDoc.processObjectStreamLine(obj.unfilteredStream, int(obj.meta.First), int(obj.meta.N), obj.id)
 
-    #extract embedded files
+    #extract embedded files and process any CID objects and CID content streams
     for obj in myDoc.objs:
         fileExtUtil.extractEmbeddedFile(obj, inputFile)
-
+        cidUtil.processCID(obj, myDoc)
 
     with open(outputFile, 'w', encoding="ascii", errors="surrogateescape") as fw:
        

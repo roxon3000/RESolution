@@ -4,7 +4,7 @@ import '../css/template.css';
 function Template(props) {
 
     return (
-        <div className="container">
+        <div className="container, template">
             <div className="row rounded banner">
                 <div className="col-lg">
                     <h1>RE Viewer UI</h1>
