@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@blueprintjs/core": "^4.13.0",
+    "@blueprintjs/core": "^4.14.1",
     "@blueprintjs/docs-theme": "^4.4.20",
     "@blueprintjs/popover2": "^1.10.2",
     "@testing-library/jest-dom": "^5.16.5",
@@ -16,7 +16,7 @@
     "react-redux": "^8.0.5",
     "react-router": "6.5.0",
     "react-router-dom": "6.5.0",
-    "react-scripts": "5.0.1",
+    "react-scripts": "^5.0.1",
     "redux": "^4.2.0",
     "redux-thunk": "^2.4.2",
     "web-vitals": "^2.1.4"
