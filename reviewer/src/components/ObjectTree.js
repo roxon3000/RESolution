@@ -8,6 +8,14 @@ import ObjectDialog from './ObjectDialog'
 
 // example = https://github.com/palantir/blueprint/blob/develop/packages/docs-app/src/examples/core-examples/treeExample.tsx
 //
+function determineObjectType(obj) {
+
+    if (obj && obj.objectNumber && obj.generationNumber) {
+        return "PDF";
+    }
+
+    return "Unkown";
+}
 
 function ObjectTree(props) {
 
@@ -16,7 +24,8 @@ function ObjectTree(props) {
     let selectedNode = useSelector((state) => state.objecttree.selectedNode);
     let selectedRawObj = useSelector((state) => state.objecttree.selectedRawObj);
     let openDialog = useSelector((state) => state.objecttree.openDialog);
-
+    let objectType = determineObjectType(selectedRawObj);
+    let selectedLabel = (selectedNode) ? selectedNode.label : null;
     let loading = useSelector(
         (state) => state.objecttree.loading
     );
@@ -125,7 +134,13 @@ function ObjectTree(props) {
                     </div>
                 }
             </div>
-            <ObjectDialog isOpen={openDialog} onClose={handleDialogClose}></ObjectDialog>
+            <ObjectDialog
+                isOpen={openDialog}
+                onClose={handleDialogClose}
+                selectedObject={selectedRawObj}
+                objectType={objectType}
+                label={selectedLabel}
+            />
         </div>
 
 

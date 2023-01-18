@@ -14,6 +14,9 @@
     text-align: center
 }
 
+.object-drawer {
+    overflow-y: scroll;
+}
 
 .btn-primary {
     background-color: #383E47 !important;

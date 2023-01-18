@@ -1,17 +1,27 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Button, Dialog, DialogBody, DialogFooter } from "@blueprintjs/core"
-
-// example = https://github.com/palantir/blueprint/blob/develop/packages/docs-app/src/examples/core-examples/treeExample.tsx
-//
+import { Button, Drawer, DrawerSize } from "@blueprintjs/core"
 
 function ObjectDialog(props) {
 
     const dispatch = useDispatch();
-    let matchedRules = useSelector((state) => state.summary.results.matchedRules);
+    //let matchedRules = useSelector((state) => state.summary.results.matchedRules);
     let openDialog = props.isOpen;
     let handleClose = props.onClose;
+    let objectType = props.objectType;
+    let selectedObject = props.selectedObject;
+    let label = props.label;
+    const title = (label) ? label : "No Label";
 
+    const rawEntries = (selectedObject == null) ? [] : Object.entries(selectedObject).filter(entry => !Array.isArray(entry[1]));
+    const rawListItems = (selectedObject == null) ? null : rawEntries.map((attr) =>
+        (attr[0] == "raw" || attr[0] == "stream" || attr[0] == "unfilteredStream") ? "" :
+        <tr>
+            <td>{attr[0]}</td>
+            <td>{String(attr[1])}</td>
+        </tr>
+    );  
+    //const title = (objectType) ? objectType : "Test";
     //let selectedNode = useSelector((state) => state.objecttree.selectedNode);
     //let selectedRawObj = useSelector((state) => state.objecttree.selectedRawObj);
 
@@ -25,11 +35,6 @@ function ObjectDialog(props) {
         </>
     );
 
-    //const rawEntries = (selectedRawObj == null) ? [] : Object.entries(selectedRawObj).filter(entry => !Array.isArray(entry[1]));
-    //const rawListItems = (selectedRawObj == null) ? null : rawEntries.map((attr) =>
-    //    <li key={attr[0]}>{attr[0]} : {String(attr[1])}
-    //    </li>
-    //);
 
     useEffect(
 
@@ -43,22 +48,34 @@ function ObjectDialog(props) {
 
     return (
 
-        <div className="container">
-            <div className="row">
-                <div className="col-lg">
-                    <Dialog title="Put Object ID info here" isOpen={openDialog} onClose={handleClose} icon="info-sign">
-                        <DialogBody>
-                            Dynamic Object Data goes here
-                        </DialogBody>                        
-                        <DialogFooter actions={footerActions}></DialogFooter>
-                    </Dialog>
+        <Drawer title={title} isOpen={openDialog} onClose={handleClose} icon="folder-open" size={DrawerSize.LARGE }>
+            <div className="container, object-drawer">
+                <div className="row">
+                    <div className="col">
+                        <table>
+                            <tbody>
+                                {
+                                    true && rawListItems
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="col">
+                        Raw Meta Data: <pre class="bp4-code-block"><code> {selectedObject && selectedObject.raw} </code></pre>
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="col">
+                        Raw Data Stream (Base64): <pre class="bp4-code-block"><code> {selectedObject && selectedObject.stream} </code></pre>
+                    </div>
                 </div>
             </div>
-        </div>
-
-
-
-
+            {
+                true && footerActions
+            }
+        </Drawer>
     );
 }
 
