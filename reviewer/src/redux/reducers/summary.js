@@ -1,6 +1,6 @@
 import * as React from "react";
 import {
-    GET_SUMMARY_FAILURE, GET_SUMMARY_SUCCESS, GET_SUMMARY_INITIAL
+    GET_SUMMARY_FAILURE, GET_SUMMARY_SUCCESS, GET_SUMMARY_INITIAL, GET_PDF_RULES_SUCCESS
 } from "../actionTypes";
 import cloneDeep from "lodash/cloneDeep"; 
 
@@ -18,7 +18,8 @@ function listitize(data) {
     let newList = {
         id: data.id,
         matchCount: data.matchCount,
-        matchedRules: []
+        matchedRules: [],
+        rules: []
         }
     for (let key in data) {
         switch (key) {
@@ -51,6 +52,14 @@ export default function (state = INITIAL_STATE, action) {
                 results: listitize(serviceData),
                 loading: false
             };
+        case GET_PDF_RULES_SUCCESS: {
+            const serviceData = action.payload;
+            return {
+                ...state,
+                rules: serviceData.rules,
+                loading: false
+            };
+        }
         default:
             return state;
     }

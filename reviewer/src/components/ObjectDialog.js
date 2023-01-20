@@ -17,7 +17,7 @@ function ObjectDialog(props) {
     const rawListItems = (selectedObject == null) ? null : rawEntries.map((attr) =>
         (attr[0] == "raw" || attr[0] == "stream" || attr[0] == "unfilteredStream") ? "" :
         <tr>
-            <td>{attr[0]}</td>
+                <td><strong>{attr[0]}:</strong></td>
             <td>{String(attr[1])}</td>
         </tr>
     );  
@@ -63,12 +63,17 @@ function ObjectDialog(props) {
                 </div>
                 <div className="row">
                     <div className="col">
-                        Raw Meta Data: <pre class="bp4-code-block"><code> {selectedObject && selectedObject.raw} </code></pre>
+                        <strong>Raw Meta Data:</strong> <pre class="bp4-code-block"><code> {selectedObject && selectedObject.raw} </code></pre>
                     </div>
                 </div>
                 <div className="row">
                     <div className="col">
-                        Raw Data Stream (Base64): <pre class="bp4-code-block"><code> {selectedObject && selectedObject.stream} </code></pre>
+                        <strong>Raw Data Stream (Base64):</strong> <pre class="bp4-code-block"><code> {selectedObject && selectedObject.stream} </code></pre>
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="col">
+                        <strong>Decoded Data Stream:</strong> <pre class="bp4-code-block"><code> {selectedObject && selectedObject.unfilteredStream} </code></pre>
                     </div>
                 </div>
             </div>

@@ -433,7 +433,6 @@ class JDoc:
         #parse id/offset pairs
         #Not all objects will be meta objects. some may be plain content, or reference lists, etc
         
-
         idOffsetPairs = unfilteredStreamLine[0:firstOffset]  # this should match firstOffset
         #remove any new lines
         idOffsetPairs = idOffsetPairs.replace('\n',' ')

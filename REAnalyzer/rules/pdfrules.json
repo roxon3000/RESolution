@@ -75,7 +75,7 @@
       "match": "strict"
     },
     {
-      "id": "30",
+      "id": "80",
       "ruleType": "AttributeExists",
       "ruleValue": "JavaScript",
       "description": "executable javascript",
@@ -84,7 +84,7 @@
       "match": "strict"
     },
     {
-      "id": "30",
+      "id": "90",
       "ruleType": "AttributeExists",
       "ruleValue": "AcroForm",
       "description": "contains script",
@@ -93,11 +93,20 @@
       "match": "strict"
     },
     {
-      "id": "30",
+      "id": "100",
       "ruleType": "AttributeExists",
       "ruleValue": "XFA",
       "description": "contains script",
       "category": "script",
+      "priority": 1,
+      "match": "strict"
+    },
+    {
+      "id": "110",
+      "ruleType": "AttributeExists",
+      "ruleValue": "Encrypt",
+      "description": "object streams are encrypted",
+      "category": "obfuscation",
       "priority": 1,
       "match": "strict"
     }

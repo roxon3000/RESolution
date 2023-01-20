@@ -54,6 +54,9 @@ function findRawObj(refId, raw) {
 }
 
 function generateObjectBranch(node, rawObj) {
+    if (rawObj == null) {
+        return;
+    }
 
     let trailer = {
         id: rawObj.id,
@@ -77,7 +80,7 @@ function generateObjectBranch(node, rawObj) {
         let propObj = rawObj[key];
         let propNode = null;
         //if rawObj is a JSON Ref, then add ref to node for lazy loading in UI component
-        if (typeof propObj === "object" && propObj.hasOwnProperty("$ref")) {
+        if (propObj != null && typeof propObj === "object" && propObj.hasOwnProperty("$ref")) {
             let label = key + " #" + propObj.id;
             propNode = newNode(rawObj.id + key, true, 'circle', label, false);
             propNode.ref = propObj["id"];

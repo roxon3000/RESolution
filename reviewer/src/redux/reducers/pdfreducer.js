@@ -1,15 +1,10 @@
 import {
-    GET_TRENDS_INITIAL, GET_TRENDS_SUCCESS,
-    GET_PTRENDS_INITIAL, GET_PTRENDS_SUCCESS,
-    GET_HOME_INITIAL, GET_HOME_SUCCESS, GET_DPHRASE_SUCCESS
+    GET_HOME_INITIAL, GET_HOME_SUCCESS, GET_PDF_RULES_SUCCESS
 } from "../actionTypes";
 
 const initialState = {
-    pdfreducer: {
-        files: {}
-    },
-    loading: false,
-    charts: []
+    files: [],
+    loading: false
 };
 
 export default function (state = initialState, action) {

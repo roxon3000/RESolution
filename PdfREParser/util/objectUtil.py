@@ -3,6 +3,7 @@ from cmath import isnan
 import pdfparserconstants
 import zlib
 import base64
+import png
 
 class JObj:
     def __init__(meo, id):
@@ -187,11 +188,12 @@ class JObj:
         metaObj = self.meta
         encoding = "none"
         uBuffer = None
-        decodeBuffer = buffer 
+        decodeBuffer = buffer.strip(b'\r\n') 
         skipBruteForce = False 
 
         if(hasattr(self,"fastForward") and self.fastForward == True):
             x=1 
+        
         if(hasattr(metaObj, "Filter") and metaObj.Filter == "FlateDecode"):
             
             try:
@@ -213,6 +215,8 @@ class JObj:
             except Exception as inst:
                 print("Error occurred during decompression:  Obj ID " + self.id)
                 print(inst)
+                self.deflateFailed=True
+                
                 
         #TODO reorg code, probably to a switch statement
 
