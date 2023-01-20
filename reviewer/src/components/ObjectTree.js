@@ -4,9 +4,18 @@ import { connect, useDispatch, useSelector } from 'react-redux';
 import Template from './Template'
 import { Classes, Icon, Intent, Tree, TreeNodeInfo } from "@blueprintjs/core";
 import { useSearchParams } from "react-router-dom";
+import ObjectDialog from './ObjectDialog'
 
 // example = https://github.com/palantir/blueprint/blob/develop/packages/docs-app/src/examples/core-examples/treeExample.tsx
 //
+function determineObjectType(obj) {
+
+    if (obj && obj.objectNumber && obj.generationNumber) {
+        return "PDF";
+    }
+
+    return "Unkown";
+}
 
 function ObjectTree(props) {
 
@@ -14,7 +23,9 @@ function ObjectTree(props) {
     let nodes = useSelector((state) => state.objecttree.tree);
     let selectedNode = useSelector((state) => state.objecttree.selectedNode);
     let selectedRawObj = useSelector((state) => state.objecttree.selectedRawObj);
-
+    let openDialog = useSelector((state) => state.objecttree.openDialog);
+    let objectType = determineObjectType(selectedRawObj);
+    let selectedLabel = (selectedNode) ? selectedNode.label : null;
     let loading = useSelector(
         (state) => state.objecttree.loading
     );
@@ -41,11 +52,30 @@ function ObjectTree(props) {
 
     );
 
+    const handleDialogClose = () => {
+        dispatch({
+            payload: { dialogOpen: false },
+            type: "CLOSE_DIALOG"
+        });
+    };
+
+    const handleNodeDblClick = (node, nodePath, e) => {
+        //const originallySelected = node.isSelected;
+        //dispatch({
+        //    payload: { path: nodePath, isSelected: originallySelected == null ? true : !originallySelected },
+        //    type: "SET_IS_SELECTED"
+        //});
+        dispatch({
+            payload: { path: nodePath, dialogOpen: true },
+            type: "OPEN_IN_DIALOG"
+        });
+    };
+
     const handleNodeExpand = (node, nodePath) => {
 
         dispatch({
             payload: { path: nodePath, isExpanded: true },
-            type: "SET_IS_EXPANDED",
+            type: "SET_IS_EXPANDED"
         });
     }; 
 
@@ -57,14 +87,14 @@ function ObjectTree(props) {
         }
         dispatch({
             payload: { path: nodePath, isSelected: originallySelected == null ? true : !originallySelected },
-            type: "SET_IS_SELECTED",
+            type: "SET_IS_SELECTED"
         })
     };
 
     const handleNodeCollapse = (_node, nodePath) => {
         dispatch({
             payload: { path: nodePath, isExpanded: false },
-            type: "SET_IS_EXPANDED",
+            type: "SET_IS_EXPANDED"
         });
     };
     return (
@@ -82,6 +112,7 @@ function ObjectTree(props) {
                         onNodeClick={handleNodeClick}
                         onNodeCollapse={handleNodeCollapse}
                         onNodeExpand={handleNodeExpand}
+                        onNodeDoubleClick={handleNodeDblClick }
                         className={Classes.ELEVATION_0}
                     />
                 </div>
@@ -103,6 +134,13 @@ function ObjectTree(props) {
                     </div>
                 }
             </div>
+            <ObjectDialog
+                isOpen={openDialog}
+                onClose={handleDialogClose}
+                selectedObject={selectedRawObj}
+                objectType={objectType}
+                label={selectedLabel}
+            />
         </div>
 
 

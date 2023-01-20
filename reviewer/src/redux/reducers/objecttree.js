@@ -21,7 +21,8 @@ const INITIAL_STATE = {
         ],
     loading: true,
     raw: null,
-    selectedNode: null
+    selectedNode: null,
+    openDialog: false
 
 }
 
@@ -53,6 +54,9 @@ function findRawObj(refId, raw) {
 }
 
 function generateObjectBranch(node, rawObj) {
+    if (rawObj == null) {
+        return;
+    }
 
     let trailer = {
         id: rawObj.id,
@@ -76,7 +80,7 @@ function generateObjectBranch(node, rawObj) {
         let propObj = rawObj[key];
         let propNode = null;
         //if rawObj is a JSON Ref, then add ref to node for lazy loading in UI component
-        if (typeof propObj === "object" && propObj.hasOwnProperty("$ref")) {
+        if (propObj != null && typeof propObj === "object" && propObj.hasOwnProperty("$ref")) {
             let label = key + " #" + propObj.id;
             propNode = newNode(rawObj.id + key, true, 'circle', label, false);
             propNode.ref = propObj["id"];
@@ -181,6 +185,14 @@ function newNode(id, hasCaret, icon, label, isExpanded) {
 
 export default function (state = INITIAL_STATE, action) {
     switch (action.type) {
+        case "CLOSE_DIALOG":
+            const newState5 = cloneDeep(state);
+            newState5.openDialog = false;
+            return newState5;
+        case "OPEN_IN_DIALOG":
+            const newState4 = cloneDeep(state);
+            newState4.openDialog = true;
+            return newState4;
         case "DESELECT_ALL":
             const newState1 = cloneDeep(state);
             forEachNode(newState1.tree, node => (node.isSelected = false));

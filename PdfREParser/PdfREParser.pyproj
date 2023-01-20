@@ -12,7 +12,7 @@
     <RootNamespace>PdfREParser</RootNamespace>
     <IsWindowsApplication>False</IsWindowsApplication>
     <LaunchProvider>Standard Python launcher</LaunchProvider>
-    <CommandLineArguments>./examples/The-Art-of-Sales.pdf</CommandLineArguments>
+    <CommandLineArguments>./examples/govdoc.pdf</CommandLineArguments>
     <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
     <TestFramework>unittest</TestFramework>
     <UnitTestPattern>test*.py</UnitTestPattern>
@@ -48,6 +48,7 @@
     <Content Include="examples\form-example.pdf" />
     <Content Include="examples\form-example.pdf.bin.txt" />
     <Content Include="examples\form-example.pdf.json" />
+    <Content Include="examples\govdoc.pdf" />
     <Content Include="examples\IF107-guide.pdf" />
     <Content Include="examples\IF107-guide.pdf.bin.txt" />
     <Content Include="examples\IF107-guide.pdf.json" />

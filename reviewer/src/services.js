@@ -24,6 +24,7 @@ export function getHomeData(){
 					} 
 				}
 			);
+			
 	}
 }
 
@@ -51,19 +52,35 @@ export function getSummary(file) {
 	return (dispatch, getState) => {
 
 		dispatch(getSummaryInitial());
-
-		axios.get("/" + file + ".dat.json")
-			.then(
-				(response) => {
-					if (response['status'] === 200) {
+		axios.all(
+			[
+				axios.get("/" + file + ".dat.json"),
+				axios.get("/pdfrules.json")
+			]
+		).then(
+			axios.spread(
+				(summResponse, rulesResponse) => {
+					if (summResponse['status'] === 200) {
 						// Login the user using dispatch                
-						dispatch(getSummarySuccess(response.data));
+						dispatch(getSummarySuccess(summResponse.data));
 					} else {
 						// Send the error from API back
-						dispatch(getSummaryFailure(response));
+						dispatch(getSummaryFailure(summResponse));
+					}
+
+					if (rulesResponse['status'] === 200) {
+						// Login the user using dispatch                
+						dispatch(getPdfRulesSuccess(rulesResponse.data));
+					} else {
+						// Send the error from API back
+						dispatch(getPdfRulesFailure(rulesResponse));
 					}
 				}
-			);
+
+
+			)
+		);
+	
 	}
 }
 
