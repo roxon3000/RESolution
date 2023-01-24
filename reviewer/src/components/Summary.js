@@ -64,8 +64,9 @@ function Summary(props) {
                                     Rule ID
                                 </td>
                             </tr>
+                            {htmlRows}
                         </tbody>
-                    {htmlRows}
+                    
                     </table>
                 </div>
             </div>

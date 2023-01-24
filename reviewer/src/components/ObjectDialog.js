@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Button, Drawer, DrawerSize } from "@blueprintjs/core"
+import { Button, Drawer, DrawerSize } from "@blueprintjs/core";
 
 function ObjectDialog(props) {
 

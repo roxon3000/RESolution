@@ -185,6 +185,11 @@ function newNode(id, hasCaret, icon, label, isExpanded) {
 
 export default function (state = INITIAL_STATE, action) {
     switch (action.type) {
+        case "OPEN_IN_DIALOG_T":
+            const newState6 = cloneDeep(state);
+            newState6.openDialog = true;
+            newState6.selectedRawObj = findRawObj(action.payload.selecteRawObjId, newState6.raw);
+            return newState6;
         case "CLOSE_DIALOG":
             const newState5 = cloneDeep(state);
             newState5.openDialog = false;
