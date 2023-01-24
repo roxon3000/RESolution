@@ -6,7 +6,7 @@ from itertools import count
 import unicodedata
 
 OBJ_REF_REGEX = '([0-9]+ [0-9]+ R)'
-
+#OBJ_REF_REGEX = '(^|\s+)([0-9]+ [0-9]+ R)(^|\s+)'
 def trailerMapper(newObj, obj, treeDoc, rawDoc):
     items = None
     if(hasattr(obj, "_asdict")):
@@ -52,7 +52,9 @@ def genericListMapper(newList, rawList, treeDoc, rawDoc):
 
 def bruteForceMapper(newObj, obj, treeDoc, rawDoc):
     
-
+    #debug
+    if(hasattr(obj,"id") and obj.id == "162"):
+        x=1
 
     #check for list
     if(isinstance(obj, list)):
@@ -178,7 +180,10 @@ def translateUnicode(uniObj, code):
 def searchBaseFontRange(uniObj, code):
     intCode = int(code,16)
 
-    if(uniObj.bfRangeObj != None and uniObj.bfRangeObj.charMapping != None and len(uniObj.bfRangeObj.charMapping) > 0):
+    if(uniObj.bfRangeObj != None and 
+       hasattr(uniObj, "charMapping") and
+       uniObj.bfRangeObj.charMapping != None and 
+       len(uniObj.bfRangeObj.charMapping) > 0):
         charMapping = uniObj.bfRangeObj.charMapping
         for mapping in charMapping:
             baseRangeStart = int(mapping.baseRangeStart.replace("<","").replace(">",""),16)
@@ -211,7 +216,7 @@ def bruteForceObjectMapper(obj, rawDoc, treeDoc, newObj):
                     pass 
                 case "version":
                     newObj.generationNumber = val
-                case "K" | "Parent" | "raw" :
+                case "K" | "Parent" | "raw" | "unfilteredStream":
                     #K is causing problems with large lists.. currently banned. Parent and raw banned to prevent recursive loops
                     newObj.__setattr__(key, val)
                 case _:

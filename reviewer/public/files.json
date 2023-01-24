@@ -16,7 +16,7 @@
       "name": "link.pdf",
       "path": "/detail?file=link.pdf"
     },
-	  {
+    {
       "key": "4",
       "name": "govdoc.pdf",
       "path": "/detail?file=govdoc.pdf"
@@ -25,7 +25,13 @@
       "key": "5",
       "name": "flyer.pdf (BIG FILE)",
       "path": "/detail?file=flyer.pdf"
+    },
+    {
+      "key": "6",
+      "name": "inst.pdf",
+      "path": "/detail?file=inst.pdf"
     }
-  
+
+
   ]
 }

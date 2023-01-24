@@ -154,3 +154,8 @@ dmypy.json
 /REAnalyzer/output/simple-pdf.pdf.dat.json
 /REAnalyzer/output/link.pdf.obj.json
 /REAnalyzer/output/govdoc.pdf.dat.json
+/PdfREParser/examples/inst.pdf.json
+/PdfREParser/examples/inst.pdf.bin.txt
+/PdfREParser/examples/inst.pdf
+/REAnalyzer/output/inst.pdf.obj.json
+/REAnalyzer/output/inst.pdf.dat.json
