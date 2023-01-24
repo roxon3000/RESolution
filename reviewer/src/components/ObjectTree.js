@@ -20,15 +20,13 @@ function determineObjectType(obj) {
 function ObjectTree(props) {
 
     const dispatch = useDispatch();
-    let nodes = useSelector((state) => state.objecttree.tree);
-    let selectedNode = useSelector((state) => state.objecttree.selectedNode);
-    let selectedRawObj = useSelector((state) => state.objecttree.selectedRawObj);
-    let openDialog = useSelector((state) => state.objecttree.openDialog);
+    let nodes = props.nodes;
+    let selectedNode = props.selectedNode;
+    let selectedRawObj = props.selectedRawObj;
+    let openDialog = props.openDialog;
     let objectType = determineObjectType(selectedRawObj);
     let selectedLabel = (selectedNode) ? selectedNode.label : null;
-    let loading = useSelector(
-        (state) => state.objecttree.loading
-    );
+
     let [searchParams, setSearchParams] = useSearchParams();
     let file = searchParams.get('file');
     const entries = (selectedNode == null) ? [] : Object.entries(selectedNode).filter(entry => !Array.isArray(entry[1]));
@@ -41,16 +39,6 @@ function ObjectTree(props) {
         <li key={attr[0]}>{attr[0]} : {String(attr[1])}
         </li>
     );   
-
-    useEffect(
-
-        () => {
-            if (loading) {
-                dispatch(getObjectTree(file));
-            }
-        }
-
-    );
 
     const handleDialogClose = () => {
         dispatch({
@@ -148,5 +136,5 @@ function ObjectTree(props) {
 
     );
 }
-
+export { determineObjectType };
 export default ObjectTree;
