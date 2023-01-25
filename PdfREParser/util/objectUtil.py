@@ -3,7 +3,6 @@ from cmath import isnan
 import pdfparserconstants
 import zlib
 import base64
-import png
 
 class JObj:
     def __init__(meo, id):
