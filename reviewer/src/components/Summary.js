@@ -30,7 +30,7 @@ function Summary(props) {
 
     let htmlRows = (matchedRules == null) ? null : matchedRules.map((attr) =>
         <tr key="{attr.id}">
-            <td>{attr.objectRefId} <Button onClick={(e) => handleClick(e)} value={attr.objectRefId} >OBJ {attr.objectRefId}</Button> </td>
+            <td><Button onClick={(e) => handleClick(e)} value={attr.objectRefId} >OBJ {attr.objectRefId}</Button> </td>
             <td><RuleDisplay rules={rules} ruleId={attr.ruleRefId} /></td>
         </tr>
     );
