@@ -15,10 +15,10 @@ function Template(props) {
                     <a href="/" className="btn btn-primary">Home</a>
                 </div>
                 <div className="col-sm">
-                    <a href="/Detail" className="btn btn-primary">Detail</a>
+                    
                 </div>
                 <div className="col-sm">
-                    <a href="/exampletree" className="btn btn-primary">Example</a>
+                    
                 </div>
             </div>
             <div style={{ marginTop: "10px" }} ></div>

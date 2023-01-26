@@ -30,6 +30,11 @@
       "key": "6",
       "name": "inst.pdf",
       "path": "/detail?file=inst.pdf"
+    },
+    {
+      "key": "7",
+      "name": "report.pdf",
+      "path": "/detail?file=report.pdf"
     }
 
 

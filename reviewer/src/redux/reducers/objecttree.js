@@ -22,7 +22,8 @@ const INITIAL_STATE = {
     loading: true,
     raw: null,
     selectedNode: null,
-    openDialog: false
+    openDialog: false,
+    selectedTab: "sm"
 
 }
 
@@ -185,6 +186,10 @@ function newNode(id, hasCaret, icon, label, isExpanded) {
 
 export default function (state = INITIAL_STATE, action) {
     switch (action.type) {
+        case "CHANGE_TAB":
+            const newState7 = cloneDeep(state);
+            newState7.selectedTab = action.payload.selectedTab;
+            return newState7;
         case "OPEN_IN_DIALOG_T":
             const newState6 = cloneDeep(state);
             newState6.openDialog = true;

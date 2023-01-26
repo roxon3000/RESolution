@@ -8,8 +8,8 @@ function ObjectTable(props) {
 
     const dispatch = useDispatch();
     let objs = props.objs;
-    let selectedRawObj = useSelector((state) => state.objecttree.selectedRawObj);
-    let openDialog = useSelector((state) => state.objecttree.openDialog);
+    let selectedRawObj = props.selectedRawObj;
+    let openDialog = props.openDialog;
     let objectType = determineObjectType(selectedRawObj);
     let selectedLabel = (selectedRawObj) ? "OBJ " + selectedRawObj.objectNumber : null;
 

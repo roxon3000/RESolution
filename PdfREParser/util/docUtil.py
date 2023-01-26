@@ -37,8 +37,11 @@ class JDoc:
             case "obj":
                 #check to see if meta obj begin tag exists
                 bbCount = currentLine.count(pdfparserconstants.BB)
+                objEndCount = currentLine.count(pdfparserconstants.ENDOBJ)
                 if(bbCount > 0):
                     hint = pdfparserconstants.OBJ_META
+                elif(objEndCount > 0):
+                    hint = pdfparserconstants.ENDOBJ
                 else:
                     hint = pdfparserconstants.CONTENT
                     authoritative = True
@@ -89,7 +92,7 @@ class JDoc:
     #OBJ START RULES
         #if current line contains "obj" but not "endobj", meaning it is the start of the obj section.
         #look for obj on current line
-        objSearch = re.search('([0-9]+ [0-9]+ obj )', currentLine)
+        objSearch = re.search('([0-9]+ [0-9]+ obj)', currentLine)
         objIndex = currentLine.find(pdfparserconstants.OBJ)
         #look for endobj on current line
         endobjIndex = currentLine.find(pdfparserconstants.ENDOBJ)
@@ -512,6 +515,10 @@ class JDoc:
                 case "obj":
                     rlState.lastObj = rlState.currentObj
                     rlState.currentObj = self.processStartObjLine(currentLine)
+                    #pdf file may not enforce new line after obj start. need to check add a line to crLines if there is more data to process.
+                    objIndex = currentLine.find(pdfparserconstants.OBJ)
+                    if((objIndex+len(pdfparserconstants.OBJ)) < len(currentLine)):
+                        crLines.append(currentLine[objIndex+len(pdfparserconstants.OBJ):len(currentLine)].lstrip())
                 case "endobj":
                     if(rlState.lastLineType == pdfparserconstants.CONTENT):
                         rlState.currentObj.content = rlState.lastLine

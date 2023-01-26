@@ -159,3 +159,12 @@ dmypy.json
 /PdfREParser/examples/inst.pdf
 /REAnalyzer/output/inst.pdf.obj.json
 /REAnalyzer/output/inst.pdf.dat.json
+/.vs/RESolution/FileContentIndex
+/.vs/RESolution/v17/.wsuo
+/.vs/slnx.sqlite
+/.vs/RESolution/v17/.suo
+/REAnalyzer/output/report.pdf.obj.json
+/REAnalyzer/output/report.pdf.dat.json
+/PdfREParser/examples/report.pdf.json
+/PdfREParser/examples/report.pdf.bin.txt
+/PdfREParser/examples/report.pdf
