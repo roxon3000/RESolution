@@ -39,6 +39,8 @@
     <Folder Include="rules\" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="output\inst.pdf.dat.json" />
+    <Content Include="output\inst.pdf.obj.json" />
     <Content Include="output\link.pdf.obj.json" />
     <Content Include="output\simple-pdf.pdf.obj.json" />
     <Content Include="output\The-Art-of-Sales.pdf.obj.json" />

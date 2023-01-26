@@ -40,7 +40,11 @@ function Detail(props) {
                </div>
                <div className="row">
                    <div className="col">
-                       <Summary></Summary>
+                        <Summary
+                            objs={objs}
+                            selectedRawObj={selectedRawObj}
+                            openDialog={openDialog}
+                        />
                    </div>
                </div>
                <div className="row">

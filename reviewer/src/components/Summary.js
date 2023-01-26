@@ -3,6 +3,9 @@ import { getSummary } from '../services';
 import { useDispatch, useSelector } from 'react-redux';
 import { useSearchParams } from "react-router-dom";
 import RuleDisplay from './RuleDisplay';
+import ObjectDialog from './ObjectDialog';
+import { determineObjectType } from './ObjectTree';
+import { Button } from "@blueprintjs/core";
 
 // example = https://github.com/palantir/blueprint/blob/develop/packages/docs-app/src/examples/core-examples/treeExample.tsx
 //
@@ -12,8 +15,12 @@ function Summary(props) {
     const dispatch = useDispatch();
     let matchedRules = useSelector((state) => state.summary.results.matchedRules);
     let rules = useSelector((state) => state.summary.rules);
-    //let selectedNode = useSelector((state) => state.objecttree.selectedNode);
-    //let selectedRawObj = useSelector((state) => state.objecttree.selectedRawObj);
+
+    let objs = props.objs;
+    let selectedRawObj = useSelector((state) => state.objecttree.selectedRawObj);
+    let openDialog = useSelector((state) => state.objecttree.openDialog);
+    let objectType = determineObjectType(selectedRawObj);
+    let selectedLabel = (selectedRawObj) ? "OBJ " + selectedRawObj.objectNumber : null;
 
     let loading = useSelector(
         (state) => state.summary.loading
@@ -23,17 +30,24 @@ function Summary(props) {
 
     let htmlRows = (matchedRules == null) ? null : matchedRules.map((attr) =>
         <tr key="{attr.id}">
-            <td>{attr.objectRefId}</td>
+            <td>{attr.objectRefId} <Button onClick={(e) => handleClick(e)} value={attr.objectRefId} >OBJ {attr.objectRefId}</Button> </td>
             <td><RuleDisplay rules={rules} ruleId={attr.ruleRefId} /></td>
         </tr>
     );
 
-    //const rawEntries = (selectedRawObj == null) ? [] : Object.entries(selectedRawObj).filter(entry => !Array.isArray(entry[1]));
-    //const rawListItems = (selectedRawObj == null) ? null : rawEntries.map((attr) =>
-    //    <li key={attr[0]}>{attr[0]} : {String(attr[1])}
-    //    </li>
-    //);
+    const handleDialogClose = () => {
+        dispatch({
+            payload: { dialogOpen: false },
+            type: "CLOSE_DIALOG"
+        });
+    };
 
+    const handleClick = (e) => {
+        dispatch({
+            payload: { selecteRawObjId: e.currentTarget.value, dialogOpen: true },
+            type: "OPEN_IN_DIALOG_T"
+        });
+    };
     useEffect(
 
         () => {
@@ -70,7 +84,14 @@ function Summary(props) {
                     </table>
                 </div>
             </div>
-            </div>
+            <ObjectDialog
+                isOpen={openDialog}
+                onClose={handleDialogClose}
+                selectedObject={selectedRawObj}
+                objectType={objectType}
+                label={selectedLabel}
+            />
+        </div>
 
 
 
