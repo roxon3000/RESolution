@@ -7,7 +7,7 @@ import unicodedata
 
 OBJ_REF_REGEX = '([0-9]+ [0-9]+ R)'
 #OBJ_REF_REGEX = '(^|\s+)([0-9]+ [0-9]+ R)(^|\s+)'
-def trailerMapper(newObj, obj, treeDoc, rawDoc):
+def trailerMapper(newObj, obj, treeDoc, rawDoc, stackLimit):
     items = None
     if(hasattr(obj, "_asdict")):
         items = obj._asdict().items()
@@ -19,10 +19,10 @@ def trailerMapper(newObj, obj, treeDoc, rawDoc):
 
             match key:
                 case "Info" :
-                    if(genericObjRefHandler(key, val, rawDoc, treeDoc, newObj, bruteForceMapper) == False):
+                    if(genericObjRefHandler(key, val, rawDoc, treeDoc, newObj, bruteForceMapper, stackLimit) == False):
                         newObj.__setattr__(key, join(" " , obj._asdict().get(key)))
                 case "Root" :
-                    if(genericObjRefHandler(key, val, rawDoc, treeDoc, newObj, bruteForceMapper) == False):
+                    if(genericObjRefHandler(key, val, rawDoc, treeDoc, newObj, bruteForceMapper, stackLimit) == False):
                         newObj.__setattr__(key, join(" " , obj._asdict().get(key)))
                 case "id" | "version":
                     pass 
@@ -45,36 +45,50 @@ def genericListMapper(newList, rawList, treeDoc, rawDoc):
 
     for objr in rawList:
          genericObjRefHandlerForListItem(objr, rawDoc, treeDoc, newList, bruteForceMapper)
-         #if( genericObjRefHandler(key, val, rawDoc, treeDoc, newObj, bruteForceMapper) == False):
-         #   newObj.__setattr__(key, val)
-         #newObj.update(objr, bruteForceMapper, treeDoc, rawDoc)
-         #newList.append(newObj)
 
-def bruteForceMapper(newObj, obj, treeDoc, rawDoc):
+def stack_size3a(size=2):
+    """Get stack size for caller's frame.
+    """
+    frame = sys._getframe(size)
+    try:
+        for size in count(size, 8):
+            frame = frame.f_back.f_back.f_back.f_back.\
+                f_back.f_back.f_back.f_back
+    except AttributeError:
+        while frame:
+            frame = frame.f_back
+            size += 1
+        return size - 1
+
+def bruteForceMapper(newObj, obj, treeDoc, rawDoc, stackLimit):
     
-    #debug
-    if(hasattr(obj,"id") and obj.id == "162"):
-        x=1
+    stackSize = stack_size3a()
+    #print("stack size=" + str(stackSize))
+    print(len(treeDoc.objectMap))
+    if(stackSize > stackLimit):
+        return
+
 
     #check for list
     if(isinstance(obj, list)):
-        print("bruteForceMapper List Count" + str(len(obj)))
+        #print("bruteForceMapper List Count" + str(len(obj)))
         genericListMapper(newObj, obj, treeDoc, rawDoc)
     else:
         poolObj = treeDoc.objectMap.get(obj.id)
         if(poolObj != None):
             if(hasattr(poolObj, "mapped") and poolObj.mapped == True):
-                #return
-                pass
+                print("passing on object : " + poolObj.objectNumber)
+                newObj = poolObj
+                return
             else:
                 poolObj.mapped = True
 
         #check for meta (flatten)
-        print("bruteForceMapper obj.id=" + obj.id)
+        #print("bruteForceMapper obj.id=" + obj.id)
         if(hasattr(obj, "meta") and hasattr(obj.meta, "_asdict")):
-            bruteForceObjectMapper(obj.meta, rawDoc, treeDoc, newObj)
+            bruteForceObjectMapper(obj.meta, rawDoc, treeDoc, newObj, stackLimit)
     
-        bruteForceObjectMapper(obj, rawDoc, treeDoc, newObj)
+        bruteForceObjectMapper(obj, rawDoc, treeDoc, newObj, stackLimit)
 
        
 def processTextlineArray(textLine, textObj, uniObj):
@@ -195,7 +209,7 @@ def searchBaseFontRange(uniObj, code):
                 return chr(intChar)
     return code
 
-def bruteForceObjectMapper(obj, rawDoc, treeDoc, newObj):
+def bruteForceObjectMapper(obj, rawDoc, treeDoc, newObj, stackLimit):
     items = None
     if(hasattr(obj, "_asdict")):
         items = obj._asdict().items()
@@ -227,12 +241,12 @@ def bruteForceObjectMapper(obj, rawDoc, treeDoc, newObj):
                         newObj.__setattr__(key, subObj)
                     elif(isinstance(val, list) and len(val) > 0 and hasattr(val[0], '_fields')):
                         newObj.__setattr__(key, [])
-                        bruteForceMapper(newObj.getAttr(key), val, treeDoc, rawDoc)
+                        bruteForceMapper(newObj.getAttr(key), val, treeDoc, rawDoc, stackLimit)
                     else:
-                        if( genericObjRefHandler(key, val, rawDoc, treeDoc, newObj, bruteForceMapper) == False):
+                        if( genericObjRefHandler(key, val, rawDoc, treeDoc, newObj, bruteForceMapper, stackLimit) == False):
                             newObj.__setattr__(key, val)
 
-    print("bruteForceObjectMapper obj.id=" + obj.id)
+    #print("bruteForceObjectMapper obj.id=" + obj.id)
     
 
 def genericObjectMapper(obj, rawDoc, treeDoc, newObj):
@@ -308,7 +322,7 @@ def rootMapper(newObj, obj, treeDoc, rawDoc):
 def addToObjectMap(treeDoc, obj):
     treeDoc.objectMap[obj.objectNumber] = obj
 
-def genericObjRefHandler(key, val, rawDoc, treeDoc, newObj, mapper):
+def genericObjRefHandler(key, val, rawDoc, treeDoc, newObj, mapper, stackLimit):
 
     objt = parseObjDef(val)
     if(objt != None):
@@ -329,7 +343,7 @@ def genericObjRefHandler(key, val, rawDoc, treeDoc, newObj, mapper):
                 childObj.update(objr, mapper, treeDoc, rawDoc)
             else:
                 newObj.__setattr__(key, [])
-                mapper(newObj.getAttr(key), objr, treeDoc, rawDoc)
+                mapper(newObj.getAttr(key), objr, treeDoc, rawDoc, stackLimit)
             return True
         else:
             newObj.__setattr__(key, key + " object was not found")

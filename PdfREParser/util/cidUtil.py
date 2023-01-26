@@ -40,7 +40,7 @@ def processCIDline(cidLine, bfCharObj, bfRangeObj):
         print(charList)
         if(bfCharObj != None):
             bfCharObj.charMapping = [] 
-            mapObj = objectUtil.JObj(str(0))
+            mapObj = objectUtil.JObj('cid' + str(0))
             for i in range(0, len(charList)):
 
                 if( i % 2 == 0):
@@ -48,7 +48,7 @@ def processCIDline(cidLine, bfCharObj, bfRangeObj):
                 else:
                     mapObj.rearrangeFontCode = charList[i]
                     bfCharObj.charMapping.append(mapObj)
-                    mapObj = objectUtil.JObj(str(i))
+                    mapObj = objectUtil.JObj('cid' + str(i))
     if( brangeIndex >= 0):
         erangeIndex = cidLine.find(ENDBFRANGE)
         bfRangeWord = cidLine[brangeIndex + len(BEGINBFRANGE):erangeIndex].strip()
@@ -56,7 +56,7 @@ def processCIDline(cidLine, bfCharObj, bfRangeObj):
         print(charList)
         if(bfRangeObj != None):
             bfRangeObj.charMapping = [] 
-            mapObj = objectUtil.JObj(str(0))
+            mapObj = objectUtil.JObj('cid' + str(0))
             skipNext = False
             for i in range(0, len(charList)):
                 if(skipNext):
@@ -69,7 +69,7 @@ def processCIDline(cidLine, bfCharObj, bfRangeObj):
                 else:
                     mapObj.rearrangeFontCode = charList[i]
                     bfRangeObj.charMapping.append(mapObj)
-                    mapObj = objectUtil.JObj(str(i))                
+                    mapObj = objectUtil.JObj('cid' + str(i))                
 
     return None
 
