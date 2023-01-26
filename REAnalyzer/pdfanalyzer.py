@@ -33,7 +33,7 @@ class PdfAnalyzer:
                     newObj.objectNumber = obj.id
                     newObj.generationNumber = obj.version       
                     newObj.orphan = True
-                    newObj.update(obj, pdfUtil.bruteForceMapper, self.treeDoc, self.rawDoc)
+                    newObj.update(obj, pdfUtil.bruteForceMapper, self.treeDoc, self.rawDoc, 20)
                     if(self.treeDoc.objectMap.get(obj.id) == None):
                         pdfUtil.addToObjectMap(self.treeDoc, newObj)
 
@@ -70,7 +70,7 @@ class PdfAnalyzer:
         treeTrailer.objectNumber = 'trailer'
         treeTrailer.generationNumber = '0'
         treeDoc.treeTrailer = treeTrailer
-        treeTrailer.update(trailer, pdfUtil.trailerMapper, treeDoc, rawDoc)
+        treeTrailer.update(trailer, pdfUtil.trailerMapper, treeDoc, rawDoc, 500)
     
     def executeRules(self):
         #made decision to no run rules during heirarchy or orphan processing in order to simplify rules processing.  Decision will have a minor impact on performance.

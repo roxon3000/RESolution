@@ -188,6 +188,7 @@ class JDoc:
 
     def parseMetaObject(self, metaLine, sanityCheck, metaList):
         
+        #debug
         if(metaLine.count('DescendantFonts') > 0):
             x = 1
 
@@ -299,7 +300,28 @@ class JDoc:
         #parse props
         if(propLine == "notset"):
             propLine = metaLine
-        #need fix - if sub prop was added, it needs to be removed from propline
+        
+        #remove Props with values wrapped Parens.  This data will contain unpredictable data that cannot be parsed consistently.
+        parenRE = "(\(.*?[^\\\)]\))"
+        openParenMatch = re.search(parenRE,propLine)
+        if(openParenMatch != None):
+            while(True):
+                #find property in reverse search
+                pspan = openParenMatch.span()
+                beginParen = pspan[0]
+                endParen = pspan[1]
+
+                lastPropMarker = propLine[0:beginParen].rfind('/')
+                parenProp = propLine[lastPropMarker:beginParen].replace('/','')
+                parenVal = propLine[beginParen+1:endParen-1]
+                b64parenVal = base64.b64encode(bytes(parenVal, encoding="utf-8", errors="surrogateescape")).decode(encoding="ascii", errors="strict")
+                parenPropVal = parenProp + ' ' + b64parenVal
+                propLine = propLine[0:lastPropMarker] + propLine[endParen: len(propLine)]
+                newMetaObj.mutate(parenPropVal)
+                openParenMatch = re.search(parenRE,propLine)
+                if(openParenMatch == None):
+                    break
+            
 
         subProps = propLine.split('/')
         propRuleInEffect = "none"
@@ -498,14 +520,14 @@ class JDoc:
         
         for line in crLines:
             #skip \n newlines
-            if(line == "\n"):
+            if(line == "\n" or line == ""):
                 continue
 
             currentLine = str(line)
             if(rlState.isContinuation):
                 currentLine = rlState.lastLine + currentLine
             #debug
-            if(currentLine.count("XObject") > 0):
+            if(currentLine.count("473 0 obj<</P 348 0 R/S/Chart/Pg 42") > 0):
                 x = 1
 
             lineType = self.determineLineType(currentLine, rlState)

@@ -168,3 +168,5 @@ dmypy.json
 /PdfREParser/examples/report.pdf.json
 /PdfREParser/examples/report.pdf.bin.txt
 /PdfREParser/examples/report.pdf
+/REAnalyzer/output/govdoc.pdf.obj.json
+/REAnalyzer/output/link.pdf.dat.json
