@@ -163,3 +163,8 @@ dmypy.json
 /.vs/RESolution/v17/.wsuo
 /.vs/slnx.sqlite
 /.vs/RESolution/v17/.suo
+/REAnalyzer/output/report.pdf.obj.json
+/REAnalyzer/output/report.pdf.dat.json
+/PdfREParser/examples/report.pdf.json
+/PdfREParser/examples/report.pdf.bin.txt
+/PdfREParser/examples/report.pdf

@@ -11,7 +11,7 @@
     <Name>REAnalyzer</Name>
     <RootNamespace>REAnalyzer</RootNamespace>
     <LaunchProvider>Standard Python launcher</LaunchProvider>
-    <CommandLineArguments>../PdfREParser/examples/inst.pdf.json</CommandLineArguments>
+    <CommandLineArguments>../PdfREParser/examples/report.pdf.json</CommandLineArguments>
     <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
     <IsWindowsApplication>False</IsWindowsApplication>
     <InterpreterId>MSBuild|env|$(MSBuildProjectFullPath)</InterpreterId>
@@ -42,7 +42,10 @@
     <Content Include="output\inst.pdf.dat.json" />
     <Content Include="output\inst.pdf.obj.json" />
     <Content Include="output\link.pdf.obj.json" />
+    <Content Include="output\report.pdf.dat.json" />
+    <Content Include="output\report.pdf.obj.json" />
     <Content Include="output\simple-pdf.pdf.obj.json" />
+    <Content Include="output\The-Art-of-Sales.pdf.dat.json" />
     <Content Include="output\The-Art-of-Sales.pdf.obj.json" />
     <Content Include="requirements.txt" />
     <Content Include="rules\pdfrules.json" />
