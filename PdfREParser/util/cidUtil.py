@@ -72,29 +72,3 @@ def processCIDline(cidLine, bfCharObj, bfRangeObj):
                     mapObj = objectUtil.JObj('cid' + str(i))                
 
     return None
-
-def processTextline(textLine, textObj):
-    #CID line will contain a mix of meta object data and CID script
-    # for simplicity in initial release, code is only focusing base font char mappings (beginbfchar/endbfchar) and base font range mappings (beginbfrange/endbfrange)
-
-    BEGINTEXTOBJECT = "BT"
-    ENDTEXTOBJECT = "ET"
-    TXTARRAY = "TJ"
-    TXTGROUP = "Tj"
-  
-    btIndex = textLine.find(BEGINTEXTOBJECT)
-    if( btIndex >= 0 ):
-        etIndex = textLine.find(ENDTEXTOBJECT)
-        textObjWord = textLine[btIndex + len(BEGINTEXTOBJECT):etIndex].strip()
-        tjArrIndex = textObjWord.find(TXTARRAY)
-        if( tjArrIndex >= 0):
-            tjWord = textObjWord[0:tjArrIndex + len(TXTARRAY)].strip()
-            tjStart = tjWord.rfind('[')
-            tjEnd = tjWord.rfind(']')
-            tjArrWord = re.findAll("(?<=<)[A-Za-z0-9]+(?=>)", tjWord[tjStart:tjEnd])
-            if( tjArrWord != None and len(tjArrWord) > 0):
-                textObj.textArray = tjArrWord
-
-                
-
-    return None

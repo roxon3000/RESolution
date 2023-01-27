@@ -31,6 +31,7 @@ def main(arg1):
 
     with open(inputFile, 'rb') as tr:
         testBuff = tr.read()
+        print("Processing XREF...")
         xrefUtil.findXrefStart(tr, myDoc)
 
 
@@ -46,6 +47,7 @@ def main(arg1):
         myDoc.fileMd5 = hashl.hexdigest()
 
 
+    print("Processing Objects and Raw Data Streams...")
     with open(inputFile,'rb' ) as f:
         streamPersist = None
         #N
@@ -72,7 +74,7 @@ def main(arg1):
 
 
     #post parse processing of JSON
-    
+    print("Processing objects contained in compressed data streams...")
     #Process compressed objects in ObjStm objects
     for obj in myDoc.objs:
         if(hasattr(obj, "deflateFailed") and obj.deflateFailed == True):
@@ -82,6 +84,7 @@ def main(arg1):
            and len(obj.unfilteredStream) > 0):
             myDoc.processObjectStreamLine(obj.unfilteredStream, int(obj.meta.First), int(obj.meta.N), obj.id)
 
+    print("Attempting to extract text content...")
     #extract embedded files and process any CID objects and CID content streams
     for obj in myDoc.objs:
         fileExtUtil.extractEmbeddedFile(obj, inputFile)

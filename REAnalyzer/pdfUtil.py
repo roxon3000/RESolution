@@ -195,7 +195,7 @@ def searchBaseFontRange(uniObj, code):
     intCode = int(code,16)
 
     if(uniObj.bfRangeObj != None and 
-       hasattr(uniObj, "charMapping") and
+       hasattr(uniObj.bfRangeObj, "charMapping") and
        uniObj.bfRangeObj.charMapping != None and 
        len(uniObj.bfRangeObj.charMapping) > 0):
         charMapping = uniObj.bfRangeObj.charMapping
