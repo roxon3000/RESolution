@@ -186,6 +186,16 @@ class JDoc:
         newWord = word[0:span[0]] + word[span[1]:len(word)]
         return newWord
 
+    def inMatchGroup(self, matchGroup, position):
+        for match in matchGroup:
+            #find property in reverse search
+            span = match.span()
+            begin = span[0]
+            end = span[1]
+            if(position > begin and position < end):
+                return True
+        return False
+
     def parseMetaObject(self, metaLine, sanityCheck, metaList):
         
         #debug
@@ -301,44 +311,63 @@ class JDoc:
         if(propLine == "notset"):
             propLine = metaLine
         
+        
+        #
         #remove Props with values wrapped Parens.  This data will contain unpredictable data that cannot be parsed consistently.
-        parenRE = "(\(.*?[^\\\)]\))"
-        openParenMatch = re.search(parenRE,propLine)
-        if(openParenMatch != None):
-            while(True):
-                #find property in reverse search
-                pspan = openParenMatch.span()
-                beginParen = pspan[0]
-                endParen = pspan[1]
 
-                lastPropMarker = propLine[0:beginParen].rfind('/')
-                parenProp = propLine[lastPropMarker:beginParen].replace('/','')
-                parenVal = propLine[beginParen+1:endParen-1]
-                b64parenVal = base64.b64encode(bytes(parenVal, encoding="utf-8", errors="surrogateescape")).decode(encoding="ascii", errors="strict")
-                parenPropVal = parenProp + ' ' + b64parenVal
-                propLine = propLine[0:lastPropMarker] + propLine[endParen: len(propLine)]
-                newMetaObj.mutate(parenPropVal)
-                openParenMatch = re.search(parenRE,propLine)
-                if(openParenMatch == None):
-                    break
-            
+        #good regex for capture bracket group: (\[.*?\])
+        parenRE = "(\(.*?[^\\\)]\))"
+        bracketRE = "(\[.*?\])"
+        bracketGroups = re.finditer(bracketRE, propLine)
+        parenGroups = re.finditer(parenRE, propLine)
+        parenPropLine = propLine
+        newPropLine = ""
+        prevEnd = -1
+        for openParenMatch in parenGroups:
+            print("in paren data search loop")
+
+            #find property in reverse search
+            pspan = openParenMatch.span()
+            beginParen = pspan[0]
+            endParen = pspan[1]
+            if(self.inMatchGroup(bracketGroups, beginParen)):
+                continue
+
+            lastPropMarker = parenPropLine[0:beginParen].rfind('/')
+            if(lastPropMarker < 0):
+                continue
+
+            parenProp = parenPropLine[lastPropMarker:beginParen].replace('/','')
+            parenVal = parenPropLine[beginParen+1:endParen-1]
+            b64parenVal = base64.b64encode(bytes(parenVal, encoding="utf-8", errors="surrogateescape")).decode(encoding="ascii", errors="strict")
+            parenPropVal = parenProp + ' ' + b64parenVal
+            #propLine = propLine[0:lastPropMarker] + propLine[endParen: len(propLine)]
+            newPropLine = newPropLine + propLine[prevEnd+1:beginParen-(len(parenProp)+1)]
+            prevEnd = endParen
+            newMetaObj.mutate(parenPropVal)
+        
+        if(prevEnd > 0):           
+            if(prevEnd < len(propLine)): 
+                newPropLine = newPropLine + propLine[prevEnd:len(propLine)]
+            propLine = newPropLine
 
         subProps = propLine.split('/')
         propRuleInEffect = "none"
         propBuilder = ""
         for prop in subProps:
             prop = prop.strip()
-            if(prop == pdfparserconstants.BB or prop == pdfparserconstants.FF or len(prop) == 0):
+            #ignore paren props already processed and other extraneous markers
+            if(prop == pdfparserconstants.BB or prop == pdfparserconstants.FF or len(prop) == 0 or hasattr(newMetaObj,prop)):
                 continue
 
             if(propRuleInEffect == "BuildRule"):
                 propRuleInEffect = "none"
                 prop = propBuilder + " " + prop
 
-            if(propRuleInEffect == "BuildRuleParen"):
-                prop = propBuilder + prop
-                if(prop.count(')') > 0):
-                    propRuleInEffect = "none"
+            #if(propRuleInEffect == "BuildRuleParen"):
+            #    prop = propBuilder + prop
+            #    if(prop.count(')') > 0):
+            #        propRuleInEffect = "none"
 
             if(propRuleInEffect == "BuildFromBracketedList"):
                 prop = propBuilder + " " + prop
@@ -357,25 +386,11 @@ class JDoc:
                 propRuleInEffect = "BuildRule"
                 propBuilder = prop
             
-            #common pattern where data is embedded inline
-            #TODO, improve this with an algorithm that isn't so hard coded
-            '''
-            if(   prop.count("U(") > 0
-               or prop.count("O(") > 0
-               or prop.count("CheckSum(") > 0
-               or prop.count("ModDate(") > 0
-               or prop.count("Name(") > 0
-               or prop.count("Date(") > 0
-               or prop.count("Lang(") > 0
-               or prop.count("Title(") > 0
-               or prop.count("ActualText(") > 0
-               or prop.count("CreationDate(") > 0):
-            '''
-            if( prop.count("(") ) > 0:
+            #if( prop.count("(") ) > 0:
                 #check for close paren to make sure this crap closes
-                if(prop.count(')') == 0):
-                    propRuleInEffect = "BuildRuleParen"
-                    propBuilder = prop
+            #    if(prop.count(')') == 0):
+            #        propRuleInEffect = "BuildRuleParen"
+            #        propBuilder = prop
 
                 #prop = prop.replace('(', ' ').replace(')', '')
 
@@ -491,10 +506,16 @@ class JDoc:
 
             shardCount = shardCount + 1
         
+        objRefCount = 0
         for objRef in objRefList:
+            objRefCount = objRefCount + 1
             objId = objRef.id
            
             metaLine = unfilteredStreamLine[objRef.start:objRef.end]
+            print("object stream length=" + str(len(metaLine)) + ", count=" + str(objRefCount))
+            if(len(metaLine) == 2398):
+                print(metaLine) 
+
             firstBBpos = metaLine.find(pdfparserconstants.BB)
             currentObj = objectUtil.JObj(objId)
             currentObj.version = '0'
@@ -527,7 +548,7 @@ class JDoc:
             if(rlState.isContinuation):
                 currentLine = rlState.lastLine + currentLine
             #debug
-            if(currentLine.count("473 0 obj<</P 348 0 R/S/Chart/Pg 42") > 0):
+            if(currentLine.count("8139 0 obj<</Keywords(c5") > 0):
                 x = 1
 
             lineType = self.determineLineType(currentLine, rlState)
