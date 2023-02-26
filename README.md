@@ -15,6 +15,13 @@ PdfREParser is a python project that reads a PDF file and converts it into JSON.
 8. Retrains original raw meta data and data streams for further analysis.
 9. Attempts to translate proprietary character tables using embedded Unicode font directives for text/string searches.  This functionality is still experimental.
 
+#### Run instructions
+PdfREParser.py is the primary controller of the project. The script takes one argument, which is the relative file path of the PDF file to be parsed.
+
+#### Test intructions
+Some unit tests are included in the /tests folder, but these need to be expanded upon.  VS Studio has issues with debuging python in test mode.  Many PDF examples that
+were used for initial testing are included in the /examples folder.
+
 ## REAnalyzer
 The purpose of the python based REAnalyzer is to take the tokenzied source artifacts and analyze them by running configurable rules against the JSON.  The project currently only 
 is designed to process PDF files, but any file format could be incorporated as long as it is feasible to be represented in JSON.
@@ -24,12 +31,27 @@ is designed to process PDF files, but any file format could be incorporated as l
 2. Uses recursive tree processing to parse object relationship and identifies orphan objects.
 3. Executes rules against input file, and generates a rules execution summary file.
 
+#### Run instructions
+analyzer.py is the main controller of REAnalyzer. The file should be an output of the Parser program like PdfREParser.  The JSOn file should indicate what type analyzer
+should be used for the input file. Currently only PDF is supported.
+
+#### Test instructions
+Unit tests need to be created for this project as they were not initially created during prototyping.  Output files from PdfREParser can be used for testing purposes.
 
 ## Reviewer
 Reviewer is a ReactJS web based application that gives the analyst a graphical user interface in order to inspect the rules execution summary from REAnalyzer.  In 
-addtion, the application can be used to further inspect the tokenized PDF (or other source) file. 
+addtion, the application can be used to further inspect the tokenized PDF (or other source) file. The current project uses nodejs to build and run the project on a local
+http server.  You must install NodeJS to run this project.
 
 ### Highlights
 1. Uses the Palantir open source web GUI component library blueprintjs.
 2. Provides three basic views:  rules excecution summary, object tree view, and object pool.
 3. Objects can be "drilled into" in order to browse and perform reverse engineering activities. 
+
+#### Run intsructions
+First install npm (npm install)
+From command line, npm run start.  Application will attempt to start at http://localhost:3000
+
+Output from REAnalyzer must copied into the /public folder.  The files.json file must edited to include copied files.  Copied files will included rules execution summary
+and object pool, all in JSON format. Existing examples are included in the files.json file.
+

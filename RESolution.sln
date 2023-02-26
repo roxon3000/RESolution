@@ -9,6 +9,11 @@ Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "REAnalyzer", "REAnalyzer\RE
 EndProject
 Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "reviewer", "reviewer\reviewer.esproj", "{3EAB0F9E-7D18-4C1C-8964-AD84EB562624}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{3B6413E2-F46C-44A1-9863-F81E57EAF6D3}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
