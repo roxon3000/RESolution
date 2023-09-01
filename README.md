@@ -48,7 +48,7 @@ http server.  You must install NodeJS to run this project.
 2. Provides three basic views:  rules excecution summary, object tree view, and object pool.
 3. Objects can be "drilled into" in order to browse and perform reverse engineering activities. 
 
-#### Run intsructions
+#### Run instructions
 First install npm (npm install)
 From command line, npm run start.  Application will attempt to start at http://localhost:3000
 
