@@ -3,9 +3,9 @@
 import base64
 import re
 from hashlib import md5
-import pdfparserconstants
-import objectUtil
-import xrefUtil 
+from . import pdfparserconstants
+from . import objectUtil
+from . import xrefUtil 
 
 class JDoc:
     """Jdoc class for handling json"""

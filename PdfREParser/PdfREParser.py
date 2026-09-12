@@ -1,7 +1,7 @@
 
 import json
 import sys
-
+import os
 
 from hashlib import md5
 #from util import *
@@ -14,13 +14,20 @@ from util import cidUtil
 def main(arg1):
     #TODO: add support for Linearized PDF files
     #TODO: improve stream output handling. Streams should be output to separate files for improved performance and ease of use with big files and streams.
-    #TODO: Extract Embedded files, similar to what needs to be done for streams 
+    #TODO: Extract Embedded files, similar to what needs to be done for streams
 
 
     ####### Parameters
     #Flag to process stream filters
     unfilterStreamFlag = "Y" #TODO: add this as an argument
     inputFile = arg1
+
+    # If file doesn't exist at given path, try relative to script directory
+    if not os.path.exists(inputFile):
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        alt_path = os.path.join(script_dir, inputFile)
+        if os.path.exists(alt_path):
+            inputFile = alt_path
     outputFile = inputFile + '.json' 
     ####################
     EMPTY = pdfparserconstants.EMPTY
@@ -100,6 +107,9 @@ def main(arg1):
 
 if __name__ == '__main__':
     #sys.exit(main(sys.argv[1:]))
+    if len(sys.argv) < 2:
+        print("Usage: python PdfREParser.py <path_to_pdf_file>")
+        sys.exit(1)
     inputFile = sys.argv[1]
     main(inputFile)
 

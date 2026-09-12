@@ -1,6 +1,6 @@
 ﻿from base64 import b85decode
 from cmath import isnan
-import pdfparserconstants
+from . import pdfparserconstants
 import zlib
 import base64
 

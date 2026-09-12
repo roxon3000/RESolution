@@ -1,7 +1,7 @@
 import os
-import re 
-from objectUtil import JObj
-import pdfparserconstants
+import re
+from .objectUtil import JObj
+from . import pdfparserconstants
 
 
 

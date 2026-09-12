@@ -1,4 +1,4 @@
-import objectUtil
+from . import objectUtil
 import re
 
 def processCID(obj, myDoc):
